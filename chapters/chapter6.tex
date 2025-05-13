@@ -1,0 +1,32 @@
+% ----------------------------------------------------------------------------------
+% ----------------------------------------------------------------------------------
+
+\chapter{Conclusion and Future Research}
+\label{chap:conclusion}
+%\vspace{-1.3cm}
+
+In this work, we have developed and analyzed an adjoint-based training framework for reduced-order models, formulated as an integral version of the classical Operator Inference problem.  By casting parameter learning as a trajectory matching optimization with exact gradient computation, the adjoint method offers several key advantages over finite-difference-based inference.  Our main conclusions are as follows:
+
+\begin{enumerate}[label=(\roman*)]
+  \item \textbf{Robustness to imperfect data.}  
+    The adjoint method consistently outperforms OpInf when the training snapshots are corrupted by noise. Because it minimizes a global loss over the entire time interval, it filters out spurious fluctuations and produces more reliable parameter estimates under noisy or incomplete measurements.
+
+  \item \textbf{Cost efficiency.}  
+    The adjoint-based training involves a forward and backward solve, its overall computational cost scales constantly with the number of parameters $d$, not the dimension of the full state. For very large or high-fidelity models, this constant cost per iteration is more favorable than intrusive projection methods whose cost grows linearly with the full dimension.
+
+  \item \textbf{Flexibility and extensibility.}  
+    The adjoint framework integrates seamlessly with a variety of time-integration schemes and loss functionals, and it can readily incorporate additional physics constraints or regularization terms. This modularity makes it a versatile tool for constructing physics-aware reduced models across diverse dynamical systems.
+\end{enumerate}
+
+Building on the foundations presented in this thesis, we identify several promising directions for further study:
+
+\begin{itemize}
+  \item \textbf{Automatic differentiation for gradient computation.}  
+    Replacing hand-derived adjoint equations with an 'autodiff' implementation could simplify the development of new reduced models and reduce implementation error.
+
+  \item \textbf{Computational cost-efficiency analysis.} Benchmark both the adjoint and OpInf methods across model sizes, parameter counts, and time horizons. 
+
+  \item \textbf{Extension to additional PDEs and boundary conditions.}  
+    Apply the adjoint method to other challenging systems, such as the Euler, Navier-Stokes equations, or to problems varying initial conditions (e.g.\ periodic boundary conditions) and multiphysics couplings, to further assess its generality and robustness.
+\end{itemize}
+  

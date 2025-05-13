@@ -1,0 +1,303 @@
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+% General configuration
+
+\usepackage{pdfpages}
+\usepackage[title,titletoc]{appendix}
+\usepackage{glossaries}
+
+\usepackage{caption}
+\usepackage{subcaption}
+
+\usepackage{tikz}
+\usepackage[most]{tcolorbox}
+
+\newtcbtheorem[auto counter]{Definition}{Definition}{
+	lower separated=false,
+	colback=white!80!gray,
+	colframe=white, fonttitle=\bfseries,
+	colbacktitle=white!50!gray,
+	coltitle=black,
+	enhanced,
+	boxed title style={colframe=black},
+	attach boxed title to top left={xshift=0.5cm,yshift=-2mm},
+}{def}
+
+
+\newtcbtheorem[auto counter]{Theorem}{Theorem}{%
+	lower separated=false,
+	colback=white,
+	colframe=black,fonttitle=\bfseries,
+	colbacktitle=black,
+	coltitle=white,
+	enhanced,
+	attach boxed title to top left={yshift=-0.1in,xshift=0.15in},
+	boxed title style={boxrule=0pt,colframe=white,},
+}{theo}
+
+%\usepackage[linesnumbered,ruled]{algorithm2e}
+\usepackage[ruled]{algorithm2e}
+
+% Using LU fonts (Adobe Garamond Pro and Frutiger) if we compile with XeLaTeX
+\usepackage{ifxetex}
+
+\ifxetex
+	\usepackage{fontspec}
+	\setmainfont{AGaramondPro-Regular.otf}[
+		Path = fonts/ ,
+		BoldFont = AGaramondPro-Bold.otf ,
+		ItalicFont = AGaramondPro-Italic.otf ,
+		BoldItalicFont = AGaramondPro-BoldItalic.otf ]
+	\setsansfont{FrutigerLTStd-Light.otf}[
+		Path = fonts/ ,
+		BoldFont = FrutigerLTStd-Roman.otf ,
+		ItalicFont = FrutigerLTStd-LightItalic.otf ,
+		BoldItalicFont = FrutigerLTStd-Italic.otf ]
+\else
+	\usepackage[latin1]{inputenc}
+	\usepackage[T1]{fontenc}
+	\usepackage{lmodern}
+\fi
+
+%%% BABEL %%%
+
+
+\ifswedish\usepackage[swedish]{babel}\fi
+\ifenglish\usepackage[english]{babel}\usepackage{csquotes}\fi
+\newcommand{\sen}{\on{sen}}	
+
+%%%%%%%%%%%%%
+
+\usepackage[math]{blindtext}
+\usepackage{xcolor}
+\usepackage{array,booktabs}
+\usepackage{tabularx,longtable,multicol,colortbl}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{mathrsfs}
+\usepackage{thmtools}
+\usepackage{bm}
+\usepackage{physics}
+\usepackage{enumitem}
+
+%\ifenglish
+%	\raggedright % Does not justify and does not divide words with hyphens
+%\fi
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+% Bibliography
+
+\usepackage[
+	url = true,
+	style = numeric,
+    sorting = nyt,
+	hyperref = true,
+	%backref = true,
+	%backend = biber, % Another option is 'backend = bibtex'
+	backend = biber,
+	]{biblatex}
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+% Colored links
+
+\usepackage{makeidx}
+\makeindex
+
+
+\ifAfour
+	\definecolor{LUblue}{RGB}{0,0,238}
+	\colorlet{linkColor}{LUblue}
+    %\colorlet{linkColor}{black}
+    \definecolor{LUgolden}{RGB}{156,97,20}
+\else 
+	\colorlet{linkColor}{black} 
+\fi
+
+\usepackage[
+	{colorlinks=true},
+	{linkcolor=linkColor},
+	{citecolor=linkColor},
+	{urlcolor=linkColor},
+	{bookmarksnumbered},
+	{breaklinks},
+	]{hyperref}
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+% Units according to the International System, currencies
+
+\usepackage{eurosym}
+\usepackage{siunitx}
+
+\ifenglish
+	\sisetup{output-decimal-marker={.}}
+\else
+	\sisetup{output-decimal-marker={,}}
+\fi
+
+\DeclareSIUnit[number-unit-product = {\;}] \EURO{\geneuro}
+
+% ---------------------------------------------------------------------
+% Custom commands and environments
+% ---------------------------------------------------------------------
+
+\usepackage{xspace}
+
+\newcommand{\matlabr}{{\sc Matlab}$^\circledR$\xspace}
+\newcommand{\simulinkr}{\textit{Simulink}$^\circledR$\xspace}
+\newcommand{\matlab}{{\textsc{Matlab}}\xspace}
+\newcommand{\simulink}{\textit{Simulink}\xspace}
+
+\newcommand{\scr}{\textit{script\/}\xspace}
+\newcommand{\scrs}{\textit{scripts\/}\xspace}
+
+% ------------------------------------------------------------------------
+
+\definecolor{mygrey}{rgb}{.925, .925, .925}
+
+
+
+\newsavebox{\mybox}
+\newenvironment{highlightedParagraph} % Highlighted paragraph
+		{%
+		\fboxsep = 2ex
+		\fboxrule = .4pt
+	  	\begin{lrbox}{\mybox}%
+	  	\begin{minipage}{.85\textwidth-2\fboxsep}\itshape\parskip=2ex
+		}
+		{%
+		\end{minipage}
+	  	\end{lrbox}%
+		\begin{flushright}
+			\colorbox{mygrey}{\usebox{\mybox}}%
+	  		%\fcolorbox{black}{mygrey}{\usebox{\mybox}}%
+		\end{flushright}
+		}
+
+  \newenvironment{highlightedParagraphC} % Highlighted paragraph
+		{%
+		\fboxsep = 2ex
+		\fboxrule = .4pt
+	  	\begin{lrbox}{\mybox}%
+	  	\begin{minipage}{\textwidth-2\fboxsep}\itshape\parskip=2ex
+		}
+		{%
+		\end{minipage}
+	  	\end{lrbox}%
+		\begin{center}
+			\colorbox{mygrey}{\usebox{\mybox}}%
+	  		%\fcolorbox{black}{mygrey}{\usebox{\mybox}}%
+		\end{center}
+		}
+		
+%	\newenvironment{highlightedParagraph} % If you don't like grey shading
+%		{
+%		\vspace{0ex}
+%		\begin{quote}\noindent
+%		\itshape
+%		\samepage
+%		\parskip=2ex
+%		%\color{NavyBlue}
+%		}
+%		{
+%		\end{quote}
+%		}
+
+
+% ------------------------------------------------------------------------
+% Chapter summary
+
+\newsavebox{\myboxb}
+\newenvironment{Summary}
+		{%
+		\vspace*{-2.0cm}
+		\fboxsep = 0pt
+		\fboxrule = 0pt
+	  	\begin{lrbox}{\myboxb}%
+	  	\begin{minipage}{.85\textwidth}\itshape\parskip=2ex\parindent=2em
+		}
+		{%
+		\end{minipage}
+	  	\end{lrbox}%
+		\begin{flushright}
+			\usebox{\myboxb}%
+		\end{flushright}
+		%\vspace{0.1cm}
+		}
+
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+% Math symbols
+
+\newcommand{\on}{\operatorname}
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+% Theorems and examples
+
+\ifswedish
+	\newtheorem{theorem}{\upshape\bfseries Sats}[section]
+	\newtheorem{lemma}{\mdseries\scshape Lemma}[section]
+	\newtheorem{proposition}{\upshape\bfseries Påstående}[section]
+	\newtheorem{example}{\bfseries\scshape Exempel}[section]
+\fi
+
+\ifenglish
+	\newtheorem{theorem}{\upshape\bfseries Theorem}[section]
+    \newtheorem{definition}[theorem]{\upshape\bfseries Definition}
+	\newtheorem{lemma}[theorem]{\mdseries\scshape Lemma}
+	\newtheorem{proposition}[theorem]{\upshape\bfseries Proposition}
+	\newtheorem{corollary}[theorem]{\upshape\bfseries Corollary}  % Corollary numbering follows Theorems
+	\newtheorem{example}[theorem]{\bfseries\scshape Example}
+	\newtheorem{remark}[theorem]{\itshape Remark}  % Italicized remark
+\fi
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+% listings
+%\usepackage{listings}
+
+%\lstdefinestyle{mystyle}{
+%    backgroundcolor=\color{backcolour},   
+%    commentstyle=\color{codegreen},
+%    keywordstyle=\color{magenta},
+%    numberstyle=\tiny\color{codegray},
+%    stringstyle=\color{codepurple},
+%    basicstyle=\ttfamily\footnotesize,
+%    breakatwhitespace=false,         
+%    breaklines=true,                 
+%    captionpos=b,                    
+%    keepspaces=true,                 
+%    numbers=left,                    
+%    numbersep=5pt,                  
+%    showspaces=false,                
+%    showstringspaces=false,
+%    showtabs=false,                  
+%    tabsize=2
+%}
+
+%\lstset{style=mystyle}
+
+\usepackage[newfloat]{minted}
+
+\setminted{
+    bgcolor=white, 
+    linenos, 
+    frame=lines, 
+    framesep=2mm, 
+    rulecolor=\color{gray}, 
+    fontsize=\footnotesize
+}
+
+% ---------------------------------------------------------------------
+% Used by me to correct the manuscript. // Viktor
+%\usepackage[commandnameprefix=always,commentmarkup=uwave,defaultcolor=orange]{changes}

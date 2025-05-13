@@ -1,0 +1,158 @@
+\chapter{$\vert$ \LaTeX~examples}
+\label{chap:appc}
+
+The following environments and tools were used to create this document:
+\begin{itemize}
+\item operating system: Mac OS X 10.14
+\item tex distribution: MacTeX-2014, \url{http://www.tug.org/mactex/}
+\item tex editor: Texmaker 5.0.2 for Mac, \url{http://www.xm1math.net/texmaker/} for its XeLaTeX flow (recommended) or pdfLaTeX flow
+\item bibtex editor: BibDesk 1.6.3 for Mac, \url{http://bibdesk.sourceforge.net/}
+\item fonts \texttt{cslthse-msc.cls} document class): 
+\begin{description}
+\item{for XeLaTeX}: TeX Gyre Termes, \textsf{TeX Gyre Heros}, \texttt{TeX Gyre Cursor} (installed from the TeXLive 2013)
+\item{for pdfLaTeX}: TeX Gyre font packages: tgtermes.sty, tgheros.sty, tgcursor.sty, gtxmath.sty (available through TeXLive 2013) 
+\end{description} 
+\item picture editor: OmniGraffle Professional 5.4.2
+\end{itemize}
+
+\noindent A list of the essential \LaTeX packages needed to compile this document follows (all except \texttt{hyperref} are included in the document class):
+\begin{itemize}
+\item \texttt{fontspec}, to access local fonts, needs the XeLaTeX flow
+\item \texttt{geometry}, for page layout
+\item \texttt{titling}, for formatting the title page
+\item \texttt{fancyhdr}, for custom headers and footers
+\item \texttt{abstract}, for customizing the abstract
+\item \texttt{titlesec}, for custom chapters, sections, etc.
+\item \texttt{caption}, for custom tables and figure captions
+\item \texttt{hyperref}, for producing PDF with hyperlinks
+\item \texttt{appendix}, for appendices
+\item \texttt{printlen}, for printing text sizes
+\item \texttt{textcomp}, for text companion fonts (e.g. bullet)
+\item \texttt{pdfpages}, to include the popular science summary page at the end
+\end{itemize}
+
+\noindent Other useful packages:
+\begin{itemize}
+\item \texttt{listings}, for producing code listings with syntax colouring and line numbers
+\end{itemize}
+
+
+\begin{highlightedParagraphC}
+ \begin{remark}
+     Real-time updating of the receive centrality is approximately a factor $N$ simpler than real-time updating of broadcast centrality for sparse networks.
+ \end{remark}
+\end{highlightedParagraphC}
+
+\begin{table}[ht]
+            \bigskip
+		\centering % used for centering table
+		\begin{tabular}{c c c c c} % centered columns (4 columns)
+			\hline\hline %inserts double horizontal lines
+			\textbf{Parameter} & \textbf{\#1} & \textbf{\#2} & \textbf{\#3} & \textbf{\#4} \\ [0.1ex] % inserts table
+			%heading
+			\hline\hline 
+			$\mathbf{\alpha}$ & 0.7 & 0.7 & 0.1 & -\\ % inserting body of the table
+			$\mathbf{\beta}$ & 0.1 & 0.01 & 0.1 & - \\ [0.5ex] % [1ex] adds vertical space
+			\hline %inserts single line
+		\end{tabular}
+		\caption{First synthetic experiment: Choice of the $\alpha,\beta$ parameters for the different experimental runs.} 
+       \label{table:parameters} 
+\end{table}
+
+\newpage
+
+\begin{figure}[htp!]
+     \centering
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{exp1_bt20a}
+         \caption{Broadcast for each of the 31 nodes, $\alpha = 0.7 ,~\beta = 0.1$}
+         \label{fig:bt1}
+     \end{subfigure}
+     %\hspace{0.1cm}
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{exp1_bt20b}
+         \caption{Broadcast for each of the 31 nodes, $\alpha = 0.7 ,~\beta = 0.01$}
+         \label{fig:bt2}
+     \end{subfigure}
+     
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{exp1_bt20c}
+         \caption{Broadcast for each of the 31 nodes, $\alpha = 0.1 ,~\beta = 0.1$}
+         \label{fig:bt3}
+     \end{subfigure}
+     %\hspace{0.1cm}
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{exp1_agg_out_degree}
+         \caption{Aggregate out degree for each node}
+         \label{fig:bt4}
+     \end{subfigure}
+        \caption{First synthetic experiment: results from the dynamic network in Fig. \ref{fig:exp1}.}
+        \label{fig:fourbt}
+\end{figure}
+
+\begin{figure}[h]\centering
+    \includegraphics[width=.65\textwidth]{experiment2}
+    \caption{Network structure for the second synthetic experiment. Links of $\mathbf{A}(t)$ are active over non-overlapping time intervals such that $t_i\coloneqq[(i − 1)\tau , (i − 1 + 0.9)\tau )$, for $i=0, 1, \dots , 7$, and $\tau =0.1$, repeated periodically over five cycles.}
+    \label{fig:exp2}
+    \bigskip
+\end{figure}
+
+\begin{figure}
+     \centering
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{exp2b_btA_vs_btB}
+         \caption{$\mathbf{b}(t)$ for $\alpha = 0.7 ,~\beta = 0.1$}
+         \label{fig:bt5}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.49\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{exp2a_btA_vs_btB}
+         \caption{$\mathbf{b}(t)$ for $\alpha = 0.9 ,~\beta = 0.1$}
+         \label{fig:bt6}
+     \end{subfigure}
+     \caption{Second synthetic experiment: dynamic broadcast centrality over time for node A (solid) and node B (dashed) in the network of Fig. \ref{fig:exp2}.}
+     \label{fig:twobt}
+\end{figure}
+
+{\small \begin{center}  
+        \begin{minipage}{0.95\textwidth}
+            \begin{algorithm}[H]
+                \SetAlgoLined
+                \textbf{Step 1. Start:} Choose $x_0$ and $m+p=$ Krylov dim. Initialize $\widetilde{H}_{m+p} =\textbf{0}$\;
+                \textbf{Step 2. Arnoldi iteration:} $r_0=b-Ax_0,~\beta = \|r_0\|_2,~ v_1 = r_0/\beta$\;
+                \For{$j = 1,2,\dots,m+p$}{
+                    \textbf{if~}$j\le m$ \textbf{ then } $z_j \coloneqq M_j^{-1}v_j$ \textbf{ else } $z_j \coloneqq M_j^{-1}w_{j-m}$\;
+                    $w\coloneqq Az_j$\;
+                    \For{$i=1,2,\dots, j$}{$h_{i,j}\coloneqq(w,v_i),~~w\coloneqq w -h_{i,j}v_i$}
+                    $h_{j+1,j}=\|w\|_2, ~~v_{j+1}=w/h_{j+1,j}$\;
+                }
+                $Z_{m+p}\coloneqq[z_1,\dots,z_{m+p}],~~\widetilde{H}_{m+p} = [h_{i,j}]_{1\le i \le j+1, 1\le j \le m + p}$\; 
+                \textbf{Step 3. Form approx. sol.:} Compute $y$ s.t. min. $\|\beta e_1 - \widetilde{H}_{m+p}y\|_2$\;
+                $x_m = x_0 + Z_{m+p}y$\;
+                \textbf{Step 4. Restart:} If satisfied Stop, else set $x_0\leftarrow x_m$ and goto Step 2.
+            \caption{FGMRES: GMRES with var. preconditioning}
+            \end{algorithm}
+        \end{minipage}
+    \end{center}
+    }
+
+\begin{table}[!htpb]
+    \centering
+    \begin{tabular}{llc}
+        \toprule
+        \textbf{Header 01} & \textbf{Header 02} & \textbf{Header 03} \\ 
+        \midrule
+        Lorem Ipsum         & Pharetra Dolor    & $\checkmark$  \\
+        Amet Consectetuer   & Curabitur Aliquet & -             \\
+        Praesent Mauris     & Praesent Libero   & $\checkmark$  \\
+        \bottomrule
+    \end{tabular}
+    \caption{A table showcasing the usage of the tabular environment.}
+    \label{tab:table-01}
+\end{table}

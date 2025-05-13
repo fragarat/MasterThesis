@@ -1,0 +1,261 @@
+% ---------------------------------------------------------------------
+%                        LATEX TEMPLATE FOR 
+%                    BACHELOR'S / MASTER'S / Ph.D 
+%                     THESIS AT LUND UNIVERSITY
+% ---------------------------------------------------------------------
+
+%%% Compiling with XeLaTeX -> LU fonts: Adobe Garamond Pro and Frutiger %%%
+
+%%% Compiling with PDFLaTeX -> Latin Modern fonts %%%
+
+\documentclass[a4, nocrop, rm, english]{luthesis}
+
+% LUTHESIS CLASS OPTIONS
+%
+% thesis      - Ph.D thesis, 17x24 cm
+% a4          - Master's or Bachelor's thesis, A4 format 21x29.7 cm
+% rm          - Roman typeface
+% sf          - Sans serif typeface
+% crop        - Crop marks (cross) 17x24 cm (+3 mm on all four corners) centered on an A4
+% nocrop      - No crop marks, respect size 
+% nomathskip  - The distances of the equations are not modified 
+% swedish     - The publication is written in Swedish
+% english     - The publication is written in English
+
+% ---------------------------------------------------------------------
+% Custom settings and bibliography file 'references.bib'
+
+\input{preamble}
+
+\bibliography{references}
+
+% ---------------------------------------------------------------------
+% Folders for graphics
+
+\graphicspath{
+	{../figures/}
+	{../logos/}
+	{./figures/}
+	{./logos/}
+}
+
+% ---------------------------------------------------------------------
+% Title and author are not really necessary since a pdf will be used as a cover later
+
+\title{
+	Thesis template example title made with \LaTeX\ \\[3ex]
+	\mdseries\large	July 2020
+}
+
+\author{
+	Francisco García Atienza
+}
+
+% ---------------------------------------------------------------------
+% Making index and glossary files
+
+%\makeindex
+
+%\makeglossaries
+%\input{chapters/glossary}
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+
+\begin{document}
+	
+	% -------------------------------------------------------
+	% Redefining cross references names according to language 
+	% or personal preferences, Bibliography->References, Appendix->Paper, etc.
+	
+	\input{cross_references}
+	
+	% -------------------------------------------------------
+	
+	\frontmatter
+	
+	% -------------------------------------------------------
+	% FRONT COVER 
+	
+	\includepdf{covers/mycover} 
+	\includepdf{covers/blank}
+	%\maketitle
+	
+	% TITLE / COPYRIGHT PAGE 
+	%\includepdf[pages=-]{covers/title} 
+	\includepdf[pages=-]{covers/contraportada}
+    \includepdf[pages=-]{covers/blank}
+	%\includepdf{logos/phdtitle}
+	%\cleardoublepage
+	% Start of page numbering
+	\setcounter{page}{1}
+	
+	% Special headers for abstract,ack and contents in A4 format
+	\ifAfour
+	\pagestyle{preamb}
+	\else
+	
+	\fi
+	
+	% -------------------------------------------------------
+	% ABSTRACT
+	
+	\cleardoublepage
+	\phantomsection
+	%%%\addcontentsline{toc}{chapter}{\abstractname}
+	
+	\input{chapters/abstract}
+
+    % -------------------------------------------------------
+	% POPULAR SCIENTIFIC SUMMARY
+	
+	%\cleardoublepage
+	\phantomsection
+	%%%\addcontentsline{toc}{chapter}{Popular scientific summary}
+	
+	\input{chapters/popular}
+	
+	% -------------------------------------------------------
+	% LIST OF PAPERS
+	
+	%\cleardoublepage
+	%\phantomsection
+	%\addcontentsline{toc}{chapter}{List of Papers}
+	
+	%\input{chapters/papers}
+	
+	% ------------------------------------------------------- 
+	% Glossary
+	
+	%\cleardoublepage
+	%\phantomsection
+	%\addcontentsline{toc}{chapter}{Glossary}
+	
+	%\printglossary
+	% Add the rest of entries if desired...
+	%\glsaddallunused
+	
+	% -------------------------------------------------------
+	% ACKNOWLEDGEMENTS, DEDICATION AND FAMOUS QUOTE
+	
+	%\cleardoublepage
+	%\phantomsection
+	%%%\addcontentsline{toc}{chapter}{Acknowledgements}
+	%\addcontentsline{toc}{chapter}{Tack}
+	
+    %\input{chapters/acknowledgements}
+	%\includepdf[pages=-]{covers/blank}
+	%\cleardoublepage
+	%\input{chapters/dedication}
+	%\cleardoublepage
+	%\input{chapters/quote}
+	
+	% -------------------------------------------------------
+	% TABLE OF CONTENTS
+	
+	%\cleardoublepage
+	\phantomsection
+	%\addcontentsline{toc}{chapter}{\contentsname}
+	
+	\ifAfour %%%% ONLY for A4 %%%%
+    \cleardoublepage
+	\tableofcontents
+	\cleardoublepage
+	\pagestyle{myfancy}
+	\else
+	\tableofcontents
+	\fi
+	
+	% -------------------------------------------------------
+	% MAINMATTER 
+	
+	\mainmatter
+	
+	% -------------------------------------------------------
+	% -------------------------------------------------------
+	% -------------------------------------------------------
+	% CHAPTERS
+	
+	\input{chapters/chapter1} % INTRODUCTION
+	
+	\input{chapters/chapter2} % PRELIMINARIES
+	
+	\input{chapters/chapter3}  % ADJOINT DERIVATION
+	
+	\input{chapters/chapter4} % NUMERICAL EXPERIMENTS
+
+    \input{chapters/chapter5} % DISCUSSION 
+	
+	\input{chapters/chapter6} % CONCLUSION
+	
+	% -------------------------------------------------------
+	% -------------------------------------------------------
+	% -------------------------------------------------------
+	% BIBLIOGRAPHY
+	
+	\bibitemsep = 2.2ex
+	\bibhang = 1.7em
+	
+	%%%\nocite{*} %includes ALL refs in the bibliographic database whether or not were cited in the text
+
+    \cleardoublepage
+    \pagestyle{plain}
+    %\renewcommand*{\bibfont}{\normalsize}
+    \renewcommand*{\bibfont}{\fontsize{10.7pt}{12pt}\selectfont}
+    \sloppy
+	
+	\printbibliography[heading=bibintoc,title=\bibname]
+	
+	% -------------------------------------------------------
+	% Appendices
+	
+	\cleardoublepage
+	%\pagenumbering{arabic}% resets `page` counter to 1
+	%\renewcommand*{\thepage}{A\arabic{page}}
+	
+	\begin{appendices}
+		\input{chapters/appendix_A}
+		\input{chapters/appendix_B}
+	\end{appendices}
+	
+	% ------------------------------------------------------- 
+	% LIST OF FIGURES
+	
+	%\cleardoublepage
+	%\phantomsection
+	%\addcontentsline{toc}{chapter}{List of Figures}
+	%\listoffigures
+	
+	% ------------------------------------------------------- 
+	% LIST OF TABLES
+	
+	%\cleardoublepage
+	%\phantomsection
+	%\addcontentsline{toc}{chapter}{List of Tables}
+	%\listoftables 
+	
+	% -------------------------------------------------------
+	
+	% Alphabetical index
+	
+	%\cleardoublepage
+	%\phantomsection
+	%\addcontentsline{toc}{chapter}{\indexname}
+	
+	%\printindex
+	
+	% -------------------------------------------------------
+	
+	%%% BACK COVER %%%
+	
+	\includepdf{covers/blank}
+	\includepdf[pages=-]{covers/backmastercover}
+	
+	% -------------------------------------------------------
+	% End of document
+	
+\end{document}
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------

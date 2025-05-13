@@ -1,0 +1,61 @@
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+
+\chapter[Introduction]{Introduction}
+\label{chap:intro}
+%\vspace{-1.3cm}
+
+Reduced-order modeling stands at the intersection of numerical analysis and data-driven scientific computing, offering powerful techniques for complexity reduction in dynamical systems. This thesis develops a novel approach for training robust reduced-order models (ROMs) through the integration of Operator Inference (OpInf) with the adjoint state method. By bridging classical numerical techniques with modern machine learning paradigms, we present a framework that enhances the stability and noise robustness of data-driven ROMs, crucial requirements for applications in computational physics and engineering.
+
+%\refstepcounter{section}
+%\section*{\thesection\quad Historical Background}
+
+\section{Historical Background}
+
+Reduced-order modeling (ROM) has a long history in numerical analysis and computational physics, originating as a method to simplify complex dynamical systems while preserving essential features. Early projection-based model reduction techniques can be traced back to balanced truncation and proper orthogonal decomposition (POD), which were widely applied in control theory and fluid dynamics \cite{benner2015survey,quarteroni2015reduced}. However, the idea of learning reduced-order models from data gained significant importance in the 21st century, particularly with the rise of data-driven techniques and novel machine learning approaches.
+
+A notable development in this direction is Operator Inference (OpInf), a method introduced to approximate reduced-order operators directly from time series data without requiring access to full-order system equations. This approach has been formalized as a nonintrusive projection-based model reduction technique, enabling efficient learning of low-dimensional models from high-fidelity simulations \cite{peherstorfer2016data}. More broadly, the integration of inverse problems and model reduction has been explored, demonstrating how physics-based models can be inferred from data while maintaining interpretability and physical consistency \cite{ghattas2021learning}.
+
+In recent years, the intersection of machine learning with computational modeling has led to novel frameworks such as Neural Ordinary Differential Equations \cite{chen2018neural}. These models offer a flexible way to learn continuous-time dynamics from data and have inspired new formulations for learning reduced-order representations of dynamical systems. A crucial aspect of training such models efficiently is the computation of gradients, which can be performed using the adjoint method, a classical approach in optimal control and PDE-constrained optimization \cite{Antil2018,bradley2024pde}.
+
+This thesis builds upon these advancements by training Operator Inference with adjoint methods. Specifically, it aims to reformulate the derivation of the adjoint problem within the integral form of OpInf. By doing so, this work seeks to develop robust reduced-order models that can effectively handle imperfect data.
+
+\section{Motivation of the Study}
+
+The increasing complexity of computational models in physics and engineering demands ROMs that maintain accuracy while achieving significant dimensionality reduction. Traditional OpInf methods, while effective for clean data scenarios, face fundamental limitations when dealing with real-world measurement data containing noise or incomplete observations, or when the underlying dynamics exhibit strong nonlinearities or complex dependencies that are difficult to represent using predefined operator forms. This challenge motivates our reformulation of the learning problem through an integral-based loss functional combined with adjoint-based optimization.
+
+Our approach specifically targets canonical model problems in computational physics such as viscous Burgers' equation modeling shock formation and the Fisher-KPP equation describing reaction-diffusion systems, where data imperfections may significantly impact ROM model performance. Unlike conventional OpInf that solves linear regression problems using potentially noisy derivative approximations, our method avoids explicit finite differentiation of the states by reformulating the problem using the integral form of the governing equations. This thesis investigates whether integrating learned dynamics over time can inherently attenuate measurement noise, acting as a kind of built-in low-pass filter, and thereby yield more stable and reliable reduced-order models.
+
+The key innovation lies in combining this integral formulation with adjoint state methods for efficient gradient computation. By deriving the adjoint equations directly for the integral form of OpInf, we enable gradient-based optimization of ROM parameters while maintaining numerical stability. This approach offers these principal advantages: 
+
+\begin{enumerate}[label=(\roman*)]
+  \item avoidance of numerical differentiation on potentially noisy and sparse state data,
+  \item inherent regularization through time integration, 
+  \item compatibility with modern differentiation frameworks (such as NODEs) that naturally capture complex, nonlinear relationships in the system dynamics.
+  \item computational efficiency and memory benefits, since it eliminates the need to store information for state derivatives, and, as we will show later, the cost of the adjoint method is constant with respect to the number of model parameters.
+\end{enumerate}
+
+ Together, these advantages lead to significantly more robust models, especially when working with imperfect data from experimental measurements and simulations.
+
+\newpage
+
+The main objectives of the present work are:
+\begin{itemize}
+    \item Derive and reformulate the adjoint problem in the context of OpInf's integral form, establishing theoretical foundations for gradient computation in integral-based ROM training.
+    \item Develop ROM frameworks that maintain numerical stability during time integration while demonstrating robustness to various data imperfections including additive noise and scarce data.
+\end{itemize}
+
+The remainder of this thesis is organized as follows:
+\begin{itemize}
+    \item Chapter 2 introduces the Operator Inference, a data-driven, non-intrusive ROM, which constitutes the basis for the learning procedure in our proposed approach.
+    \item Chapter 3 provides a detailed derivation of the adjoint method equations used to minimize the integral-form loss functional in our OpInf framework.
+    \item Chapter 4 presents numerical experiments validating the proposed method.
+    \item Chapters 5 and 6 discuss the implications of our results, draw conclusions, and outline potential future research directions.
+\end{itemize}
+
+
+
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------

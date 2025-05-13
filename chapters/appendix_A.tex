@@ -1,0 +1,97 @@
+\begin{center}
+    \thispagestyle{empty}
+        
+    \vspace*{\fill}
+    
+        {\LARGE\fontsize{26}{26}\selectfont\textcolor{black}{Appendices}\par}
+        
+    \vspace*{\fill}
+\end{center}
+
+\newpage
+
+
+\chapter{$\vert$ Additional Theoretical Background}
+\label{chap:appa}
+
+%% Matricization of Tensors (Appendix)
+
+\section*{Matricization of Tensors}
+\label{sec:tensor_matricization}
+
+%\subsection*{Tensor Matricization}
+
+In reduced-order models, the nonlinear operator\\
+$$\mathcal{H}:\;\mathbb{R}^r\times\mathbb{R}^r\to\mathbb{R}^r$$
+that produces the quadratic contribution\\
+$$\bigl[\mathcal{H}(\hat{\mathbf{q}}(t),\hat{\mathbf{q}}(t))\bigr]_i
+=\sum_{j=1}^r\sum_{k=1}^r H_{i,j,k}\,\hat{q}_j(t)\,\hat{q}_k(t),$$
+can be seen as a third-order tensor $\mathcal{H}\in\mathbb{R}^{r\times r\times r}$.  To compute this efficiently we \emph{matricize} the tensor into a matrix acting on the Kronecker product $\hat{\mathbf{q}}(t)\otimes\hat{\mathbf{q}}(t)\in\mathbb{R}^{r^2}$ \cite{kolda2009tensor}.  
+
+The \emph{mode-1} unfolding (matricization) $H_{(1)}\in\mathbb{R}^{r\times r^2}$ of $\mathcal{H}$ is defined such that\\
+$$
+H_{(1)}\,\bigl(\hat{\mathbf{q}}(t)\otimes\hat{\mathbf{q}}(t)\bigr)
+= \left[\sum_{j,k}H_{1,j,k}\hat{q}_j\hat{q}_k,\dots,\sum_{j,k}H_{r,j,k}\hat{q}_j\hat{q}_k\right]^T
+= \mathcal{H}\bigl(\hat{\mathbf{q}}(t),\hat{\mathbf{q}}(t)\bigr).
+$$
+Concretely, if we flatten $\hat{\mathbf{q}}(t)$ into a length-$r^2$ vector by stacking its entries in column-major order, then
+$$
+[H_{(1)}]_{i,\, (j-1)\,r + k} = H_{i,j,k},
+$$
+and
+$$
+\mathcal{H}(\hat{\mathbf{q}},\hat{\mathbf{q}}) = H_{(1)}\,\mathrm{vec}(\hat{\mathbf{q}}\,\hat{\mathbf{q}}^T) = \hat{\mathbf{H}}(\hat{\mathbf{q}}\otimes\hat{\mathbf{q}}).$$
+
+\subsection*{Example: Burgers' Equation}
+Consider the 1D viscous Burgers' equation:\\
+$$\frac{\partial \mathbf{q}}{\partial t} + \mathbf{q}\frac{\partial \mathbf{q}}{\partial x} = \nu \frac{\partial^2 \mathbf{q}}{\partial x^2}.$$
+Then, the full-order viscous Burgers’ convective term yields\\
+$$\mathbf{N}(\mathbf{q}) \;=\; -\,\mathbf{q}\;\circ\;\bigl(\mathbf{D}_x\,\mathbf{q}\bigr)
+\quad\in\;\mathbb{R}^n,$$
+where $\circ$ is the Hadamard (entrywise) product and $\mathbf{D}_x\in\mathbb{R}^{n\times n}$ is the finite-difference matrix for $\partial_x$. After POD projection, we write the reduced ansatz as\\$$\mathbf{q}(t)\approx \Phi\,\hat{\mathbf{q}}(t),\quad \Phi\in\mathbb{R}^{n\times r},\;\hat{\mathbf{q}}\in\mathbb{R}^r.$$ Inserting into $\mathbf{N}$ and projecting onto the basis\\$$\Phi^T\,\mathbf{N}(\Phi\,\hat{\mathbf{q}})\;=\;
+    -\,\Phi^T \Bigl[\,( \Phi\,\hat{\mathbf{q}})\,\circ\,(\mathbf{D}_x\,\Phi\,\hat{\mathbf{q}})\Bigr].$$
+This can be expressed as a bilinear form using the identity $\displaystyle (a\circ b)_\ell = \sum_{j,k}\delta_{\ell j}\,a_j\,\delta_{\ell k}\,b_k$. Then, it can be shown that\\$$\bigl[\Phi^T(\Phi\,\hat q\circ D_x\Phi\,\hat q)\bigr]_i
+    \;=\;
+    \sum_{j=1}^r\sum_{k=1}^r
+      \underbrace{\sum_{\ell=1}^n \Phi_{\ell,i}\,\Phi_{\ell,j}\,[D_x\,\Phi]_{\ell,k}}_{\,\mathcal{H}_{i,j,k}\,}
+    \;\hat q_j\;\hat q_k.$$
+  Thus the coefficients\\
+  $$\mathcal{H}_{i,j,k}
+    \;=\;
+    -\,\sum_{\ell=1}^n \Phi_{\ell,i}\,\Phi_{\ell,j}\,[D_x\,\Phi]_{\ell,k},
+    \quad
+    i,j,k=1,\dots,r,$$
+  define a third-order tensor $\mathcal{H}\in\mathbb{R}^{r\times r\times r}$. Mode-1 unfolding (matricization) gives the corresponding matrix
+  $H_{(1)}\in\mathbb{R}^{r\times r^2}$ with entries\\
+  $$[H_{(1)}]_{\,i,\,(j-1)\,r + k}
+    \;=\;
+    \mathcal{H}_{i,j,k},
+    \quad
+    1\le i,j,k\le r,$$
+  so that\\
+  $$\Phi^T\,\mathbf{N}(\Phi\,\hat{\mathbf{q}})
+    \;=\;
+    H_{(1)}\;\bigl(\hat{\mathbf{q}}\otimes\hat{\mathbf{q}}\bigr)
+    \;=\;
+    \hat{\mathbf{H}}\;(\hat{\mathbf{q}}\otimes\hat{\mathbf{q}}).$$
+Here $\hat{\mathbf{H}} \in \mathbb{R}^{r \times r^2}$ encodes the projected nonlinear interactions. This matricized form enables efficient computation of $\hat{\mathbf{H}}$ during operator inference while preserving the cubic nonlinear structure.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Cubic Spline Interpolation}
+\label{sec:cubic_interp}
+Cubic splines are piecewise polynomial functions that ensure smoothness and continuity up to the second derivative at the data points. Given $ N $ points $ \{ (t_i, u_i) \}_{i=1}^N $, the cubic spline $S(t)$ is defined piecewise as:\\
+$$S(t) = S_i(t), \quad t \in [t_i, t_{i+1}]$$
+where each $S_i(t)$ is a cubic polynomial:\\
+$$ S_i(t) = a_i + b_i (t - t_i) + c_i (t - t_i)^2 + d_i (t - t_i)^3.$$
+The coefficients $ a_i, b_i, c_i, d_i $ are determined by the following conditions:
+\begin{itemize}
+    \item Interpolation condition: $S_i(t_i) = u_i$ and $S_i(t_{i+1}) = u_{i+1}$,
+    \item Continuity of the first and second derivatives at internal nodes:\\
+    $$S_i'(t_{i+1}) = S_{i+1}'(t_{i+1}), \quad S_i''(t_{i+1}) = S_{i+1}''(t_{i+1}),$$
+    \item Boundary conditions: either \textit{natural} spline ($S_1''(t_1) = 0$ and $S_{N-1}''(t_N) = 0$) or \textit{clamped} spline (prescribed first derivatives at endpoints).
+\end{itemize}
+Cubic splines ensure smoothness and provide a natural interpolation that avoids oscillations seen in high-degree polynomial interpolation \cite{de1978practical}. The smoothness and continuity conditions imposed by cubic splines, specifically, the existence of continuous first and second derivatives, are essential for the application of the adjoint method (Section \ref{sec:adjoint_eqs}). The adjoint method requires the interpolated trajectory $\hat{\mathbf{q}}(t)$ to be at least $\mathcal{C}^1$-smooth to ensure well-posedness of the adjoint equations and accurate gradient computation. Cubic splines satisfy this requirement, as their $\mathcal{C}^2$ continuity guarantees that $\hat{\mathbf{q}}(t)$ is twice differentiable across the entire domain $\mathcal{T}$. This avoids numerical instabilities that could arise from discontinuous derivatives when solving the backward-in-time adjoint system. By enforcing derivative continuity at nodes, cubic splines preserve the structure needed for the chain rule in \eqref{eq:l_gradient}, enabling efficient gradient-based optimization of the continuous-time loss functional \eqref{eq:continuous_loss}.
+
+
+
+

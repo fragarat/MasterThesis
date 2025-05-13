@@ -1,0 +1,32 @@
+% ----------------------------------------------------------------------------------
+% ----------------------------------------------------------------------------------
+
+\chapter{Discussion}
+\label{chap:discussion}
+\vspace{-1.3cm}
+
+In this thesis we have investigated the use of adjoint-based training for ROMs and compared it to the classical OpInf approach. Our experiments focused on two main aspects: the influence of training data density and robustness to noisy or imperfect data.
+
+A key finding is that reducing the density of snapshot data had minimal effect on the comparative performance of the two methods. When the number of training snapshots was varied, both OpInf and the adjoint-trained models exhibited largely similar behavior. Neither method showed a clear advantage as the snapshots diminished, and the prediction errors remained comparable across the tested densities. This suggests that, for the systems considered in this thesis, a moderate reduction in training data did not remove critical information. Noticeable results begin to be seen for extreme reductions such as the one for 0.2 \% (only 20 data points). This observation implies that both the adjoint and OpInf methods require, in the absence of noise, a similar baseline number of snapshots to accurately identify dominant dynamics, allowing safe sub-sampling in large datasets.
+
+%%%%%%
+
+In contrast to data density, the experiments with noisy or imperfect data revealed a notable difference between the two methods. The adjoint-based training showed a clear advantage in robustness. Across all levels of added noise, the adjoint-trained ROMs consistently maintained lower prediction error and lower relative error than the OpInf models. As the noise in the training data increased, the performance of the classical OpInf method degraded more than the adjoint model. This means that, under the same noisy conditions, the adjoint method produced more reliable predictions. One reason for this robustness is that the adjoint method adjusts the model parameters by directly minimizing a loss that accounts for the entire trajectory. Because it backpropagates the error through the temporal dynamics, it tends to filter out spurious fluctuations that arise from noise in individual snapshots. In effect, the optimization aligns the reduced model to fit the overall system behavior rather than each noisy data point exactly. In contrast, the classical OpInf approach solves a static least-squares problem on the snapshot data. Noise in the data can distort this regression, causing the inferred coefficients to become biased by the noise and leading to poorer predictions. The practical implication is that the adjoint method is well-suited to situations where the available data is imperfect, such as measurements from experiments or truncated simulations. In these cases, its resilience means that one can trust the reduced model to generalize better, whereas the OpInf model might require extra care (e.g., denoising or stronger regularization) to avoid overfitting the noise. This advantage of adjoint training is especially important in real-world applications with noisy or uncertain data, where obtaining perfectly clean snapshots may be difficult.
+
+%%%%%%
+
+From the computational cost point of view, the adjoint method adds minimal overhead since it scales constantly with the number of parameters $\hat{\bm{\theta}}\in\mathbb{R}^d$ (only two ODEs need to be solved independently of $d$), unlike intrusive approaches which scale linearly.
+
+%%%%%%
+
+Finally, it is worth highlighting the dependence on a good initial guess for the GD-based optimization process used in the adjoint training, which in turn depends on an optimal solution of the OpInf method. The classical OpInf method is sensitive to the stability and conditioning of its underlying regression problem. Three key factors emerged as significantly influencing this stability:
+\begin{enumerate}[label=(\roman*)]
+  \item First, the {\it polynomial structure of the lifted data and preprocessing} is crucial. OpInf learns coefficients for a chosen set of polynomial basis terms of the reduced state. If too many high-degree terms are included, or if the features are poorly scaled, the regression matrix can become ill-conditioned.
+  \item Second, the {\it selection of the POD basis} $\mathbf{V}_r$ is a critical factor. If this basis fails to capture the important modes of the full system, the inferred operators will be inaccurate or even unidentifiable. Conversely, choosing $r$ too large relative to the data can amplify noise and make the inference ill-conditioned. Thus, one must balance the basis dimension: too few modes will omit key dynamics, while too many can destabilize the regression. 
+  \item Third, the {\it use of regularization} is often necessary to combat ill-conditioning. Without regularization, small singular values in the regression can cause the solution to have excessively large or oscillatory coefficients that overfit the noise. By adding a regularization penalty term (e.g., $L^2$, Tikhonov, ...), one can stabilize the inversion and ensure that the learned operators remain bounded. In our experiments, introducing a modest amount of regularization improved the robustness of OpInf, at the cost of a small bias. This trade-off is generally worthwhile to obtain a stable model.
+\end{enumerate}
+
+%%%%%%
+
+In summary, our findings indicate that both OpInf and the adjoint-based method can learn effective reduced-order models, but their strengths differ under various conditions. Simply reducing the snapshot density did not significantly distinguish the two methods, as both performed comparably with varied data amounts. However, the adjoint method proved to be far more robust when the training data were noisy or imperfect. Together, these insights can guide the practical selection of ROM training methods. When data quality is uncertain or the highest accuracy is needed, the resilience of the adjoint method makes it a strong candidate, whereas when data are abundant, clean, the classical OpInf approach may suffice. 
+

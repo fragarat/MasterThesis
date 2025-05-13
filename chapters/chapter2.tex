@@ -1,0 +1,160 @@
+\chapter{Preliminaries}
+\label{chap:preliminar}
+%\vspace{-1.3cm}
+
+In this chapter, we introduce the main concepts and mathematical tools that support the development of the reduced-order models presented in this thesis. We begin with an overview of projection-based ROMs \cite{quarteroni2015reduced}, highlighting the role of the Proper Orthogonal Decomposition (POD) \cite{berkooz1993proper} as a tool for extracting dominant modes from high-fidelity datasets. We then discuss the theoretical foundation of Operator Inference \cite{opinf2025}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ROMs %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Model Order Reduction}
+\label{sec:roms}
+
+A major challenge in many applied mathematical problems, particularly those governed by partial differential equations, lies in balancing computational tractability with an accurate representation of the underlying physical phenomena. For many applications in numerical analysis and computational physics, the dimension \(n\) is extremely large, rendering direct simulations computationally expensive or prohibitive. The goal of model reduction is to construct a surrogate model (or \textit{reduced-order model} - ROM) that accurately approximates the dynamics in a much lower-dimensional subspace through projection techniques.
+
+%%%
+
+Consider a high-dimensional \textit{full-order model} (FOM) governed by a system of time-dependent evolution equations:\\
+\begin{equation}
+    \dv{}{t}\mathbf{q}(t) = \mathbf{f}(t, \mathbf{q}(t), \mathbf{u}(t)), \quad t\in[0,T],
+    \label{eq:fom}
+\end{equation}
+where $\mathbf{q}(t) \in \mathbb{R}^n$ represents the state vector of a complex system at time $t$, $\mathbf{u}(t) \in \mathbb{R}^m$ denotes the input signals or forcing terms, and the function $\mathbf{f}: \mathbb{R} \times \mathbb{R}^n \times \mathbb{R}^m \to \mathbb{R}^n$ defines the (possibly nonlinear) dynamics derived from a spatial discretization of the governing equations (most often PDEs).
+
+To fix ideas, in this thesis we will focus on the common case where the full-order dynamics admit a quadratic operator structure.  In other words, we assume that the right-hand side of \eqref{eq:fom} can be written as\\
+\begin{equation}
+  \label{eq:fompoly}
+  \dot{\mathbf{q}}(t)
+  = \mathbf{f}\bigl(t,\mathbf{q}(t),\mathbf{u}(t)\bigr)
+  = \mathbf{c}
+    + \mathbf{A}\,\mathbf{q}(t)
+    + \mathbf{H}\bigl[\mathbf{q}(t)\otimes\mathbf{q}(t)\bigr]
+    + \mathbf{B}\,\mathbf{u}(t),
+\end{equation}
+where $\mathbf{c}\in\mathbb{R}^n$ is a constant vector, $\mathbf{A}\in\mathbb{R}^{n\times n}$ and $\mathbf{B}\in\mathbb{R}^{n\times m}$ are linear operators, and $\mathbf{H}\in\mathbb{R}^{n\times n^2}$ captures the quadratic interactions through the tensor product $\mathbf{q}(t) \otimes \mathbf{q}(t)$ (see Appendix \ref{sec:tensor_matricization} - Matricization of tensors).
+
+%%%
+
+The ROM seeks an accurate approximation of the FOM solution by restricting the dynamics to a reduced subspace:\\
+\begin{equation}
+    \mathbf{q}(t) \approx \mathbf{V}_r\hat{\mathbf{q}}(t), \quad \mathbf{V}_r \in \mathbb{R}^{n \times r},~\hat{\mathbf{q}}\in \mathbb{R}^{r},\quad r \ll n,
+    \label{eq:subspace}
+\end{equation}
+where the columns of $\mathbf{V}_r$ form a reduced basis spanning the low-dimensional subspace.
+
+A common approach for constructing the reduced basis is the proper orthogonal decomposition. Given a collection of $k$ solution snapshots of \eqref{eq:fom}, i.e.,\\$$\dv{}{t}\mathbf{q}(t)\bigg\rvert_{t=t_i}=\mathbf{f}(t_i,\mathbf{q}(t_i),\mathbf{u}(t_i))$$ at some time points $t_i$ for $i=1,\dots,k$, we define the \textit{state snapshot matrix} $\mathbf{Q}$ as\\
+\begin{equation}
+    %\mathbf{Q} = \left[\mathbf{q}^1 \ \cdots \ \mathbf{q}^k\right] \in \mathbb{R}^{n \times k}.
+    \mathbf{Q} = \begin{bmatrix}
+                    | & | & & | \\
+                    \mathbf{q}(t_1) & \mathbf{q}(t_2) & \cdots & \mathbf{q}(t_{k}) \\
+                    | & | & & |
+                 \end{bmatrix}.
+    \label{eq:snapshot_matrix}
+\end{equation}
+Then, the (orthonormal) POD basis $\mathbf{V}_r \in \mathbb{R}^{n \times r}$ is obtained by minimizing the reconstruction error in a $L^2$ sense:\\
+\begin{equation}
+\begin{aligned}
+    \mathbf{V}_r = \underset{\mathbf{W} \in \mathbb{R}^{n \times r}}{\text{argmin}} \quad & \sum_{i=1}^k \left\|\mathbf{q}(t_i) - \mathbf{W}\mathbf{W}^\top\mathbf{q}(t_i)\right\|_2^2 \\
+    \text{s.t.} \quad & \mathbf{W}^\top\mathbf{W} = \mathbf{I} \quad \text{(Galerkin condition)}.
+\end{aligned}
+\label{eq:pod_opt}
+\end{equation}
+This formulation is equivalent to computing a rank-$r$ truncated singular value decomposition (SVD) of the state snapshot matrix $\mathbf{Q}$,\\
+$$\mathbf{Q} = \bm{\Phi}\bm{\Sigma}\bm{\Psi}^\top,$$
+where the POD basis vectors are given by the first $r$ columns of $\bm{\Phi}$:\\
+\begin{equation}
+    \mathbf{V}_r = \bm{\Phi}_{:,1:r}.
+\end{equation}
+The selection of the truncation dimension $r$ is typically based on the relative energy content of the singular values (cumulative energy, $\kappa_r$):\\
+\begin{equation}
+    \kappa_r=\dfrac{\displaystyle\sum_{i=1}^r \sigma_i^2}{\displaystyle\sum_{i=1}^k \sigma_i^2} \geq 1 - \epsilon_{\text{POD}},
+    \label{eq:pod_trunc}
+\end{equation}
+where $\epsilon_{\text{POD}} > 0$ is a prescribed tolerance and $\sigma_i$ denotes the $i$th singular value of $\mathbf{Q}$. The optimality of the POD basis is characterized by the projection error:\\
+\begin{equation}
+    \mathbb{E}\left[\left\|\mathbf{q} - \mathbf{V}_r^{}\mathbf{V}_r^\top\mathbf{q}\right\|_2^2\right] = \sum_{i=r+1}^k \sigma_i^2,
+    \label{eq:pod_error}
+\end{equation}
+which is minimized among all rank-$r$ orthonormal bases.
+
+The projection of the full-order solution onto the subspace spanned by $\mathbf{V}_r$ provides a reduced representation that captures the most energetic modes of the system, resulting in what is known as the \textit{reduced dynamics system}\\
+\begin{equation}
+    \dot{\hat{\mathbf{q}}}(t) = \mathbf{V}_r^{\top}\mathbf{V}_r^{}\dot{\hat{\mathbf{q}}}(t) = \mathbf{V}_r^{\top}\dot{\mathbf{q}}(t)  = \mathbf{V}_r^{\top}\mathbf{f}(t, \mathbf{V}_r\hat{\mathbf{q}}(t), \mathbf{u}(t)).
+    % = \hat{\mathbf{f}}((t, \hat{{\mathbf{q}}}(t), \mathbf{u}(t)))
+    \label{eq:reduced_system}
+\end{equation}
+
+This POD-based approach yields an efficient surrogate model by projecting the dynamics of the full-order model onto a significantly lower-dimensional subspace. As a result, it enables faster simulations and analysis while retaining the essential physical characteristics of the original system. This technique is particularly interesting in non-intrusive settings, where direct access to the underlying high-dimensional operators is unavailable. Instead of relying on these operators, the model reduction process leverages only the available data, such as state snapshots, making it suitable for black-box solvers or experimental measurements.
+
+Further insight into projection techniques and practical implementation aspects of POD-based ROMs can be found in \cite{opinf2025}.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% OPERATOR INFERENCE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Operator Inference}
+\label{sec:operator_inference}
+
+% Data-driven, Non-intrusive, Projection-based ROMs. Operator Inference.
+
+Operator Inference (OpInf) is a data-driven model reduction methodology that combines key aspects of projection-based model reduction with data-driven learning techniques \cite{kramer2024learning,peherstorfer2016data}. This approach enables the construction of computationally efficient reduced-order models while maintaining physical interpretability through the preservation of the governing equations' structure.
+
+\subsection*{Methodology Overview}
+The fundamental concept of OpInf lies in inferring the operators of a reduced-order model through a learning process that leverages both high-fidelity simulation data and the underlying structure of the governing equations. The method operates through three principal stages:
+
+\begin{enumerate}
+    \item \textbf{Data Collection}: Gather solution snapshots $\{ \mathbf{q}(t_i) \}_{i=1}^{k}$ and corresponding inputs from high-fidelity numerical simulations of the full-order model.
+    
+    \item \textbf{State Projection}: Employ dimensionality reduction techniques, such as proper orthogonal decomposition, to identify a low-dimensional subspace capturing the essential dynamics. This projects the high-dimensional state $\mathbf{q}(t) \in \mathbb{R}^n$ to a reduced state $\hat{\mathbf{q}}(t) \in \mathbb{R}^r$ where $r \ll n$.
+    
+    \item \textbf{Operator Inference}: Determine the reduced-order operators through a least-squares optimization that enforces the learned model to align with both the projected data and the structure of the governing equations.
+\end{enumerate}
+
+\subsection*{Mathematical Formulation}
+Consider the high-dimensional system in \eqref{eq:fom}. The classical Galerkin projection-based ROM for this equation is obtained by substituting $\mathbf{q}(t)$ by its low-dimensional approximation $\mathbf{V}_r\hat{\mathbf{q}}(t)$. Then the Galerkin ROM yields the expression \eqref{eq:reduced_system}. Expanding the dynamics in polynomial form, we have\\
+\begin{align*}
+    \dot{\hat{\mathbf{q}}}(t) &= \mathbf{V}_r^{\top}\mathbf{f}(t, \mathbf{V}_r\hat{\mathbf{q}}(t), \mathbf{u}(t))\\
+    &= \mathbf{V}_r^{\top}\left( \mathbf{c} + \mathbf{A}\mathbf{V}_r\hat{\mathbf{q}}(t) + \mathbf{H}\bigl[(\mathbf{V}_r\hat{\mathbf{q}}(t)) \otimes (\mathbf{V}_r\hat{\mathbf{q}}(t))\bigr] + \mathbf{B}\mathbf{u}(t) \right).
+\end{align*}
+Since $\mathbf{V}_r^{\top}\mathbf{V}_r^{} = \mathbf{I}$ and using the property $(\mathbf{XY})\otimes(\mathbf{ZW})=(\mathbf{X}\otimes\mathbf{Z})(\mathbf{Y}\otimes\mathbf{W})$, the above expression can be simplified to\\
+\begin{align}
+    \dot{\hat{\mathbf{q}}}(t) = \mathbf{V}_r^{\top}\mathbf{f}(t, \mathbf{V}_r\hat{\mathbf{q}}(t), \mathbf{u}(t)) &= \hat{\mathbf{c}} + \hat{\mathbf{A}}\hat{\mathbf{q}}(t) + \hat{\mathbf{H}}\bigl[ \hat{\mathbf{q}}(t)\otimes\hat{\mathbf{q}}(t)\bigr] + \hat{\mathbf{B}}\mathbf{u}(t),\notag \\
+    &= \hat{\mathbf{f}}(t, \hat{\mathbf{q}}(t),\mathbf{u}(t);\bm{\hat{\theta}})
+    \label{eq:redopinf}
+\end{align}
+where the \textit{reduced order operators} are defined as\\$$\mathbb{R}^r \ni\hat{\mathbf{c}}=\mathbf{V}_r^{\top}\mathbf{c},~~\mathbb{R}^{r\times r} \ni\hat{\mathbf{A}}=\mathbf{V}_r^{\top}\mathbf{A}\mathbf{V}_r^{},~~\mathbb{R}^{r\times r^2} \ni\hat{\mathbf{H}}=\mathbf{V}_r^{\top}\mathbf{H(\mathbf{V}_r^{}\otimes\mathbf{V}_r^{\top})},~~\mathbb{R}^{r\times m} \ni\hat{\mathbf{B}}=\mathbf{V}_r^{\top}\mathbf{B},$$ $\bm{\hat{\theta}}=\bigl[ \hat{\mathbf{c}}~\hat{\mathbf{A}}~\hat{\mathbf{H}}~\hat{\mathbf{B}} \bigr] \in\bm{\hat{\Theta}}$ denotes the collection of parameters where $\bm{\hat{\Theta}}\in\mathbb{R}^{r\times (1+r+r^2+m)}$ is the possible parameter space, and $\hat{\mathbf{f}}$ is the right-hand side of the reduced model. Thus, the projection-based Galerkin ROM preserves the same polynomial structure as $\mathbf{f}$ \eqref{eq:fompoly}.
+
+Once state and input data have been collected and projected onto a lower-dimensional space, OpInf requires the computation of the time derivatives of the snapshot states. Typically, these derivatives are approximated using finite difference schemes and then projected by\\
+$$\dot{\hat{\mathbf{q}}}(t) \approx \mathbf{V}_r^{\top}\dot{\mathbf{q}}(t).$$
+Next, a discrete training loss is defined as\\
+\begin{align}
+    \ell(\hat{\bm{\theta}}) &= \sum_{i=1}^{k} \left\| \hat{\mathbf{f}}(t_i, \hat{\mathbf{q}}(t_i), \mathbf{u}(t_i)) - \dot{\hat{\mathbf{q}}}(t_i) \right\|_2^2 \notag \\
+    &= \sum_{i=1}^{k} \left\| \left[ \hat{\mathbf{c}} + \hat{\mathbf{A}}\hat{\mathbf{q}}(t_i) + \hat{\mathbf{H}}\bigl[ \hat{\mathbf{q}}(t_i) \otimes \hat{\mathbf{q}}(t_i) \bigr] + \hat{\mathbf{B}}\mathbf{u}(t_i) \right] - \dot{\hat{\mathbf{q}}}(t_i) \right\|_2^2,
+    \label{loss_opinf}
+\end{align}
+where the reduced operators $\hat{\mathbf{c}}$, $\hat{\mathbf{A}}$, $\hat{\mathbf{H}}$, and $\hat{\mathbf{B}}$ are to be determined.
+
+Finally, OpInf identifies the reduced operators by solving the following least-squares problem (i.e., linear regression with respect to \(\hat{\bm{\theta}}\)) to minimize the training loss:\\
+\begin{equation}
+    \min_{\hat{\bm{\theta}} \in \hat{\bm{\Theta}}} \sum_{i=1}^{k} \left\| \left[ \hat{\mathbf{c}} + \hat{\mathbf{A}}\hat{\mathbf{q}}(t_i) + \hat{\mathbf{H}}\bigl[ \hat{\mathbf{q}}(t_i) \otimes \hat{\mathbf{q}}(t_i) \bigr] + \hat{\mathbf{B}}\mathbf{u}(t_i) \right] - \dot{\hat{\mathbf{q}}}(t_i) \right\|_2^2.
+    \label{eq:lst_opinf}
+\end{equation}
+
+In practice, it is common to include a regularization term to the training loss, $\mathcal{R}(\hat{\bm{\theta}})$, which penalizes the magnitude of the entries of the learned operators. This regularization improves the conditioning of the learning problem. For further details and numerical implementations, readers may refer to the online resource \cite{opinf2025} and the seminal work by Peherstorfer and Willcox \cite{peherstorfer2016data}.
+
+\subsection*{Advantages and Applications}
+Operator Inference offers several distinct advantages over traditional model reduction approaches:
+\begin{itemize}
+    \item \textbf{Non-intrusive}: Requires only solution snapshots rather than explicit access to full-order model operators
+    \item \textbf{Physics-aware}: Preserves the structure of governing equations through polynomial operator parametrization
+    \item \textbf{Computationally efficient}: Avoids expensive high-dimensional operations through dimensionality reduction
+\end{itemize}
+
+This methodology has been successfully applied to various complex dynamical systems including fluid flows, thermal systems, and structural dynamics \cite{ghattas2021learning,rowley2017model}. The combination of data-driven learning with physics-based constraints makes Operator Inference particularly effective for systems where traditional projection-based methods become computationally prohibitive or where full-order model operators are not explicitly available. Despite these strengths, a key limitation of OpInf is the reliance on accurate computation of time derivatives from data, which can be significantly compromised when the available data is imperfect or noisy. In the next chapter, we introduce a novel approach designed to overcome this challenge, thereby enhancing the robustness and accuracy of the inferred reduced operators.
+

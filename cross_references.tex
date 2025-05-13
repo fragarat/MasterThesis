@@ -1,0 +1,25 @@
+% ---------------------------------------------------------------------
+% Custom Cross References
+
+\ifswedish % Predefined definitions start with a capital letter
+	\renewcommand{\itemautorefname}{punkt}
+	\renewcommand{\sectionautorefname}{sektion}
+	\renewcommand{\subsectionautorefname}{avsnitt}
+	\renewcommand{\subsubsectionautorefname}{underavsnitt}
+	\renewcommand{\figureautorefname}{figur}
+	\renewcommand{\tableautorefname}{tabell}
+	
+	\renewcommand{\chaptername}{Kapitel}
+	\renewcommand{\indexname}{Sakregister}
+	\renewcommand{\bibname}{Litteraturf\"orteckning}
+	\renewcommand{\contentsname}{Inneh\csname aa\endcsname ll}
+	\renewcommand{\abstractname}{Sammanfattning}
+	\renewcommand{\appendixname}{Bilaga}
+\fi
+
+\ifenglish % 
+
+	\renewcommand{\bibname}{References}
+	%\renewcommand{\appendixname}{Paper}
+
+\fi
