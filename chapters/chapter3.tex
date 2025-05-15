@@ -45,11 +45,11 @@ Computing the total gradient w.r.t. the parameters for minimizing the loss funct
                }_{\text{implicit dependence}},
     \label{eq:l_gradient}
 \end{equation}
-where the term $\mathrm{d} \hat{\mathbf{q}}/\mathrm{d} \hat{\bm{\theta}}$ encodes how the reduced trajectory changes with the parameters.  Directly computing this sensitivity is both expensive and prone to numerical instability.  To elude this difficulty, we employ the adjoint method, which reformulates the gradient in terms of an adjoint variable satisfying a backward-in-time differential equation. An overview of the dual-branch minimization process (OpInf vs. adjoint method) is illustrated in Figure~\ref{fig:intro_rom1}.
+where the term $\mathrm{d} \hat{\mathbf{q}}/\mathrm{d} \hat{\bm{\theta}}$ encodes how the reduced trajectory changes with the parameters.  Directly computing this sensitivity is both expensive and prone to numerical instability.  To elude this difficulty, we employ the adjoint method, which reformulates the gradient in terms of an adjoint variable satisfying a backward-in-time differential equation. An overview of the minimization process (OpInf vs. adjoint method) is illustrated in Figure~\ref{fig:intro_rom1}.
 
 \begin{figure}[h!]\centering
     \includegraphics[width=.96\textwidth]{figures/intro_rom.eps}
-    \caption{Model Order Reduction and Dual-Branch Minimization in Operator Inference.}
+    \caption{ROM inference process; OpInf (top branch) and adjoint method (bottom branch).}
     \label{fig:intro_rom1}
 \end{figure}
 
@@ -61,14 +61,30 @@ where the term $\mathrm{d} \hat{\mathbf{q}}/\mathrm{d} \hat{\bm{\theta}}$ encode
 
 \subsection*{Problem Setup}
 
-We frame our loss minimization as an equality constraint optimization problem as in \cite{bradley2024pde}, i.e.,\\
+For some given snapshot data, we consider their corresponding continuous interpolated true data $\hat{\mathbf{q}}_{\text{true}}(\cdot)$, and the mapping $\hat{\bm{\theta}}\mapsto \hat{\mathbf{q}}(\cdot,\hat{\bm{\theta}})$, where $\hat{\mathbf{q}}$ represents the predicted state value given the parameter $\hat{\bm{\theta}}$ from \eqref{eq:continuous_loss}. We frame our loss minimization as an equality constraint optimization problem as in \cite{bradley2024pde}, i.e.,\\
 \begin{align}
-    \underset{\hat{\bm{\theta}} \scalebox{0.67}{$\in$} \hat{\bm{\Theta}}}{\mathrm{min}} ~~&\ell (\hat{\mathbf{q}}(t),\hat{\bm{\theta}})\notag\\
+    \underset{\hat{\bm{\theta}} \scalebox{0.67}{$\in$} \hat{\bm{\Theta}}}{\mathrm{min}} ~~&\tilde{\ell}(\hat{\bm{\theta}}) = \ell (\hat{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}})\notag\\
     \mathrm{s.t.}~~&\dot{\hat{\mathbf{q}}}(t) = \hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}), \quad\hat{\mathbf{q}}(0)=\hat{\mathbf{q}}_0, \quad t\in[0,T],
     \label{eq:opt_problem}
 \end{align}
-where $\ell$ is the loss functional defined as in \eqref{eq:continuous_loss} and the constraint represents the ROM-OpInf as in \eqref{eq:redopinf}.
+where $\tilde{\ell}$ is the \textit{reduced loss} functional defined as in \eqref{eq:continuous_loss} and the constraint represents the ROM-OpInf as in \eqref{eq:redopinf}.
 
+Then, the associated Lagrangian to \eqref{eq:opt_problem} is defined as\\
+\begin{equation*}
+        \mathscr{L}\bigl(\hat{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}},\bm{\lambda}(\cdot)\bigr) \coloneqq \tilde{\ell}(\hat{\bm{\theta}}) - \int_0^T \bm{\lambda}(t)^{\top}\left( \dot{\hat{\mathbf{q}}}(t)-\hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}) \right)\dd t - \bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0).
+        \label{eq:lagrange_cost}
+    \end{equation*}
+In order to perform a gradient-based optimization process we need to compute\\
+\begin{align*}
+    \dv{\tilde{\ell}}{\hat{\bm{\theta}}} &= \dv{}{\hat{\bm{\theta}}} \mathscr{L}\bigl(\hat{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}},\bm{\lambda}(\cdot)\bigr) \\
+    &= \dfrac{\partial\mathscr{L}}{\partial\hat{\bm{\theta}}} + \dfrac{\partial\mathscr{L}}{\partial\hat{\mathbf{q}}} \dfrac{\textrm{d}\hat{\mathbf{q}}}{\textrm{d}\hat{\bm{\theta}}}.
+\end{align*}
+To minimize this gradient, we enforce stationarity of the (Gâteaux) derivative, $\dfrac{\partial\mathscr{L}}{\partial\hat{\mathbf{q}}} = 0$, condition that will provide the adjoint equations, ensuring\\
+\begin{equation}
+  \label{eq:equal_grad}
+  \frac{\mathrm{d}\tilde{\ell}}{\mathrm{d}\hat{\bm{\theta}}}
+  = \frac{\partial\mathscr{L}}{\partial\hat{\bm{\theta}}}\,.
+\end{equation}
 For such problem, the classical adjoint method as stated in \cite{bradley2024pde,luchini2024introduction} gives the following result.
 
 \begin{theorem}[Adjoint method]
@@ -78,18 +94,18 @@ For such problem, the classical adjoint method as stated in \cite{bradley2024pde
         \dot{\bm{\lambda}}(t) = -\left[ \left(\dfrac{\partial \hat{\mathbf{f}}}{\partial\hat{\mathbf{q}}}\right)^{\top}\bm{\lambda}(t) + \left( \dfrac{\partial g}{\partial \hat{\mathbf{q}}} \right)^{\top} \right],\quad\bm{\lambda}(T)=0,
         \label{eq:adjoint_eqs}
     \end{equation}
-    and the gradients w.r.t. the parameters of the training loss ($\ell$),\\
+    and the gradients w.r.t. the parameters of the training reduced loss ($\tilde\ell$),\\
     \begin{equation*}
-        \ell\bigl(\hat{\mathbf{q}}(\cdot),\hat{\bm{\theta}}\bigr) \coloneqq \displaystyle\int_0^T g\bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}\bigr)~\dd t = \int_0^T \norm{\hat{\mathbf{q}}(t) - \tilde{\mathbf{q}}(t, \hat{\bm{\theta}})}_2^2~\dd t
+        \tilde{\ell}(\hat{\bm{\theta}}) = \ell(\hat{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}}) \coloneqq \displaystyle\int_0^T g\bigl(\hat{\mathbf{q}}(t)\bigr)~\dd t = \int_0^T \bigl\|\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\bigr\|_2^2~\dd t
     \end{equation*}
     and the Lagrange cost ($\mathscr{L}$),\\
     \begin{equation*}
-        \mathscr{L}\bigl(\hat{\mathbf{q}}(\cdot),\bm{\lambda}(\cdot);\hat{\bm{\theta}}\bigr) \coloneqq \ell\bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}\bigr) - \int_0^T \bm{\lambda}(t)^{\top}\left( \dot{\hat{\mathbf{q}}}(t)-\hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}) \right)\dd t - \bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0)
-        \label{eq:lagrange_cost}
+        \mathscr{L}\bigl(\hat{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}},\bm{\lambda}(\cdot)\bigr) \coloneqq \tilde{\ell}(\hat{\bm{\theta}}) - \int_0^T \bm{\lambda}(t)^{\top}\left( \dot{\hat{\mathbf{q}}}(t)-\hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}) \right)\dd t - \bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0),
+        \label{eq:lagrange_cost2}
     \end{equation*}
     have the form\\
     \begin{equation}
-        \dfrac{\textrm{d} \ell}{\textrm{d} \hat{\bm{\theta}}} = \dfrac{\textrm{d} \mathscr{L}}{\textrm{d}\hat{\bm{\theta}}} = \int_0^T \left(\bm{\lambda}(t)^{\top}\dfrac{\partial\hat{\mathbf{f}}}{\partial\hat{\bm{\theta}}} + \dfrac{\partial g}{\partial\hat{\bm{\theta}}} \right)\dd t.
+        \dfrac{\mathrm{d} \tilde{\ell}}{\mathrm{d} \hat{\bm{\theta}}} = \dfrac{\partial \mathscr{L}}{\partial\hat{\bm{\theta}}} = \int_0^T \left(\bm{\lambda}(t)^{\top}\dfrac{\partial\hat{\mathbf{f}}}{\partial\hat{\bm{\theta}}} + \dfrac{\partial g}{\partial\hat{\bm{\theta}}} \right)\dd t.
         \label{eq:gradient_lagrange}
     \end{equation}
 \end{theorem}
