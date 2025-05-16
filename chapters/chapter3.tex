@@ -7,10 +7,10 @@
 
 \section{A Novel Continuous-Time Loss Functional Based on the Integral Form of OpInf}
 
-For the derivation of this novel framework, we assume a continuous trajectory $\hat{\mathbf{q}}(t) \in \mathcal{C}^1(\mathcal{T})^r$ over a time domain $\mathcal{T} = [0,T] $. However, in practice, we only have discrete time snapshots $\displaystyle\{ (t_i, \mathbf{q}(t_i)) \}_{i=0}^k$. To transition from discrete to continuous time, we approximate the cost summation function $g$ by interpolation (see Appendix \ref{sec:cubic_interp} - Cubic Splines) \cite{de1978practical}:\\
-$$\sum_{i=0}^k \underbrace{\norm{\hat{\mathbf{q}}(t_i)-\tilde{\mathbf{q}}(t_i,\hat{\bm\theta})}^2}_{g(\hat{\mathbf{q}}(t_i),\hat{\bm\theta})}\Delta t 
+For the derivation of this novel framework, we assume a continuous trajectory $\hat{\mathbf{q}}(t) \in \mathcal{C}^1(\mathcal{T})^r$ over a time domain $\mathcal{T} = [0,T] $. However, in practice, we only have discrete time snapshots $\displaystyle\{ (t_i, \mathbf{q}(t_i)) \}_{i=1}^k$. To transition from discrete to continuous time, we approximate the cost summation function $g$ by interpolation (see Appendix \ref{sec:cubic_interp} - Cubic Splines) \cite{de1978practical}:\\
+$$\sum_{i=1}^k \underbrace{\norm{\hat{\mathbf{q}}_\text{true}(t_i)-\tilde{\mathbf{q}}(t_i,\hat{\bm\theta})}_2^2}_{g(\tilde{\mathbf{q}}(t_i,\hat{\bm\theta}),t_i)}\Delta t 
 \quad \overset{\text{interp.}}{\longrightarrow} \quad  
-\int_0^T \underbrace{\norm{\hat{\mathbf{q}}(t)-\tilde{\mathbf{q}}(t,\hat{\bm\theta})}^2}_{g(\hat{\mathbf{q}}(t),\hat{\bm\theta})} \dd t,
+\int_0^T \underbrace{\norm{\hat{\mathbf{q}}_\text{true}(t)-\tilde{\mathbf{q}}(t,\hat{\bm\theta})}_2^2}_{g(\tilde{\mathbf{q}}(t,\hat{\bm\theta}),t)} \dd t,
 $$
 where $\tilde{\mathbf{q}}(t,\bm\theta)$ represents the predicted trajectory according to our dynamical model.
 
@@ -18,37 +18,65 @@ To avoid explicit differentiation as in the classical OpInf approach, we introdu
 
 \begin{definition} 
     \label{def:continuous_loss}
-    Consider the ROM-OpInf as in \eqref{eq:redopinf} over the time domain $\mathcal{T}=[0,T]$. Let $\hat{\mathbf{q}}\in\mathcal{C}^1(\mathcal{T})^r$ be the reduced trajectory and $[\hat{\mathbf{c}}~\hat{\mathbf{A}}~\hat{\mathbf{H}}~\hat{\mathbf{B}}]=\hat{\bm{\theta}}\in\mathbb{R}^d$ the vector of all reduced operators, with $d=r+r^2+r^3+rm$ parameters. We define the continuous-time training loss functional $\ell(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})$ as the discrepancy between the observed and the predicted data, i.e.,\\
+    Consider the ROM-OpInf as in \eqref{eq:redopinf} over the time domain $\mathcal{T}=[0,T]$. Let $\hat{\mathbf{q}}\in\mathcal{C}^1(\mathcal{T})^r$ be the reduced trajectory and $[\hat{\mathbf{c}}~\hat{\mathbf{A}}~\hat{\mathbf{H}}~\hat{\mathbf{B}}]=\hat{\bm{\theta}}\in\mathbb{R}^d$ the vector of all reduced operators, with $d=r+r^2+r^3+rm$ parameters. We define the continuous-time training loss functional $\ell(\hat{\mathbf{q}}(t))$ as the discrepancy between the observed and the predicted data, i.e.,\\
     \begin{equation}
-        \ell\bigl(\hat{\mathbf{q}}(\cdot),\hat{\bm{\theta}}\bigr) = \int_0^T \norm{\hat{\mathbf{q}}(t) - \tilde{\mathbf{q}}(t, \hat{\bm{\theta}})}_2^2~\dd t,
+        \ell: \mathcal{C}^1(\mathcal{T})^r  \to \mathbb{R}\,,\quad \hat{\mathbf{q}}(\cdot) \mapsto \int_0^T \Big\|\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_\mathrm{true}(t)\Big\|_2^2~\dd t,
         \label{eq:continuous_loss}
     \end{equation}
-    where $\tilde{\mathbf{q}}(t, \hat{\bm{\theta}}) \coloneqq \hat{\mathbf{q}}(0) + \displaystyle\int_{0}^t\left[ \hat{\mathbf{c}} + \hat{\mathbf{A}}\hat{\mathbf{q}}(\tau) + \hat{\mathbf{H}}\left(\hat{\mathbf{q}}(\tau)\otimes\hat{\mathbf{q}}(\tau) \right) +\hat{\mathbf{B}}\mathbf{u}(\tau) \right]\dd \tau $.
+    with $g(\hat{\mathbf{q}}(t),t) \coloneqq \Big\|\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_\mathrm{true}(t)\Big\|_2^2$. We define the reduced loss functional as\\ 
+    \begin{equation}
+        \tilde{\ell}: \mathbb{R}^d  \to \mathbb{R}\,,\quad \hat{\bm{\theta}} \mapsto \int_0^T \norm{\tilde{\mathbf{q}}(t,\hat{\bm{\theta}}) - \hat{\mathbf{q}}_\mathrm{true}(t)}_2^2~\dd t,
+        \label{eq:continuous_reduced_loss}
+    \end{equation}
+    where $\tilde{\mathbf{q}}(t, \hat{\bm{\theta}}) \coloneqq \tilde{\mathbf{q}}(0) + \displaystyle\int_{0}^t\left[ \hat{\mathbf{c}} + \hat{\mathbf{A}}\tilde{\mathbf{q}}(\tau) + \hat{\mathbf{H}}\left(\tilde{\mathbf{q}}(\tau)\otimes\tilde{\mathbf{q}}(\tau) \right) +\hat{\mathbf{B}}\mathbf{u}(\tau) \right]\dd \tau $.
 
 \end{definition}
+Note that $\tilde{\ell}(\hat{\bm{\theta}}) = \ell(\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}}))$ in which $\tilde{\mathbf{q}}$ satisfies the constraint $\tilde{\mathbf{q}}(t, \hat{\bm{\theta}}) = \tilde{\mathbf{q}}(0) + \displaystyle\int_{0}^t \hat{\mathbf{f}}(\tilde{\mathbf{q}}(\tau),\hat{\bm{\theta}})\dd \tau $.
 
-Based on the loss functional \eqref{eq:continuous_loss}, the learning task is to find\\
+Based on the reduced loss functional \eqref{eq:continuous_reduced_loss}, that implicitly considers the integral form of OpInf, the learning task is to find\\
 \begin{equation}
   \hat{\bm{\theta}}^*
   \;=\;
   \min_{\hat{\bm{\theta}}}\;
-  \ell\bigl(\hat{\mathbf{q}}(\cdot),\,\hat{\bm{\theta}}\bigr).
+  \tilde{\ell}\bigl(\hat{\bm{\theta}}\bigr).
 \end{equation}
+
+To differentiate functionals, we first recall the Gâteaux derivative \cite{bonnans2013perturbation}:\\
+\begin{definition}
+    For a mapping $\mathbf{f}: \mathcal{X}\to\mathcal{Y}$ between normed spaces, the \emph{Gâteaux derivative} of $\mathbf{f}$ at $\mathbf{x}$ in the “direction” $\mathbf{v}$ is\\
+    $$\bm{D}_{\mathbf{x}}~\mathbf{f}(\mathbf{x};\,\mathbf{v})
+  \;:=\;
+  \lim_{\epsilon\to0}
+    \frac{\mathbf{f}(\mathbf{x} + \epsilon\,\mathbf{v})
+           \;-\;\mathbf{f}(\mathbf{x})}
+         {\epsilon}\,,$$
+    whenever this limit exists.
+\end{definition}
 Computing the total gradient w.r.t. the parameters for minimizing the loss functional requires the chain rule:\\
 \begin{equation}
-  \frac{\mathrm{d}\ell}{\mathrm{d}\hat{\bm{\theta}}}
+  \frac{\mathrm{d}\tilde{\ell}}{\mathrm{d}\hat{\bm{\theta}}}
   \;=\;
-  \underbrace{\frac{\partial \ell}{\partial \hat{\bm{\theta}}}}_{\text{direct dependence}}
-  +
+  \underbrace{\frac{\partial \ell}{\partial \hat{\bm{\theta}}}}_{\text{direct dependence} ~=~0}
+  + 
   \underbrace{\frac{\partial \ell}{\partial \hat{\mathbf{q}}}\,
-                \frac{\mathrm{d} \hat{\mathbf{q}}}{\mathrm{d} \hat{\bm{\theta}}}
-               }_{\text{implicit dependence}},
+                \frac{\mathrm{d} \tilde{\mathbf{q}}}{\mathrm{d} \hat{\bm{\theta}}}
+               }_{\text{implicit dependence}} \Bigg\vert_{\hat{\mathbf{q}}(\cdot) = \tilde{\mathbf{q}}(\cdot, \hat{\bm{\theta}} ) },
     \label{eq:l_gradient}
 \end{equation}
-where the term $\mathrm{d} \hat{\mathbf{q}}/\mathrm{d} \hat{\bm{\theta}}$ encodes how the reduced trajectory changes with the parameters.  Directly computing this sensitivity is both expensive and prone to numerical instability.  To elude this difficulty, we employ the adjoint method, which reformulates the gradient in terms of an adjoint variable satisfying a backward-in-time differential equation. An overview of the minimization process (OpInf vs. adjoint method) is illustrated in Figure~\ref{fig:intro_rom1}.
+where the term $\mathrm{d} \tilde{\mathbf{q}}/\mathrm{d} \hat{\bm{\theta}}$ encodes how the reduced trajectory changes with the parameters. Since $\ell$ has no direct dependence on~$\hat{\bm{\theta}}$, the first term vanishes. We now recognize\\
+$$\frac{\partial \ell}{\partial \hat{\mathbf{q}}}
+    \;\frac{\mathrm{d}\tilde{\mathbf{q}}}{\mathrm{d}\hat{\bm{\theta}}}
+  \;\Bigg\vert_{\hat{\mathbf{q}}(\cdot)=\tilde{\mathbf{q}}(\cdot, \hat{\bm{\theta}})}
+  \;\longrightarrow\;
+  \bm{D}_{\hat{\mathbf{q}}}\,\ell\biggl(\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}});\,
+    \dfrac{\partial\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}})}{\partial\hat{\bm{\theta}}}
+  \biggr).$$
+Directly computing this sensitivity $\mathrm{d} \tilde{\mathbf{q}}/\mathrm{d} \hat{\bm{\theta}}$ is both expensive and prone to numerical instability.  To elude this difficulty, we employ the adjoint method, which reformulates the gradient in terms of an adjoint variable satisfying a backward-in-time differential equation. An overview of the minimization process (OpInf vs. adjoint method) is illustrated in Figure~\ref{fig:intro_rom1}.
+
+\vspace{0.3cm}
 
 \begin{figure}[h!]\centering
-    \includegraphics[width=.96\textwidth]{figures/intro_rom.eps}
+    \includegraphics[width=.99\textwidth]{figures/intro_scheme.pdf}
     \caption{ROM inference process; OpInf (top branch) and adjoint method (bottom branch).}
     \label{fig:intro_rom1}
 \end{figure}
@@ -56,35 +84,40 @@ where the term $\mathrm{d} \hat{\mathbf{q}}/\mathrm{d} \hat{\bm{\theta}}$ encode
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\newpage
+
 \section{The Adjoint-State Equations}
 \label{sec:adjoint_eqs}
 
 \subsection*{Problem Setup}
 
-For some given snapshot data, we consider their corresponding continuous interpolated true data $\hat{\mathbf{q}}_{\text{true}}(\cdot)$, and the mapping $\hat{\bm{\theta}}\mapsto \hat{\mathbf{q}}(\cdot,\hat{\bm{\theta}})$, where $\hat{\mathbf{q}}$ represents the predicted state value given the parameter $\hat{\bm{\theta}}$ from \eqref{eq:continuous_loss}. We frame our loss minimization as an equality constraint optimization problem as in \cite{bradley2024pde}, i.e.,\\
+For some given snapshot data, we consider their corresponding continuous interpolated true data $\hat{\mathbf{q}}_{\text{true}}(\cdot)$. We frame our loss minimization as an equality constraint optimization problem as in \cite{bradley2024pde}, i.e.,\\
 \begin{align}
-    \underset{\hat{\bm{\theta}} \scalebox{0.67}{$\in$} \hat{\bm{\Theta}}}{\mathrm{min}} ~~&\tilde{\ell}(\hat{\bm{\theta}}) = \ell (\hat{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}})\notag\\
+    \underset{\hat{\bm{\theta}}}{\mathrm{min}}~~\tilde\ell (\hat{\bm{\theta}})\equiv\underset{\hat{\bm{\theta}},\hat{\mathbf{q}}(\cdot)}{\mathrm{min}} ~~&\ell (\hat{\mathbf{q}}(\cdot))\notag\\
     \mathrm{s.t.}~~&\dot{\hat{\mathbf{q}}}(t) = \hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}), \quad\hat{\mathbf{q}}(0)=\hat{\mathbf{q}}_0, \quad t\in[0,T],
     \label{eq:opt_problem}
 \end{align}
-where $\tilde{\ell}$ is the \textit{reduced loss} functional defined as in \eqref{eq:continuous_loss} and the constraint represents the ROM-OpInf as in \eqref{eq:redopinf}.
+where $\ell,~\tilde{\ell}$ are the loss functionals defined as in \eqref{eq:continuous_loss}, \eqref{eq:continuous_reduced_loss} and the constraint represents the ROM-OpInf as in \eqref{eq:redopinf}.
 
-Then, the associated Lagrangian to \eqref{eq:opt_problem} is defined as\\
-\begin{equation*}
-        \mathscr{L}\bigl(\hat{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}},\bm{\lambda}(\cdot)\bigr) \coloneqq \tilde{\ell}(\hat{\bm{\theta}}) - \int_0^T \bm{\lambda}(t)^{\top}\left( \dot{\hat{\mathbf{q}}}(t)-\hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}) \right)\dd t - \bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0).
+The associated Lagrangian to \eqref{eq:opt_problem} is defined as\\
+\begin{equation}
+        \mathscr{L}\bigl(\hat{\mathbf{q}}(\cdot),\hat{\bm{\theta}},\bm{\lambda}(\cdot)\bigr) \coloneqq \ell(\hat{\mathbf{q}}(\cdot)) - \int_0^T \bm{\lambda}(t)^{\top}\left( \dot{\hat{\mathbf{q}}}(t)-\hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}) \right)\dd t - \bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0).
         \label{eq:lagrange_cost}
-    \end{equation*}
+    \end{equation}
+Since the constraints are satisfied for $\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}})$, it follows\\
+$$\mathscr{L}\bigl(\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}}, \bm{\lambda}(\cdot)\bigr) = \tilde{\ell} (\hat{\theta}).$$
 In order to perform a gradient-based optimization process we need to compute\\
 \begin{align*}
-    \dv{\tilde{\ell}}{\hat{\bm{\theta}}} &= \dv{}{\hat{\bm{\theta}}} \mathscr{L}\bigl(\hat{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}},\bm{\lambda}(\cdot)\bigr) \\
-    &= \dfrac{\partial\mathscr{L}}{\partial\hat{\bm{\theta}}} + \dfrac{\partial\mathscr{L}}{\partial\hat{\mathbf{q}}} \dfrac{\textrm{d}\hat{\mathbf{q}}}{\textrm{d}\hat{\bm{\theta}}}.
+    \dv{\tilde{\ell}}{\hat{\bm{\theta}}} &= \dv{}{\hat{\bm{\theta}}} \mathscr{L}\bigl(\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}},\bm{\lambda}(\cdot)\bigr) \\
+    &= \dfrac{\partial\mathscr{L}}{\partial\hat{\bm{\theta}}} + \dfrac{\partial\mathscr{L}}{\partial\hat{\mathbf{q}}} \dfrac{\textrm{d}\tilde{\mathbf{q}}}{\textrm{d}\hat{\bm{\theta}}}\Bigg\vert_{\hat{\mathbf{q}}(\cdot) = \tilde{\mathbf{q}}(\cdot, \hat{\bm{\theta}} ) }.
 \end{align*}
-To minimize this gradient, we enforce stationarity of the (Gâteaux) derivative, $\dfrac{\partial\mathscr{L}}{\partial\hat{\mathbf{q}}} = 0$, condition that will provide the adjoint equations, ensuring\\
+Then, we enforce stationarity of the derivative, $\dfrac{\partial\mathscr{L}}{\partial\hat{\mathbf{q}}} = 0$, condition that will provide the adjoint equations, ensuring\\
 \begin{equation}
   \label{eq:equal_grad}
   \frac{\mathrm{d}\tilde{\ell}}{\mathrm{d}\hat{\bm{\theta}}}
-  = \frac{\partial\mathscr{L}}{\partial\hat{\bm{\theta}}}\,.
+  = \frac{\partial\mathscr{L}}{\partial\hat{\bm{\theta}}}.
 \end{equation}
+
 For such problem, the classical adjoint method as stated in \cite{bradley2024pde,luchini2024introduction} gives the following result.
 
 \begin{theorem}[Adjoint method]
@@ -94,42 +127,83 @@ For such problem, the classical adjoint method as stated in \cite{bradley2024pde
         \dot{\bm{\lambda}}(t) = -\left[ \left(\dfrac{\partial \hat{\mathbf{f}}}{\partial\hat{\mathbf{q}}}\right)^{\top}\bm{\lambda}(t) + \left( \dfrac{\partial g}{\partial \hat{\mathbf{q}}} \right)^{\top} \right],\quad\bm{\lambda}(T)=0,
         \label{eq:adjoint_eqs}
     \end{equation}
-    and the gradients w.r.t. the parameters of the training reduced loss ($\tilde\ell$),\\
+    and the gradients w.r.t. the parameters of $\tilde\ell$ for the training loss\\
     \begin{equation*}
-        \tilde{\ell}(\hat{\bm{\theta}}) = \ell(\hat{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}}) \coloneqq \displaystyle\int_0^T g\bigl(\hat{\mathbf{q}}(t)\bigr)~\dd t = \int_0^T \bigl\|\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\bigr\|_2^2~\dd t
+        \ell(\hat{\mathbf{q}}(\cdot)) \coloneqq \displaystyle\int_0^T g\bigl(\hat{\mathbf{q}}(t),t\bigr)~\dd t = \int_0^T \Bigl\|\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\Bigr\|_2^2~\dd t,
     \end{equation*}
     and the Lagrange cost ($\mathscr{L}$),\\
     \begin{equation*}
-        \mathscr{L}\bigl(\hat{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}},\bm{\lambda}(\cdot)\bigr) \coloneqq \tilde{\ell}(\hat{\bm{\theta}}) - \int_0^T \bm{\lambda}(t)^{\top}\left( \dot{\hat{\mathbf{q}}}(t)-\hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}) \right)\dd t - \bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0),
+        \mathscr{L}\bigl(\hat{\mathbf{q}}(\cdot),\hat{\bm{\theta}},\bm{\lambda}(\cdot)\bigr) \coloneqq \ell(\hat{\mathbf{q}}(\cdot)) - \int_0^T \bm{\lambda}(t)^{\top}\left( \dot{\hat{\mathbf{q}}}(t)-\hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}) \right)\dd t - \bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0),
         \label{eq:lagrange_cost2}
     \end{equation*}
     have the form\\
     \begin{equation}
-        \dfrac{\mathrm{d} \tilde{\ell}}{\mathrm{d} \hat{\bm{\theta}}} = \dfrac{\partial \mathscr{L}}{\partial\hat{\bm{\theta}}} = \int_0^T \left(\bm{\lambda}(t)^{\top}\dfrac{\partial\hat{\mathbf{f}}}{\partial\hat{\bm{\theta}}} + \dfrac{\partial g}{\partial\hat{\bm{\theta}}} \right)\dd t.
+        \dfrac{\mathrm{d} \tilde{\ell}}{\mathrm{d} \hat{\bm{\theta}}} = \dfrac{\partial \mathscr{L}}{\partial\hat{\bm{\theta}}} = \int_0^T \bm{\lambda}(t)^{\top}\dfrac{\partial\hat{\mathbf{f}}}{\partial\hat{\bm{\theta}}}~\dd t.
         \label{eq:gradient_lagrange}
     \end{equation}
 \end{theorem}
 
-\subsection*{Proof by Calculus of Variations}
+\subsection*{Proof (by Lagrangian Formulation)}
 
-This proof was inspired by the notes of \cite{mcquarrie2024bayesian}. For convenience, we write the constraint equation as\\ 
+Consider the stated loss and equality constraint minimization problem\\
+\begin{align*}
+    &\underset{\hat{\bm{\theta}}, ~\hat{\mathbf{q}}(\cdot) }{\mathrm{min}} ~~\ell (\hat{\mathbf{q}}(\cdot))\\
+    &\mathrm{s.t.}~~\dot{\hat{\mathbf{q}}}(t) = \hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}),\quad\hat{\mathbf{q}}(t_0)=\hat{\mathbf{q}}_0,,\quad t\in[0,T],
+\end{align*}
+and its corresponding  Lagrangian ($\mathscr{L}$) defined as\\
+\begin{align*}
+    \mathscr{L}(\hat{\mathbf{q}}, \bm{\lambda},\hat{\bm{\theta}}) &\coloneqq \ell(\hat{\mathbf{q}}(t)) - \int_0^T \bm{\lambda}(t)^{\top}\left( \dot{\hat{\mathbf{q}}}(t) - \hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})  \right)\dd t -\bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0)\\
+    &= \int_0^T \left( g(\hat{\mathbf{q}}(t),t) - \bm{\lambda}(t)^{\top}\left( \dot{\hat{\mathbf{q}}}(t) - \hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})  \right) \right)\dd t-\bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0).
+\end{align*}
+Differentiating the Lagrangian w.r.t. $\bm{\theta}$, we have\\
+\begin{align*}
+    \pdv{\mathscr{L}}{\hat{\bm{\theta}}} &= \int_0^T\left[ \pdv{g}{\hat{\bm{\theta}}} + \pdv{g}{\hat{\mathbf{q}}} \dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}} - \bm{\lambda}(t)^{\top} \left( \dv{t}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}} - \pdv{\hat{\mathbf{f}}}{\hat{\bm{\theta}}} - \pdv{\hat{\mathbf{f}}}{\hat{\mathbf{q}}}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}} \right) \right]\dd t - \bm{\lambda}(0)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~(0)\notag\\
+    &= \int_0^T \left[\pdv{g}{\hat{\bm{\theta}}} + \bm{\lambda}(t)^{\top} \pdv{\hat{\mathbf{f}}}{\hat{\bm{\theta}}}+ \left( \pdv{g}{\hat{\mathbf{q}}} + \bm{\lambda}(t)^{\top}\pdv{\hat{\mathbf{f}}}{\hat{\mathbf{q}}}-\bm{\lambda}(t)^{\top}\dv{t} \right)\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}} \right]\dd t- \bm{\lambda}(0)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~(0). 
+\end{align*}
+In order to avoid the computation of $\mathrm{d}{\hat{\mathbf{q}}}/\mathrm{d}{\hat{\bm{\theta}}}$, i.e., the sensitity of the trajectory w.r.t. the parameters, which can be extremely hard, we apply a change of variables (adjoint method). Integrating by parts, we get rid of $\displaystyle\dv{t}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}$ in the last part of the above integral,\\
+\begin{align*}
+    \int_0^T -\bm{\lambda}(t)^{\top}\dv{t}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~\dd t &= \left[ -\bm{\lambda}(t)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}\right]_0^T + \int_0^T \left( \dv{\bm{\lambda}}{t}\right)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~\dd t\\
+    &= \bm{\lambda}(0)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~(0) - \bm{\lambda}(T)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~(T) + \int_0^T \left( \dv{\bm{\lambda}}{t}\right)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~\dd t.
+\end{align*}
+Plugin this expression, the Lagrangian sensitivity equation  yields\\
+\begin{align*}
+   \pdv{\mathscr{L}}{\hat{\bm{\theta}}} &= \int_0^T\left[ \pdv{g}{\hat{\bm{\theta}}} + \bm{\lambda}(t)^{\top} \pdv{\hat{\mathbf{f}}}{\hat{\bm{\theta}}} + \underbrace{\left( \pdv{g}{\hat{\mathbf{q}}} + \bm{\lambda}(t)^{\top}\pdv{\hat{\mathbf{f}}}{\hat{\mathbf{q}}}+ \dot{\bm{\lambda}}(t)^{\top}\right)}_{\text{make = 0}} \dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}} \right]\dd t \\
+   & - \bm{\lambda}(0)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~(0)+\bm{\lambda}(0)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~(0) - \underbrace{\bm{\lambda}(T)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~(T)}_{\text{make = 0}}.
+\end{align*}
+We recognize all the terms multiplying the sensitivity $\displaystyle\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}$ as the expression $\displaystyle\pdv{\mathscr{L}}{\hat{\mathbf{q}}}$ which we make zero together with $\bm{\lambda}(T)$, since $\bm{\lambda}$ arbitrary.
+ After transposing and rearranging terms, we obtain the desired adjoint equations\\
+\begin{equation*}
+    \dot{\bm{\lambda}}(t) = -\left[ \left(\pdv{\hat{\mathbf{f}}}{\hat{\mathbf{q}}}\right)^{\top} \bm{\lambda}(t)  + \left(\pdv{g}{\hat{\mathbf{q}}}\right)^{\top}\right], \quad\bm{\lambda}(T) = \bm{0}.
+\end{equation*}
+By construction, as we have shown in the problem setup,  minimizing the Lagrangian $\mathscr{L}$ is the same as minimizing the loss functional $\tilde\ell$ since\\
+$$\pdv{\mathscr{L}}{\hat{\bm{\theta}}} = \dv{\tilde\ell}{\hat{\bm{\theta}}}.$$
+By definition, $g$ is not dependent of $\hat{\bm{\theta}}$ which implies that $\displaystyle\pdv{g}{\hat{\bm{\theta}}}=0$. Hence, the final expression for the gradients yields\\
+\begin{equation*}
+    \pdv{\mathscr{L}}{\hat{\bm{\theta}}} =\dv{\tilde\ell}{\hat{\bm{\theta}}} = \int_0^T \bm{\lambda}(t)^{\top} \pdv{\hat{\mathbf{f}}}{\hat{\bm{\theta}}}~\dd t.
+\end{equation*}
+This completes the proof.
+\qed
+
+\subsection*{Formulation for the Quadratic Form}
+
+We now consider the previously stated OpInf quadratic form in \eqref{eq:fompoly} to derive the adjoint equations for that specific problem. This derivation was inspired by the notes of \cite{mcquarrie2024bayesian}. For convenience, we write the constraint equation as\\ 
 $$\boldsymbol{c}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}) \coloneqq \dot{\hat{\mathbf{q}}}(t) - \hat{\mathbf{c}} - \hat{\mathbf{A}}\hat{\mathbf{q}}(t) - \hat{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \hat{\mathbf{q}}(t)] - \hat{\mathbf{B}}\mathbf{u}.$$
 Here, $\hat{\mathbf{H}}\in \mathbb{R}^{r\times r^2}$ is Kronecker-symmetric, i.e., $\hat{\mathbf{H}}[\hat{\mathbf{q}}\otimes \mathbf{v}] = \hat{\mathbf{H}}[\mathbf{v}\otimes \hat{\mathbf{q}}]$. Then, the Lagrangian (objective - adjoint $\times$ constraint - adjoint(0) $\times$ initial condition) can be rewritten as\\
 \begin{align*}
-    \mathscr{L}(\hat{\mathbf{q}}, \bm{\lambda}; \hat{\bm{\theta}}) &= \ell(\hat{\mathbf{q}},\hat{\bm{\theta}}) - \int_0^T \bm{\lambda}(t)^{\top}\boldsymbol{c}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})~\mathrm{d}t - \bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0)\\
-    &= \int_0^T g\bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}} \bigl)~\mathrm{d}t \\
+    \mathscr{L}(\hat{\mathbf{q}}, \bm{\lambda}; \hat{\bm{\theta}}) &= \ell(\hat{\mathbf{q}}(t)) - \int_0^T \bm{\lambda}(t)^{\top}\boldsymbol{c}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})~\mathrm{d}t - \bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0)\\
+    &= \int_0^T g\bigl(\hat{\mathbf{q}}(t),t \bigl)~\mathrm{d}t \\
     &- \int_0^T \bm{\lambda}(t)^{\top}\bigl(\dot{\hat{\mathbf{q}}}(t) - \hat{\mathbf{c}} - \hat{\mathbf{A}}\hat{\mathbf{q}}(t) - \hat{\mathbf{H}}(\hat{\mathbf{q}}(t)\otimes \hat{\mathbf{q}}(t)) - \hat{\mathbf{B}}\mathbf{u}\bigr)~\mathrm{d}t \\
     &-\bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0),
 \end{align*}
 where the adjoint variable $\bm{\lambda}\in\mathcal{C}^1(\mathcal{T})^r$ has the same size as the state variable $\hat{\mathbf{q}}$. The adjoint equation for $\bm{\lambda}(t)$ is derived by setting\\
-$$ \bm{D}_{\hat{\mathbf{q}}} \mathscr{L}(\hat{\mathbf{q}},\bm{\lambda,\hat{\bm{\theta}}};\mathbf{v}) = \dv{}{\varepsilon}[\mathscr{L}(\hat{\mathbf{q}}+\varepsilon \mathbf{v},\bm{\lambda,\hat{\bm{\theta}}})]_{\varepsilon=0} = 0~~~\forall~\mathbf{v}\in\mathcal{C}^1(\mathcal{T})^r,~\norm{\mathbf{v}} = 1,$$a directional (Gateaux) derivative \cite{bonnans2013perturbation}. Noting first that\\
+$$ \bm{D}_{\hat{\mathbf{q}}} \mathscr{L}(\hat{\mathbf{q}},\bm{\lambda,\hat{\bm{\theta}}};\mathbf{v}) = \dv{}{\varepsilon}[\mathscr{L}(\hat{\mathbf{q}}+\varepsilon \mathbf{v},\bm{\lambda,\hat{\bm{\theta}}})]_{\varepsilon=0} = 0~~~\forall~\mathbf{v}\in\mathcal{C}^1(\mathcal{T})^r,$$a directional (Gâteaux) derivative. Noting first that\\
 \begin{align*}
-    \dv{}{\varepsilon}[\mathcal{\ell}(\hat{\mathbf{q}}+\varepsilon \mathbf{v},\hat{\bm{\theta}})]_{\varepsilon=0} &= \int_0^T \dv{}{\varepsilon}[g(\hat{\mathbf{q}}(t)+\varepsilon \mathbf{v}(t),\hat{\bm{\theta}})]_{\varepsilon=0}~\mathrm{d}t = \int_0^T \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})^{\top}\mathbf{v}(t)~\mathrm{d}t,\\
+    \dv{}{\varepsilon}[\mathcal{\ell}(\hat{\mathbf{q}}+\varepsilon \mathbf{v},\hat{\bm{\theta}})]_{\varepsilon=0} &= \int_0^T \dv{}{\varepsilon}[g(\hat{\mathbf{q}}(t)+\varepsilon \mathbf{v}(t),t)]_{\varepsilon=0}~\mathrm{d}t = \int_0^T \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t)^{\top}\mathbf{v}(t)~\mathrm{d}t,\\
     \dv{}{\varepsilon}[\boldsymbol{c}(\hat{\mathbf{q}}+\varepsilon \mathbf{v},\hat{\bm{\theta}})]_{\varepsilon=0} &= \dot{\mathbf{v}}(t) - \hat{\mathbf{A}}\mathbf{v}(t) - 2\hat{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \mathbf{v}(t)],
 \end{align*}
 the adjoint equations are given by\\
 \begin{align*}
-    0 &= \int_0^T \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})^{\top}\mathbf{v}(t)~\mathrm{d}t\\
+    0 &= \int_0^T \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t)^{\top}\mathbf{v}(t)~\mathrm{d}t\\
     &- \int_0^T \bm{\lambda}(t)^{\top} \left( \dot{\mathbf{v}}(t) - \hat{\mathbf{A}}\mathbf{v}(t) - 2\hat{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \mathbf{v}(t)] \right)~\mathrm{d}t~- \bm{\lambda}(0)^{\top}\mathbf{v}(0). 
 \end{align*}
 We want to write these adjoint equations as a weak form with test function $\mathbf{v}$. Integration by parts yields\\
@@ -139,99 +213,35 @@ We want to write these adjoint equations as a weak form with test function $\mat
 \end{align*}
 Using this identity and transposing each (scalar) term, the adjoint equations become\\
 \begin{equation*}
-    0 = \int_0^T \mathbf{v}(t)^{\top} \left( \dot{\bm{\lambda}}(t) + \hat{\mathbf{A}}^{\top} \bm{\lambda}(t) + 2\tilde{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \bm{\lambda}(t)] + \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}) \right)\mathrm{d}t - \mathbf{v}(T)^{\top}\bm{\lambda}(T), 
+    0 = \int_0^T \mathbf{v}(t)^{\top} \left( \dot{\bm{\lambda}}(t) + \hat{\mathbf{A}}^{\top} \bm{\lambda}(t) + 2\tilde{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \bm{\lambda}(t)] + \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t) \right)\mathrm{d}t - \mathbf{v}(T)^{\top}\bm{\lambda}(T), 
 \end{equation*}
 where $\tilde{\mathbf{H}}\in\mathbb{R}^{r\times r^2}$ is the matrix such that\\
 $$\bm{\lambda}^{\top}\hat{\mathbf{H}}[\hat{\mathbf{q}}\otimes \mathbf{v}] = \mathbf{v}^{\top}\tilde{\mathbf{H}}[\hat{\mathbf{q}}\otimes \bm{\lambda}],~~~\forall~\hat{\mathbf{q}}, \mathbf{v}, \bm{\lambda} \in \mathbb{R}^r.$$
 Since $\mathbf{v}$ is arbitrary, we recognize the above expression as a weak form with corresponding strong form\\
 \begin{equation*}
-    -\dot{\bm{\lambda}}(t) = \hat{\mathbf{A}}^{\top} \bm{\lambda}(t) + 2\tilde{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \bm{\lambda}(t)] + \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}),~~~\bm{\lambda}(T)=\bm{0},\quad t\in [0,T].
+    -\dot{\bm{\lambda}}(t) = \hat{\mathbf{A}}^{\top} \bm{\lambda}(t) + 2\tilde{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \bm{\lambda}(t)] + \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t),~~~\bm{\lambda}(T)=\bm{0},\quad t\in [0,T].
 \end{equation*}
-This linear (but non-autonomous) system can be solved with 'backward time-integration' given a trajectory $\hat{\mathbf{q}}(t)$. The system can be written in a more clearly linear form (with respect to $\bm{\lambda}(t)$) as\\
+This linear (but non-autonomous) system can be solved with `backward time-integration' given a trajectory $\hat{\mathbf{q}}(t)$. The system can be written in a more clearly linear form (with respect to $\bm{\lambda}(t)$) as\\
 \begin{align*}
-     \dot{\bm{\lambda}}(t) &= -\left(\hat{\mathbf{A}}^{\top} + 2\mathbf{M}(\hat{\mathbf{q}}(t))\right)\bm{\lambda}(t) - \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}),\\
+     \dot{\bm{\lambda}}(t) &= -\left(\hat{\mathbf{A}}^{\top} + 2\mathbf{M}(\hat{\mathbf{q}}(t))\right)\bm{\lambda}(t) - \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t),\\
     &~\hspace{8.8cm}~~~~~\bm{\lambda}(T)=\bm{0},\\
-    &= -\nabla_{\hat{\mathbf{q}}}~\hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})\bm{\lambda}(t) - \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}),
+    &= -\nabla_{\hat{\mathbf{q}}}~\hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})\bm{\lambda}(t) - \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t),
 \end{align*}
 where $\mathbf{M}(\hat{\mathbf{q}}(t))\in\mathbb{R}^{r\times r}$ is the matrix such that\\
 \begin{equation*}
     \mathbf{M}(\hat{\mathbf{q}}(t)) \bm{\lambda} = \tilde{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \bm{\lambda}(t)].
 \end{equation*}
-On the other hand, to obtain the derivative of the scalar loss 
-$\ell(\hat{\mathbf{q}}(\cdot),\hat{\bm\theta})$ with respect to the parameter~$\hat{\bm\theta}$, 
-we note that by construction\\
-$$\mathscr L\bigl(\hat q,\lambda;\hat{\bm\theta}\bigr)=\ell - \int_0^T \bm{\lambda}^{\top}(\underbrace{\dot{\hat{\mathbf{q}}} - \hat{\mathbf{f}}}_{= 0,~\forall\hat{\bm{\theta}}\in\hat{\bm{\Theta}}}) ~~~\Rightarrow~~~\dv{\mathscr{L}}{\hat{\bm{\theta}}} = \dv{\ell}{\hat{\bm{\theta}}}.$$
-Since in $\mathscr L$ all dependence of $\hat{\mathbf{q}}$ on $\hat{\bm\theta}$ has been
-eliminated by the choice of $\bm{\lambda}$, only the explicit partial derivatives remain.  In particular:\\
-$$\frac{\mathrm d}{\mathrm d\hat{\bm\theta}}\,
-\int_0^T \!g\bigl(\hat{\mathbf{q}}(t),\hat{\bm\theta}\bigr)\,\mathrm d t
-=
-\int_0^T 
-\frac{\partial g}{\partial\hat{\bm\theta}}
-\bigl(\hat{\mathbf{q}}(t),\hat{\bm\theta}\bigr)\,
-\mathrm d t,$$
-and\\
-$$\frac{\mathrm d}{\mathrm d\hat{\bm\theta}}\,
-\int_0^T \!\bm{\lambda}(t)^\top
-\hat{\mathbf{f}}\bigl(\hat{\mathbf{q}}(t),\hat{\bm\theta}\bigr)\,\mathrm d t
-=
-\int_0^T
-\bm{\lambda}(t)^\top\,
-\frac{\partial \hat{\mathbf{f}}}{\partial\hat{\bm\theta}}
-\bigl(\hat{\mathbf{q}}(t),\hat{\bm\theta}\bigr)\,
-\mathrm d t.$$
-Thus one arrives at\\
-\begin{equation*}
-    \dv{}{\hat{\bm{\theta}}}\ell(\hat{\mathbf{q}}(\cdot),\hat{\bm{\theta}}) =  \dv{}{\hat{\bm{\theta}}} \mathscr{L}(\hat{\mathbf{q}},\bm{\lambda},\hat{\bm{\theta}}) = \int_0^T \left(\bm{\lambda}(t)^{\top}\dfrac{\partial\hat{\mathbf{f}}}{\partial\hat{\bm{\theta}}} + \dfrac{\partial g}{\partial\hat{\bm{\theta}}} \right)\dd t.
-\end{equation*}
-as stated in the theorem.  \qed
+We defer the computation of $\nabla_{\hat{\mathbf{q}}}~g$, along with the remaining gradients needed for the adjoint method, to Section~\ref{sec:four_gradients}.
 
 
-\subsection*{Proof by Sensitivity Analysis}
 
-The aim is to obtain the sensitivities $\displaystyle\dv{\ell}{\hat{\bm{\theta}}}$ of a functional of the form\\
-$$\ell (\hat{\mathbf{q}},\hat{\bm{\theta}}) = \int_0^T g(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})~\dd t$$
-with respect to the parameters $\hat{\bm{\theta}}$, where $g$ represents a quadratic loss of a quantity of interest related to the state $\hat{\mathbf{q}}(t)$ over a certain period of time $t\in[0,T]$. Then, we have\\
-$$\dv{\ell}{\hat{\bm{\theta}}} = \int_0^T \dv{\hat{\bm{\theta}}}~g(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})~\dd t = \int_0^T \left(\pdv{g}{\hat{\bm{\theta}}} + \pdv{g}{\hat{\mathbf{q}}} \dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}} \right)\dd t.$$
-In order to avoid the computation of $\displaystyle\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}$, i.e., the sensitity of the trajectory w.r.t. the parameters , which can be extremely hard, we apply a change of variables (adjoint method).
+%%%%%%
 
-Consider again the following equality constraint minimization problem\\
-\begin{align*}
-    &\underset{\hat{\bm{\theta}} \scalebox{0.67}{$\in$} \hat{\bm{\Theta}}}{\mathrm{min}} ~~\ell (\hat{\mathbf{q}}(t),\hat{\bm{\theta}})\\
-    &\mathrm{s.t.}~~\dot{\hat{\mathbf{q}}}(t) = \hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}),\quad\hat{\mathbf{q}}(t_0)=\hat{\mathbf{q}}_0,
-\end{align*}
-and a Lagrangian ($\mathscr{L}$) defined as\\
-\begin{align*}
-    \mathscr{L}(\hat{\mathbf{q}}, \bm{\lambda},\hat{\bm{\theta}}) &\coloneqq \ell(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}) - \int_0^T \bm{\lambda}(t)^{\top}\left( \dot{\hat{\mathbf{q}}}(t) - \hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})  \right)\dd t -\bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0)\\
-    &= \int_0^T \left( g(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}) - \bm{\lambda}(t)^{\top}\left( \dot{\hat{\mathbf{q}}}(t) - \hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})  \right) \right)\dd t-\bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0).
-\end{align*}
-Differentiating the Lagrangian w.r.t. $\bm{\theta}$, we have\\
-\begin{align*}
-    \dv{\mathscr{L}}{\hat{\bm{\theta}}} &= \int_0^T\left[ \pdv{g}{\hat{\bm{\theta}}} + \pdv{g}{\hat{\mathbf{q}}} \dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}} - \bm{\lambda}(t)^{\top} \left( \dv{t}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}} - \pdv{\hat{\mathbf{f}}}{\hat{\bm{\theta}}} - \pdv{\hat{\mathbf{f}}}{\hat{\mathbf{q}}}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}} \right) \right]\dd t - \bm{\lambda}(0)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~(0)\notag\\
-    &= \int_0^T \left[\pdv{g}{\hat{\bm{\theta}}} + \bm{\lambda}(t)^{\top} \pdv{\hat{\mathbf{f}}}{\hat{\bm{\theta}}}+ \left( \pdv{q}{\hat{\mathbf{q}}} + \bm{\lambda}(t)^{\top}\pdv{\hat{\mathbf{f}}}{\hat{\mathbf{q}}}-\bm{\lambda}(t)^{\top}\dv{t} \right)\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}} \right]\dd t- \bm{\lambda}(0)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~(0). 
-\end{align*}
-Integrating by parts, we get rid of $\displaystyle\dv{t}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}$ in the last part of the above integral,\\
-\begin{align*}
-    \int_0^T -\bm{\lambda}(t)^{\top}\dv{t}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~\dd t &= \left[ -\bm{\lambda}(t)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}\right]_0^T + \int_0^T \left( \dv{\bm{\lambda}}{t}\right)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~\dd t\\
-    &= \bm{\lambda}(0)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~(0) - \bm{\lambda}(T)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~(T) + \int_0^T \left( \dv{\bm{\lambda}}{t}\right)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~\dd t.
-\end{align*}
-Plugin this expression, the Lagrangian sensitivity equation  yields\\
-\begin{align*}
-   \dv{\mathscr{L}}{\hat{\bm{\theta}}} &= \int_0^T\left[ \pdv{g}{\hat{\bm{\theta}}} + \bm{\lambda}(t)^{\top} \pdv{\hat{\mathbf{f}}}{\hat{\bm{\theta}}} + \underbrace{\left( \pdv{q}{\hat{\mathbf{q}}} + \bm{\lambda}(t)^{\top}\pdv{\hat{\mathbf{f}}}{\hat{\mathbf{q}}}+ \dot{\bm{\lambda}}(t)^{\top}\right)}_{\text{make = 0}} \dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}} \right]\dd t \\
-   & - \bm{\lambda}(0)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~(0)+\bm{\lambda}(0)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~(0) - \underbrace{\bm{\lambda}(T)^{\top}\dv{\hat{\mathbf{q}}}{\hat{\bm{\theta}}}~(T)}_{\text{make = 0}}.
-\end{align*}
- After transposing and rearranging terms, we obtain the desired adjoint equations\\
-\begin{equation*}
-    \dot{\bm{\lambda}}(t) = -\left[ \left(\pdv{\hat{\mathbf{f}}}{\hat{\mathbf{q}}}\right)^{\top} \bm{\lambda}(t)  + \left(\pdv{g}{\hat{\mathbf{q}}}\right)^{\top}\right], \quad\bm{\lambda}(T) = \bm{0}.
-\end{equation*}
+\subsection*{Proof (by Sensitivity Analysis)}
 
-By construction, as we have shown in the first proof,  minimizing the Lagrangian $\mathscr{L}$ is the same as minimizing the loss functional $\ell$ since\\
-$$\dv{\mathscr{L}}{\hat{\bm{\theta}}} = \dv{\ell}{\hat{\bm{\theta}}}.$$
-Thus, we arrive at the final expression for the gradients, which concludes the proof\\
-\begin{equation*}
-    \dv{\mathscr{L}}{\hat{\bm{\theta}}} =\dv{\ell}{\hat{\bm{\theta}}} = \int_0^T\left(  \bm{\lambda}(t)^{\top} \pdv{\hat{\mathbf{f}}}{\hat{\bm{\theta}}} + \pdv{g}{\hat{\bm{\theta}}} \right)\dd t .
-\end{equation*}
-\qed
+ADD HERE proof by sensitivity analysis without Lagrangian. Primal problem. Use this to discuss the save in computational cost with the adjoint.
+
+%%%%%%
 
 \subsection*{Theoretical Validation}
 
@@ -242,7 +252,7 @@ The correctness of the adjoint method follows from three fundamental principles 
 \begin{itemize}
     \item \textbf{Optimality Conditions.}  The adjoint equations emerge directly from the Karush-Kuhn-Tucker (KKT) conditions for constrained optimization \cite{nocedal1999numerical}. By forming the Lagrangian\\
     $$\mathscr{L}(\hat{\mathbf{q}}, \bm{\lambda}, \hat{\bm{\theta}}) 
-    = \int_{t_0}^{t_f} g(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}) \,\mathrm{d}t
+    = \int_{t_0}^{t_f} g(\hat{\mathbf{q}}(t),t) \,\mathrm{d}t
       - \int_{t_0}^{t_f} \bm{\lambda}(t)^\top \bigl[\dot{\hat{\mathbf{q}}}(t)-\hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})\bigr]\,\mathrm{d}t
       - \bm{\lambda}(t_0)^\top \bigl(\hat{\mathbf{q}}(t_0)-\hat{\mathbf{q}}_0\bigr) ,$$
   the first-order stationarity conditions with respect to~$\hat{\mathbf{q}}$ yield the adjoint ODE that ensures the computed gradients respect the dynamical constraints.
@@ -252,7 +262,7 @@ The correctness of the adjoint method follows from three fundamental principles 
     \item \textbf{Consistency with Pontryagin's Maximum Principle.}  Defining the Hamiltonian\\
   $$\mathcal{H}(\hat{\mathbf{q}}, \bm{\lambda}, \hat{\bm{\theta}}) 
       = \bm{\lambda}^\top \hat{\mathbf{f}}(\hat{\mathbf{q}}, \hat{\bm{\theta}}) 
-      + g(\hat{\mathbf{q}}, \hat{\bm{\theta}}),$$
+      + g(\hat{\mathbf{q}}, t),$$
   Pontryagin's principle prescribes the costate equation\\
   $$\dot{\bm{\lambda}}(t) 
       = - \left(\frac{\partial \mathcal{H}}{\partial \hat{\mathbf{q}}} \right)^{\top}
@@ -265,6 +275,7 @@ In conclusion, the adjoint method computes the costate $\bm{\lambda}(t)$ by rigo
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Equations of the Four Gradients}
+\label{sec:four_gradients}
 
 Note that the adjoint method used here requires computing the following four gradients:\\
 $$\pdv{\hat{\mathbf{f}}}{\hat{\mathbf{q}}},  \quad \pdv{g}{\hat{\mathbf{q}}}, \quad \pdv{\hat{\mathbf{f}}}{\hat{\bm{\theta}}},\quad \text{and} \quad \pdv{g}{\hat{\bm{\theta}}},$$
@@ -567,8 +578,6 @@ For $\mu$-strongly convex $\ell$, two key properties ensure favorable optimizati
 \end{itemize}
 
 These properties become particularly relevant in Operator Inference frameworks when an $L^2$-regularization term is added to the loss.  The regularizer enforces strong convexity and smoothness, thus ensuring the above convergence properties.
-
-\newpage
 
 \subsection*{Adaptive Step-Size: Armijo Line Search.} 
 Rather than fixing $\eta_j$, Algorithm \ref{algorithm_1} employs a backtracking procedure to adaptively choose $\eta_j$ so that the Armijo sufficient decrease condition is satisfied \cite{nocedal1999numerical}:
