@@ -80,7 +80,7 @@ Stacking the solution of the above sparse system of equations at each time yield
 
 %%%%
 
-For the Burgers’ dataset, Algorithm~\ref{algorithm_2} is trained on the time interval $t\in[0,0.5]$ and then used to predict over $t\in[0.5,1.0]$. We systematically reduce the number of snapshots to 100 \% (10~000 points), 10 \% (1~000 points), 1 \% (100 points), and 0.2 \% (20 points) of the original temporal grid. In each scenario, we estimate OpInf parameters with both second-order (\texttt{'ord2'}) and sixth-order (\texttt{'ord6'}) finite differences, applying an $L^2$-regularization weight $\xi=10^{-2}$.  
+For the Burgers’ dataset, Algorithm~\ref{algorithm_2} is trained on the time interval $t\in[0,0.5]$ and then used to predict over $t\in[0.5,1.0]$. We systematically reduce the number of snapshots to 100\% (10~000 points), 10\% (1~000 points), 1\% (100 points), and 0.2\% (20 points) of the original temporal grid. In each scenario, we estimate OpInf parameters with both second-order (\texttt{'ord2'}) and sixth-order (\texttt{'ord6'}) finite differences, applying an $L^2$-regularization weight $\xi=10^{-2}$.  
 
 Figure~\ref{fig:five_by_two} displays, for each sampling level, the true reduced states $\hat{\mathbf{q}}_{\mathrm{true}}$ (solid) versus the predicted trajectories $\hat{\mathbf{q}}_{\mathrm{pred}}$ (dashed) for both the OpInf and adjoint-trained models. Even at extreme sampling sparsity, the adjoint method produces predictions that are visually indistinguishable from those of OpInf, demonstrating its resilience in the absence of noise.
 
@@ -137,7 +137,7 @@ Figure~\ref{fig:five_by_two} displays, for each sampling level, the true reduced
 
 %%%%%% Prediction Error vs. Time (data density - Burgers) %%%%%%
 
-To quantify the impact of training data sparsity, we compute the prediction error in the test region $t\in[0.5,1]$ for each sampling density. Specifically, we solve the ROM-OpInf initial value problem with the learned operators and compare the trajectories against the true reduced states for each sampling level (100 \%, 10 \%, 1 \%, 0.2 \% respectively):\\
+To quantify the impact of training data sparsity, we compute the prediction error in the test region $t\in[0.5,1]$ for each sampling density. Specifically, we solve the ROM-OpInf initial value problem with the learned operators and compare the trajectories against the true reduced states for each sampling level (100\%, 10\%, 1\%, 0.2\% respectively):\\
   $$\|\hat{\mathbf{q}}_{\mathrm{true}}(t) - \hat{\mathbf{q}}_{\mathrm{pred}}(t)\|_2,
   \quad t\in[0.5,1].$$
 Figure~\ref{fig:twobytwo} compares the OpInf and adjoint error curves across all sampling levels. The adjoint method produces errors similar to or even lower than when the sixth-order stencil is used, confirming its accuracy capturing time-derivative information under limited data.
@@ -151,14 +151,14 @@ Figure~\ref{fig:twobytwo} compares the OpInf and adjoint error curves across all
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{pred_error_vs_time_data_density_100.pdf}
-    \caption{100 \% of the data.}
+    \caption{100\% of the data.}
     \label{fig:image1}
   \end{subfigure}
   \quad
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{pred_error_vs_time_data_density_10.pdf}
-    \caption{10 \% of the data.}
+    \caption{10\% of the data.}
     \label{fig:image2}
   \end{subfigure}
   
@@ -168,14 +168,14 @@ Figure~\ref{fig:twobytwo} compares the OpInf and adjoint error curves across all
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{pred_error_vs_time_data_density_1.pdf}
-    \caption{1 \% of the data.}
+    \caption{1\% of the data.}
     \label{fig:image3}
   \end{subfigure}
   \quad
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{pred_error_vs_time_data_density_02.pdf}
-    \caption{0.2 \% of the data.}
+    \caption{0.2\% of the data.}
     \label{fig:image4}
   \end{subfigure}
   
@@ -191,7 +191,7 @@ Figure~\ref{fig:twobytwo2} shows the relative error\\
 $$\frac{\|\hat{\mathbf{q}}_{\mathrm{true}}(t) - \hat{\mathbf{q}}_{\mathrm{pred}}(t)\|_2}
        {\|\hat{\mathbf{q}}_{\mathrm{true}}(t)\|_2},
   \quad t\in[0,1],$$
-as a function of the ROM dimension $r$. Again, each subplot corresponds to one of the four sampling densities. Both methods exhibit the expected decay in relative error with increasing $r$. However, in the most extreme sparsity case (0.2 \%), the adjoint-trained model achieves marginally lower errors, suggesting it can construct more efficient reduced bases when snapshot information is scarce.
+as a function of the ROM dimension $r$. Again, each subplot corresponds to one of the four sampling densities. Both methods exhibit the expected decay in relative error with increasing $r$. However, in the most extreme sparsity case (0.2\%), the adjoint-trained model achieves marginally lower errors, suggesting it can construct more efficient reduced bases when snapshot information is scarce.
 
 \vspace{0.7cm}
 
@@ -202,14 +202,14 @@ as a function of the ROM dimension $r$. Again, each subplot corresponds to one o
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{rel_error_vs_r_data_density_100.pdf}
-    \caption{100 \% of the data.}
+    \caption{100\% of the data.}
     \label{fig:image1}
   \end{subfigure}
   \quad
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{rel_error_vs_r_data_density_10.pdf}
-    \caption{10 \% of the data.}
+    \caption{10\% of the data.}
     \label{fig:image2}
   \end{subfigure}
   
@@ -219,14 +219,14 @@ as a function of the ROM dimension $r$. Again, each subplot corresponds to one o
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{rel_error_vs_r_data_density_1.pdf}
-    \caption{1 \% of the data.}
+    \caption{1\% of the data.}
     \label{fig:image3}
   \end{subfigure}
   \quad
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{rel_error_vs_r_data_density_02.pdf}
-    \caption{0.2 \% of the data.}
+    \caption{0.2\% of the data.}
     \label{fig:image4}
   \end{subfigure}
   
@@ -288,7 +288,7 @@ as a function of the ROM dimension $r$. Again, each subplot corresponds to one o
 To assess robustness under imperfect data, we corrupt the full-order snapshots with additive Gaussian noise.  Specifically, we draw\\
 $$\mathrm{error} \sim \mathcal{N}\bigl(0,\sigma^2\bigr),
 \quad \sigma = \|\mathbf{q}\|_{\mathrm{max}}\,\frac{\text{pct}}{100},$$ 
-for noise levels of 1 \%, 5 \%, 10 \%, and 20 \%.  Each noisy dataset is then used to train both the OpInf and adjoint models over $t\in[0,0.5]$, with predictions made on $[0.5,1]$. Figure~\ref{fig:five_by_two3} visualizes the true reduced states (scatter and solid) against the trained predictions (dashed) for both methods at each noise level. As noise increases, the adjoint-trained ROM consistently tracks true trajectories more accurately than OpInf, highlighting its superior gradient fidelity in the presence of data corruption.
+for noise levels of 1\%, 5\%, 10\%, and 20\%.  Each noisy dataset is then used to train both the OpInf and adjoint models over $t\in[0,0.5]$, with predictions made on $[0.5,1]$. Figure~\ref{fig:five_by_two3} visualizes the true reduced states (scatter and solid) against the trained predictions (dashed) for both methods at each noise level. As noise increases, the adjoint-trained ROM consistently tracks true trajectories more accurately than OpInf, highlighting its superior gradient fidelity in the presence of data corruption.
 
 %%%%%% Prediction Error vs. Time (noise - Burgers) %%%%%%
 
@@ -303,14 +303,14 @@ Figure~\ref{fig:twobytwo3} shows the time-dependent prediction error, as previou
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{pred_error_vs_time_noise_1.pdf}
-    \caption{1 \% of noise level.}
+    \caption{1\% of noise level.}
     \label{fig:image1}
   \end{subfigure}
   \quad
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{pred_error_vs_time_noise_5.pdf}
-    \caption{5 \% of noise level.}
+    \caption{5\% of noise level.}
     \label{fig:image2}
   \end{subfigure}
   
@@ -320,14 +320,14 @@ Figure~\ref{fig:twobytwo3} shows the time-dependent prediction error, as previou
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{pred_error_vs_time_noise_10.pdf}
-    \caption{10 \% of noise level.}
+    \caption{10\% of noise level.}
     \label{fig:image3}
   \end{subfigure}
   \quad
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{pred_error_vs_time_noise_20.pdf}
-    \caption{20 \% of noise level.}
+    \caption{20\% of noise level.}
     \label{fig:image4}
   \end{subfigure}
   
@@ -339,7 +339,7 @@ Figure~\ref{fig:twobytwo3} shows the time-dependent prediction error, as previou
 
 %%%%%% Relative Error vs. r (noise - Burgers)%%%%%%
 
-To further quantify model efficiency, Figure~\ref{fig:twobytwo4} plots the relative error as a function of the model dimension $r$. For each noise level, we observe that the adjoint-trained ROM achieves a better accuracy for the same number of modes than both OpInf methods, especially at 5 \%, 10 \% and 20 \% noise.  This confirms that the adjoint gradient yields more informative parameter updates even when training data are corrupted.
+To further quantify model efficiency, Figure~\ref{fig:twobytwo4} plots the relative error as a function of the model dimension $r$. For each noise level, we observe that the adjoint-trained ROM achieves a better accuracy for the same number of modes than both OpInf methods, especially at 5\%, 10\% and 20\% noise.  This confirms that the adjoint gradient yields more informative parameter updates even when training data are corrupted.
 
 \vspace{0.7cm}
 
@@ -350,14 +350,14 @@ To further quantify model efficiency, Figure~\ref{fig:twobytwo4} plots the relat
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{rel_error_vs_r_noise_1.pdf}
-    \caption{1 \% of noise level.}
+    \caption{1\% of noise level.}
     \label{fig:image1}
   \end{subfigure}
   \quad
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{rel_error_vs_r_noise_5.pdf}
-    \caption{5 \% of noise level.}
+    \caption{5\% of noise level.}
     \label{fig:image2}
   \end{subfigure}
   
@@ -367,14 +367,14 @@ To further quantify model efficiency, Figure~\ref{fig:twobytwo4} plots the relat
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{rel_error_vs_r_noise_10.pdf}
-    \caption{10 \% of noise level.}
+    \caption{10\% of noise level.}
     \label{fig:image3}
   \end{subfigure}
   \quad
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{rel_error_vs_r_noise_20.pdf}
-    \caption{20 \% of noise level.}
+    \caption{20\% of noise level.}
     \label{fig:image4}
   \end{subfigure}
   
@@ -509,9 +509,9 @@ Visualization of the dynamics for the Fisher-KPP equation is shown in Figure~\re
 
 %Global summary for FKPP noise experiments%
 
-In the case of the 2D Fisher-KPP equation, we omit the data density reduction study since it yielded virtually the same conclusions as for Burgers' with no significant performance gap between sixth-order OpInf and the adjoint method. Instead, we focus solely on the noise perturbation results, which are displayed in Figures~\ref{fig:five_by_two4}, \ref{fig:twobytwo5}, and \ref{fig:twobytwo6}. Due to stability considerations in the reaction-diffusion dynamics, we extended in this case the training window to cover 75~\% of the total simulation time.
+In the case of the 2D Fisher-KPP equation, we omit the data density reduction study since it yielded virtually the same conclusions as for Burgers' with no significant performance gap between sixth-order OpInf and the adjoint method. Instead, we focus solely on the noise perturbation results, which are displayed in Figures~\ref{fig:five_by_two4}, \ref{fig:twobytwo5}, and \ref{fig:twobytwo6}. Due to stability considerations in the reaction-diffusion dynamics, we extended in this case the training window to cover 75\% of the total simulation time.
 
-Across all four noise levels (1 \%, 5 \%, 10 \%, and 20 \%), the adjoint-trained ROM consistently outperformed the best OpInf configuration (\texttt{'ord6'}), both in trajectory fidelity and in error metrics. 
+Across all four noise levels (1\%, 5\%, 10\%, and 20\%), the adjoint-trained ROM consistently outperformed the best OpInf configuration (\texttt{'ord6'}), both in trajectory fidelity and in error metrics. 
 
 %%%%%% Prediction Error vs. Time (noise - FKPP) %%%%%%
 
@@ -526,14 +526,14 @@ In the time-series comparisons of the reduced states (Figure~\ref{fig:twobytwo5}
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{fkpp_pred_error_vs_time_noise_1.pdf}
-    \caption{1 \% of noise level.}
+    \caption{1\% of noise level.}
     \label{fig:image1}
   \end{subfigure}
   \quad
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{fkpp_pred_error_vs_time_noise_5.pdf}
-    \caption{5 \% of noise level.}
+    \caption{5\% of noise level.}
     \label{fig:image2}
   \end{subfigure}
   
@@ -543,14 +543,14 @@ In the time-series comparisons of the reduced states (Figure~\ref{fig:twobytwo5}
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{fkpp_pred_error_vs_time_noise_10.pdf}
-    \caption{10 \% of noise level.}
+    \caption{10\% of noise level.}
     \label{fig:image3}
   \end{subfigure}
   \quad
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{fkpp_pred_error_vs_time_noise_20.pdf}
-    \caption{20 \% of noise level.}
+    \caption{20\% of noise level.}
     \label{fig:image4}
   \end{subfigure}
   
@@ -573,14 +573,14 @@ Finally, the relative error versus model dimension plots in Figure~\ref{fig:twob
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{fkpp_rel_error_vs_r_noise_1.pdf}
-    \caption{1 \% of noise level.}
+    \caption{1\% of noise level.}
     \label{fig:image1}
   \end{subfigure}
   \quad
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{fkpp_rel_error_vs_r_noise_5.pdf}
-    \caption{5 \% of noise level.}
+    \caption{5\% of noise level.}
     \label{fig:image2}
   \end{subfigure}
   
@@ -590,14 +590,14 @@ Finally, the relative error versus model dimension plots in Figure~\ref{fig:twob
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{fkpp_rel_error_vs_r_noise_10.pdf}
-    \caption{10 \% of noise level.}
+    \caption{10\% of noise level.}
     \label{fig:image3}
   \end{subfigure}
   \quad
   \begin{subfigure}[b]{0.48\textwidth}
     \centering
     \includegraphics[width=\linewidth]{fkpp_rel_error_vs_r_noise_20.pdf}
-    \caption{20 \% of noise level.}
+    \caption{20\% of noise level.}
     \label{fig:image4}
   \end{subfigure}
   
