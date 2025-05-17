@@ -109,7 +109,12 @@ $$\mathscr{L}\bigl(\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}}
 In order to perform a gradient-based optimization process we need to compute\\
 \begin{align*}
     \dv{\tilde{\ell}}{\hat{\bm{\theta}}} &= \dv{}{\hat{\bm{\theta}}} \mathscr{L}\bigl(\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}},\bm{\lambda}(\cdot)\bigr) \\
-    &= \dfrac{\partial\mathscr{L}}{\partial\hat{\bm{\theta}}} + \dfrac{\partial\mathscr{L}}{\partial\hat{\mathbf{q}}} \dfrac{\textrm{d}\tilde{\mathbf{q}}}{\textrm{d}\hat{\bm{\theta}}}\Bigg\vert_{\hat{\mathbf{q}}(\cdot) = \tilde{\mathbf{q}}(\cdot, \hat{\bm{\theta}} ) }.
+    &= \dfrac{\partial\mathscr{L}}{\partial\hat{\bm{\theta}}} + \dfrac{\partial\mathscr{L}}{\partial\hat{\mathbf{q}}} \dfrac{\textrm{d}\tilde{\mathbf{q}}}{\textrm{d}\hat{\bm{\theta}}}\Bigg\vert_{\hat{\mathbf{q}}(\cdot) = \tilde{\mathbf{q}}(\cdot, \hat{\bm{\theta}} ) } \\
+    &= 
+  \frac{\partial\mathscr{L}}{\partial \hat{\bm{\theta}}}+
+  \bm{D}_{\hat{\mathbf{q}}}\,\mathscr{L}\biggl(\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\,\hat{\bm{\theta}},\,\bm{\lambda}(\cdot);\,
+    \dfrac{\partial\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}})}{\partial\hat{\bm{\theta}}}
+  \biggr).
 \end{align*}
 Then, we enforce stationarity of the derivative, $\dfrac{\partial\mathscr{L}}{\partial\hat{\mathbf{q}}} = 0$, condition that will provide the adjoint equations, ensuring\\
 \begin{equation}
@@ -222,11 +227,12 @@ Since $\mathbf{v}$ is arbitrary, we recognize the above expression as a weak for
     -\dot{\bm{\lambda}}(t) = \hat{\mathbf{A}}^{\top} \bm{\lambda}(t) + 2\tilde{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \bm{\lambda}(t)] + \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t),~~~\bm{\lambda}(T)=\bm{0},\quad t\in [0,T].
 \end{equation*}
 This linear (but non-autonomous) system can be solved with `backward time-integration' given a trajectory $\hat{\mathbf{q}}(t)$. The system can be written in a more clearly linear form (with respect to $\bm{\lambda}(t)$) as\\
-\begin{align*}
-     \dot{\bm{\lambda}}(t) &= -\left(\hat{\mathbf{A}}^{\top} + 2\mathbf{M}(\hat{\mathbf{q}}(t))\right)\bm{\lambda}(t) - \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t),\\
+\begin{align}
+    \label{eq:gradient_fq}
+     \dot{\bm{\lambda}}(t) &= -\left(\hat{\mathbf{A}}^{\top} + 2\mathbf{M}(\hat{\mathbf{q}}(t))\right)\bm{\lambda}(t) - \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t),\notag\\
     &~\hspace{8.8cm}~~~~~\bm{\lambda}(T)=\bm{0},\\
-    &= -\nabla_{\hat{\mathbf{q}}}~\hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})\bm{\lambda}(t) - \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t),
-\end{align*}
+    &= -\nabla_{\hat{\mathbf{q}}}~\hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})\bm{\lambda}(t) - \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t)\notag,
+\end{align}
 where $\mathbf{M}(\hat{\mathbf{q}}(t))\in\mathbb{R}^{r\times r}$ is the matrix such that\\
 \begin{equation*}
     \mathbf{M}(\hat{\mathbf{q}}(t)) \bm{\lambda} = \tilde{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \bm{\lambda}(t)].
@@ -279,7 +285,11 @@ In conclusion, the adjoint method computes the costate $\bm{\lambda}(t)$ by rigo
 
 Note that the adjoint method used here requires computing the following four gradients:\\
 $$\pdv{\hat{\mathbf{f}}}{\hat{\mathbf{q}}},  \quad \pdv{g}{\hat{\mathbf{q}}}, \quad \pdv{\hat{\mathbf{f}}}{\hat{\bm{\theta}}},\quad \text{and} \quad \pdv{g}{\hat{\bm{\theta}}},$$
-where $\hat{\mathbf{f}}(\hat{\mathbf{q}}, \hat{\bm{\theta}})$ denotes the right-hand side of the reduced-order model (ROM-OpInf) dynamics, and $g(\hat{\mathbf{q}}, \hat{\bm{\theta}})$ is the integrand of the loss functional. The efficient computation of these gradients is crucial for both the backward integration of the adjoint equation and for evaluating the total derivative of the loss function $\ell$. What follows is a detailed derivation of the expressions of each of these gradients.
+where\\
+$$\hat{\mathbf{f}}:\mathbb{R}^r \times \mathbb{R}^d \to \mathbb{R}^r$$ 
+denotes the right-hand side of the reduced-order model (ROM-OpInf) dynamics, and\\
+$$g:\mathcal{C}^1(\mathcal{T})^r\to \mathbb{R}$$ 
+is the integrand of the loss functional $\ell$. The efficient computation of these gradients is crucial for both the backward integration of the adjoint equation and for evaluating the total derivative of the reduced loss $\tilde\ell$. What follows is a detailed derivation of the expressions of each of these gradients.
 
 \subsection{$\bm{\nabla}_{\hat{\mathbf{q}}}~\hat{\mathbf{f}}\bigl(\hat{\mathbf{q}}(t), \hat{\bm{\theta}}\bigr)$}
 
@@ -287,7 +297,7 @@ We begin by recalling the definition:\\
 $$
 \hat{\mathbf{f}}(\hat{\mathbf{q}}(t), \hat{\bm{\theta}}) = \hat{\mathbf{c}} + \hat{\mathbf{A}}\hat{\mathbf{q}}(t) + \hat{\mathbf{H}}\bigl( \hat{\mathbf{q}}(t)\otimes \hat{\mathbf{q}}(t) \bigr) + \hat{\mathbf{B}}\mathbf{u}(t).
 $$
-To compute the derivative of $\hat{\mathbf{f}}$ with respect to $\hat{\mathbf{q}}$, we consider the Gâteaux derivative in the direction of an arbitrary vector $\mathbf{v}\in \mathcal{C}^1(\mathcal{T})^r$:\\
+To compute the derivative of $\hat{\mathbf{f}}$ with respect to $\hat{\mathbf{q}}$, we consider the Gâteaux derivative in the direction of an arbitrary vector $\mathbf{v}\in \mathbb{R}^r$:\\
 $$
 \bm{D}_{\hat{\mathbf{q}}}~\hat{\mathbf{f}}(\hat{\mathbf{q}}, \hat{\bm{\theta}}; \mathbf{v}) = \bm{D}_{\hat{\mathbf{q}}}~\hat{\mathbf{f}}[\mathbf{v}] = \lim_{\varepsilon \to 0} \frac{\hat{\mathbf{f}}(\hat{\mathbf{q}} + \varepsilon \mathbf{v}, \hat{\bm{\theta}}) - \hat{\mathbf{f}}(\hat{\mathbf{q}}, \hat{\bm{\theta}})}{\varepsilon} = \dv{}{\varepsilon} \left[ \hat{\mathbf{f}}(\hat{\mathbf{q}} + \varepsilon \mathbf{v}, \hat{\bm{\theta}}) \right]_{\varepsilon = 0}.
 $$
@@ -319,112 +329,34 @@ where $\mathbf{I}_r$ is the identity matrix of size $r$. Therefore, the gradient
 \end{equation}
 where we define $\mathbf{M}(\hat{\mathbf{q}}(t)) := \left( \hat{\mathbf{H}}( \hat{\mathbf{q}}(t) \otimes \mathbf{I}_r ) \right)^{\top} \in \mathbb{R}^{r \times r}$.
 
+Note that this result is consistent with the formulation given in the first proof \eqref{eq:gradient_fq}.
+
+
 \subsection{$\bm{\nabla}_{\hat{\mathbf{q}}}\,g\bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}\bigr)$}
 
-By definition, the loss is\\
-$$\ell\bigl(\hat{\mathbf{q}}(\cdot),\hat{\bm{\theta}}\bigr)=\int_{0}^{T}g\bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}\bigr)\,\mathrm{d}t,$$
-with\\
-$$g\bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}\bigr)=\left\|\hat{\mathbf{q}}(t)-\Bigl[\hat{\mathbf{q}}(0)+\int_{0}^{t}\Bigl(\hat{\mathbf{c}}+\hat{\mathbf{A}}\hat{\mathbf{q}}(\tau)+\hat{\mathbf{H}}\bigl(\hat{\mathbf{q}}(\tau)\otimes\hat{\mathbf{q}}(\tau)\bigr)+\hat{\mathbf{B}}\mathbf{u}(\tau)\Bigr)\mathrm{d}\tau\Bigr]
-\right\|_{2}^{2}.$$
-For convenience, we introduce the residual\\
-$$\mathbf{r}(t):=\hat{\mathbf{q}}(t)-\hat{\mathbf{q}}(0)-\int_{0}^{t}\Bigl(\hat{\mathbf{c}}
-+\hat{\mathbf{A}}\hat{\mathbf{q}}(\tau)
-+\hat{\mathbf{H}}\bigl(\hat{\mathbf{q}}(\tau)\otimes\hat{\mathbf{q}}(\tau)\bigr)
-+\hat{\mathbf{B}}\mathbf{u}(\tau)
-\Bigr)\mathrm{d}\tau.$$
-The Gateaux derivative of $\ell$ in the direction $\mathbf{v}(\cdot)$ is\\
+By definition, the loss integrand is\\
+$$g\bigl(\hat{\mathbf{q}}(\cdot),t\bigr)= \Bigl\|\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\Bigr\|_2^2\,$$
+We introduce, by convenience, the residual\\
+$$\mathbf{r}(\hat{\mathbf{q}}(\cdot),t):=  \hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t).$$
+Then, the Gateaux derivative of $g$ in the direction $\mathbf{v}(\cdot)\in\mathcal{C}^1(\mathcal{T})^r$ is\\
 \begin{align*}
-\bm{D}_{\hat{\mathbf{q}}}\,\ell[\mathbf{v}]
+\label{eq:gradient_3}
+\bm{D}_{\hat{\mathbf{q}}}\,g[\mathbf{v}]
 &=\frac{\mathrm{d}}{\mathrm{d}\varepsilon}
-\ell\bigl(\hat{\mathbf{q}}+\varepsilon\mathbf{v},\hat{\bm{\theta}}\bigr)\Big|_{\varepsilon=0}=\int_{0}^{T}
-\frac{\mathrm{d}}{\mathrm{d}\varepsilon}g\bigl(\hat{\mathbf{q}}(t)+\varepsilon\mathbf{v}(t),\hat{\bm{\theta}}\bigr)\Big|_{\varepsilon=0}\,\mathrm{d}t\\
-&=\int_{0}^{T}\nabla_{\hat{\mathbf{q}}}g\bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}\bigr)^{\!\top}
-\mathbf{v}(t)\,\mathrm{d}t.
+g\bigl(\hat{\mathbf{q}}+\varepsilon\mathbf{v},t\bigr)\Big|_{\varepsilon=0}=
+\frac{\mathrm{d}}{\mathrm{d}\varepsilon}\left( \Bigl\|\hat{\mathbf{q}}(t) + \varepsilon\mathbf{v}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\Bigr\|_2^2\right) \Big|_{\varepsilon=0}\\
+ &= \frac{\mathrm{d}}{\mathrm{d}\varepsilon}\left( \Bigl\|\mathbf{r}(\hat{\mathbf{q}}(t),t) + \varepsilon\mathbf{v}(t))\Bigr\|_2^2\right) \Big|_{\varepsilon=0}\\
+ &= 2\left(\mathbf{r}(\hat{\mathbf{q}}(t),t) + \varepsilon\mathbf{v}(t))\right)^{\top}\mathbf{v}(t) \Big|_{\varepsilon=0}\\
+ &= 2\left(\mathbf{r}(\hat{\mathbf{q}}(t),t)\right)^{\top}\mathbf{v}(t),
 \end{align*}
-
-Expanding the derivative of $g$, we have\\
-\begin{align*}
-    &\dv{}{\varepsilon}
-     \left\| \hat{\mathbf{q}}(t) + \varepsilon\mathbf{v}(t)
-        - \left[
-            \hat{\mathbf{q}}(0) + \varepsilon\mathbf{v}(0)
-            + \int_0^t \Bigl(
-                \hat{\mathbf{c}} 
-                + \hat{\mathbf{A}}\hat{\mathbf{q}}(\tau)
-                + \varepsilon\hat{\mathbf{A}}\mathbf{v}(\tau) \right. \right. \\
-    &
-                + \hat{\mathbf{H}}\big(\hat{\mathbf{q}}(\tau) \otimes \hat{\mathbf{q}}(\tau)\big)
-                + 2\varepsilon\hat{\mathbf{H}}\big(\hat{\mathbf{q}}(\tau) \otimes \mathbf{v}(\tau)\big)
-                + \hat{\mathbf{B}}\mathbf{u}(\tau)
-                + \mathcal{O}(\varepsilon^2)
-            \Bigr) \dd\tau
-        \left. \left. \vphantom{\int_0^t} \right] \right\|_2^2 \Big|_{\varepsilon=0}.
-\end{align*}
-Rearranging terms,\\
-\begin{align*}
-&\frac{\mathrm d}{\mathrm d\varepsilon}
- \biggl\|
-   \hat{\mathbf{q}}(t)
-   - \Bigl[
-       \hat{\mathbf{q}}(0)
-       + \int_{0}^{t}
-           \bigl(
-             \hat{\mathbf{c}}
-             + \hat{\mathbf{A}}\,\hat{\mathbf{q}}(\tau)
-             + \hat{\mathbf{H}}\bigl(\hat{\mathbf{q}}(\tau)\otimes\hat{\mathbf{q}}(\tau)\bigr)
-             + \hat{\mathbf{B}}\,\mathbf{u}(\tau)
-           \bigr)
-         \,\mathrm d\tau
-     \Bigr] \\
-&\quad\quad
- + \,\varepsilon\,
-   \Bigl[
-     \mathbf{v}(t)
-     - \Bigl(
-         \mathbf{v}(0)
-         + \int_{0}^{t}
-             \bigl(
-               \hat{\mathbf{A}}\,\mathbf{v}(\tau)
-               + 2\,\hat{\mathbf{H}}\bigl(\hat{\mathbf{q}}(\tau)\otimes\mathbf{v}(\tau)\bigr)
-               + \mathcal{O}(\varepsilon)
-             \bigr)
-           \,\mathrm d\tau
-       \Bigr)
-   \Bigr]
- \biggr\|_{2}^{2}
- \Big|_{\varepsilon=0}.
-\end{align*}
-Because $\mathbf{v}$ is arbitrary, we may without loss of generality take $\mathbf{v}(0)=\bm{0}$ and hence the expression simplifies to\\ 
-\begin{align*}
-&\frac{\mathrm{d}}{\mathrm{d}\varepsilon}\,\Big\|\,\mathbf{r}(t)+ \varepsilon\Bigl[\mathbf{v}(t)- \int_{0}^{t}\bigl(\hat{\mathbf{A}}\mathbf{v}(\tau)+2\,\hat{\mathbf{H}}\bigl(\hat{\mathbf{q}}(\tau)\otimes\mathbf{v}(\tau)\bigr)+ \mathcal{O}(\varepsilon)\big)\,\mathrm{d}\tau\Bigr]\Big\|_{2}^{2}\Big|_{\varepsilon=0}\\
-&=2\,\mathbf{r}(t)^{\!\top}\Bigl[\mathbf{v}(t)- \int_{0}^{t}\bigl(\hat{\mathbf{A}}\mathbf{v}(\tau)+2\,\hat{\mathbf{H}}\bigl(\hat{\mathbf{q}}(\tau)\otimes\mathbf{v}(\tau)\bigr)\bigr)\mathrm{d}\tau\Bigr],
-\label{eq:Dg_directional}
-\end{align*}
-where the last equality follows from the identity\\
+where the norm derivative equality follows from the identity\\
 $$\frac{d}{d\varepsilon}\|\mathbf{r} + \varepsilon\,\mathbf{y}\|^2
 = \frac{d}{d\varepsilon}\bigl[(\mathbf{r} + \varepsilon\,\mathbf{y})^\top (\mathbf{r} + \varepsilon\,\mathbf{y})\bigr]= 2\,(\mathbf{r} + \varepsilon\,\mathbf{y})^\top\,\mathbf{y}.$$
-Hence,\\
-\begin{align*}
-\bm{D}_{\hat{\mathbf{q}}}\,\ell[\mathbf{v}]&=2\int_{0}^{T}\mathbf{r}(t)^{\!\top}\mathbf{v}(t)\,\mathrm{d}t
--2\int_{0}^{T}\mathbf{r}(t)^{\!\top}\int_{0}^{t}\hat{\mathbf{A}}\mathbf{v}(\tau)\,\mathrm{d}\tau\,\mathrm{d}t\\
-&-4\int_{0}^{T}\mathbf{r}(t)^{\!\top}\int_{0}^{t}\hat{\mathbf{H}}\bigl(\hat{\mathbf{q}}(\tau)\otimes\mathbf{v}(\tau)\bigr)\,\mathrm{d}\tau\,\mathrm{d}t.
-\end{align*}
-By Fubini’s theorem we swap integrals\\
-\begin{align*}
-\bm{D}_{\hat{\mathbf{q}}}\,\ell[\mathbf{v}]&=2\int_{0}^{T}\mathbf{r}(\tau)^{\!\top}\mathbf{v}(\tau)\,\mathrm{d}\tau-2\int_{0}^{T}\Bigl[\int_{\tau}^{T}\mathbf{r}(t)^{\!\top}\hat{\mathbf{A}}\,\mathrm{d}t\Bigr]\mathbf{v}(\tau)\,\mathrm{d}\tau\\
-&\quad-4\int_{0}^{T}\Bigl[\int_{\tau}^{T}\mathbf{r}(t)^{\!\top}\,\hat{\mathbf{H}}\bigl(\hat{\mathbf{q}}(\tau)\otimes\mathbf{I}_r\bigr)\,\mathrm{d}t\Bigr]\mathbf{v}(\tau)\,\mathrm{d}\tau.
-\end{align*}
-Thus, comparing with the inner-product form\\
-$$\bm{D}_{\hat{\mathbf{q}}}\,\ell[\mathbf{v}]=\int_{0}^{T}\bigl(\nabla_{\hat{\mathbf{q}}}\,g\bigr)^{\!\top}\mathbf{v}\,\mathrm{d}t,$$
-we read off the expression for the final gradient\\
+Hence, we read off the expression for the final gradient\\
 \begin{equation}
 \label{eq:gradient_3}
-\nabla_{\hat{\mathbf{q}}}\,g\bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}\bigr)
-=2\,\mathbf{r}(t)-2\,\hat{\mathbf{A}}^{\!\top}\int_{t}^{T}\mathbf{r}(\tau)\,\mathrm{d}\tau
--4\,\mathbf{M}(\hat{\mathbf{q}}(t))\int_{t}^{T}\mathbf{r}(\tau)\,\mathrm{d}\tau \quad\in\mathbb{R}^{r},
+\nabla_{\hat{\mathbf{q}}}\,g\bigl(\hat{\mathbf{q}}(t),t\bigr) = 2\left(\mathbf{r}(\hat{\mathbf{q}}(t),t)\right) = 2\left(\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\right).
 \end{equation}
-where
-$$\mathbf{M}(\hat{\mathbf{q}}(t)):=\Bigl(\hat{\mathbf{H}}\bigl(\hat{\mathbf{q}}(t)\otimes\mathbf{I}_r\bigr)\Bigr)^{\!\top}.$$
 
 \subsection{$\bm{\nabla}_{\hat{\bm{\theta}}}\,\hat{\mathbf{f}}\bigl(\hat{\mathbf{q}}(t),\,\hat{\bm{\theta}}\bigr)$}
 
@@ -466,63 +398,37 @@ Thus, collecting all four transposed blocks, the expression for the gradient yie
   \nabla_{\hat{\bm{\theta}}}^{\top}\,\hat{\mathbf{f}}=\bigl[\,\mathbf{I}_r,\;\hat{\mathbf{q}}(t)^{\!\top}\otimes\mathbf{I}_r,\;(\hat{\mathbf{q}}(t)\otimes\hat{\mathbf{q}}(t))^{\!\top}\otimes\mathbf{I}_r,\;\mathbf{u}(t)^{\!\top}\otimes\mathbf{I}_r\bigr]\;\in\;\mathbb{R}^{r\times d}.
 \end{equation}
 
-
 \subsection{$\bm{\nabla}_{\hat{\bm{\theta}}}~g\bigl(\hat{\mathbf{q}}(t), \hat{\bm{\theta}}\bigr)$}
 
-We recall the pointwise loss integrand,\\
-$$g(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}) = \norm{\hat{\mathbf{q}}(t) -\hat{\mathbf{q}}(0) - \int_0^t \bigl[ \hat{\mathbf{c}} + \hat{\mathbf{A}}\hat{\mathbf{q}}(\tau) + \hat{\mathbf{H}}\bigl( \hat{\mathbf{q}}(\tau) \otimes \hat{\mathbf{q}}(\tau) \bigr) + \hat{\mathbf{B}}\mathbf{u}(\tau) \bigr]\dd\tau }_2^2.$$
-Similarly to the computation of the gradient of $\hat{\mathbf{f}}$, we consider a perturbation $\hat{\bm{\theta}} + \varepsilon\tilde{\mathbf{v}}$, such that $\tilde{\mathbf{v}}=\operatorname{vec}(\mathbf{V})\in\mathbb{R}^d$ with $\mathbf{V}=[\mathbf{v}_{\hat{\mathbf{c}}}~\mathbf{V}_{\hat{\mathbf{A}}}~\mathbf{V}_{\hat{\mathbf{H}}}~\mathbf{V}_{\hat{\mathbf{B}}}]$ defined as in the previous derivation. Then, we compute\\
-\begin{align*}
-    \bm{D}_{\hat{\bm{\theta}}}~g[\mathbf{V}] &=\dv{}{\varepsilon}
-     \left\| \hat{\mathbf{q}}(t) - \hat{\mathbf{q}}(0) - 
-             \int_0^t \Bigl(
-                \hat{\mathbf{c}}  + \varepsilon\mathbf{v}_{\hat{c}}
-                + \bigl(\hat{\mathbf{A}} + \varepsilon\mathbf{V}_{\hat{\mathbf{A}}}\bigr)\hat{\mathbf{q}}(\tau)
-                 \right.  \\
-    &
-                + \bigl(\hat{\mathbf{H}} + \varepsilon\mathbf{V}_{\hat{\mathbf{H}}}\bigr)
-                \bigl(\hat{\mathbf{q}}(\tau) \otimes \hat{\mathbf{q}}(\tau)\bigr)
-                + \bigl(\hat{\mathbf{B}} + \varepsilon\mathbf{V}_{\hat{\mathbf{B}}} \bigr)\mathbf{u}(\tau)
-            \Bigr) \dd\tau
-        \left. \vphantom{\int_0^t}  \right\|_2^2 \Big|_{\varepsilon=0},
-\end{align*}
-which can be rewritten as\\
-\begin{align*}
-&\frac{\mathrm{d}}{\mathrm{d}\varepsilon}\,\left\|\,\mathbf{r}(t) - \varepsilon\biggl[ \int_{0}^{t}\bigl(\mathbf{v}_{\hat{\mathbf{c}}} + \mathbf{V}_{\hat{\mathbf{A}}}\hat{\mathbf{q}}(\tau)+\mathbf{V}_{\hat{\mathbf{H}}}\bigl(\hat{\mathbf{q}}(\tau)\otimes\mathbf{v}(\tau)\bigr)+ \mathbf{V}_{\hat{\mathbf{B}}}\mathbf{u}(\tau)\big)\,\mathrm{d}\tau\biggr]\right\|_{2}^{2}\Big|_{\varepsilon=0}\\
-&=-2\,\mathbf{r}(t)^{\!\top}\int_{0}^{t}\bigl(\mathbf{v}_{\hat{\mathbf{c}}} + \mathbf{V}_{\hat{\mathbf{A}}}\hat{\mathbf{q}}(\tau)+\mathbf{V}_{\hat{\mathbf{H}}}\bigl(\hat{\mathbf{q}}(\tau)\otimes\mathbf{v}(\tau)\bigr)+ \mathbf{V}_{\hat{\mathbf{B}}}\mathbf{u}(\tau)\big)\,\mathrm{d}\tau.
-\end{align*}
-We recognize the integrand of the last equality as the first order variation of the function $\hat{\mathbf{f}}$ w.r.t. $\hat{\bm{\theta}}$, hence\\
-$$\langle-2\,\mathbf{r}(t)^{\!\top}\int_{0}^{t}\bigl[\,\mathbf{I}_r,\;\hat{\mathbf{q}}(\tau)^{\!\top}\otimes\mathbf{I}_r,\;(\hat{\mathbf{q}}(\tau)\otimes\hat{\mathbf{q}}(\tau))^{\!\top}\otimes\mathbf{I}_r,\;\mathbf{u}(\tau)^{\!\top}\otimes\mathbf{I}_r\bigr]\mathrm{d}\tau,~\tilde{\mathbf{v}}\rangle.$$
-Thus, the final (transposed) expression for the gradient yields\\
+By definition, the loss integrand $g$ is independent of $\hat{\bm{\theta}}$. The constraints incorporated into the Lagrangian account for this dependence, which in our case implies that the corresponding gradient term vanishes. Hence,
 \begin{equation}
-    \nabla_{\hat{\bm{\theta}}}^{\top}~g = -2\int_{0}^{t} \mathbf{r}(\tau)^{\!\top}\bigl[\,\mathbf{I}_r,\;\hat{\mathbf{q}}(\tau)^{\!\top}\otimes\mathbf{I}_r,\;(\hat{\mathbf{q}}(\tau)\otimes\hat{\mathbf{q}}(\tau))^{\!\top}\otimes\mathbf{I}_r,\;\mathbf{u}(\tau)^{\!\top}\otimes\mathbf{I}_r\bigr]\mathrm{d}\tau \quad\in\mathbb{R}^{1\times d}.
+    \nabla_{\hat{\bm{\theta}}}~g = \mathbf{0}.
     \label{eq:gradient_4}
 \end{equation}
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Gradient Descent for Parameter Optimization}
 \label{sec:gd_opt}
 
-Having obtained the gradient of the loss functional $\ell(\hat{\mathbf{q}}(t),\hat{\bm\theta})$ via the adjoint method, we proceed to minimize $\ell$ over $\hat{\bm\theta}\in\hat{\bm{\Theta}}$ using the gradient descent (GD) algorithm \cite{ruder2017overviewgradientdescentoptimization,SENGUPTA2014521}.  Concretely, starting from an initial parameter vector $\hat{\bm\theta}^0$, we generate a sequence $\{\hat{\bm\theta}^j\}_{j\ge0}$ by iteratively stepping against the gradient:\\
+Having obtained the gradient of the reduced loss functional $\tilde\ell(\hat{\bm\theta})$ via the adjoint method, we proceed to minimize $\tilde\ell$ over $\hat{\bm\theta}\in\mathbb{R}^d$ using the gradient descent (GD) algorithm \cite{ruder2017overviewgradientdescentoptimization,SENGUPTA2014521}.  Concretely, starting from an initial parameter vector $\hat{\bm\theta}^0$, we generate a sequence $\{\hat{\bm\theta}^j\}_{j\ge0}$ by iteratively stepping against the gradient:\\
 \begin{equation}
     \hat{\bm\theta}^{j+1}
     = \hat{\bm\theta}^j
-    - \eta_j \,\nabla \ell\bigl(\hat{\mathbf{q}},\hat{\bm\theta}^j\bigr),
+    - \eta_j \,\nabla \tilde\ell\bigl(\hat{\bm\theta}^j\bigr),
     \quad j = 0,1,2,\dots
     \label{eq:gd_update}
 \end{equation}
 where
 \begin{itemize}
-  \item $\nabla \ell\bigl(\hat{\mathbf{q}},\hat{\bm\theta}^j\bigr)$ is the gradient computed via the adjoint equations,
+  \item $\nabla \tilde\ell\bigl(\hat{\bm\theta}^j\bigr)$ is the gradient computed via the adjoint equations,
   \item $\eta_j>0$ is the step size (learning rate) at iteration~$j$.
 \end{itemize}
 The procedure halts once a suitable stopping criterion is met. A common stopping condition is\\
 \begin{equation}
-    \|\nabla \ell\bigl(\hat{\mathbf{q}},\hat{\bm\theta}^j\bigr)\|\;\le\;\epsilon,
+    \|\nabla \tilde\ell\bigl(\hat{\bm\theta}^j\bigr)\|\;\le\;\epsilon,
     \label{eq:gd_stop}
 \end{equation}
-for a prescribed tolerance $\epsilon>0$.  Under mild assumptions on~$\ell$ and a proper choice of $\{\eta_j\}$, the iterates $\hat{\bm\theta}^j$ converge to a stationary point of~$\ell$.
+for a prescribed tolerance $\epsilon>0$.  Under a proper choice of $\{\eta_j\}$ and mild assumptions on~$\tilde\ell$, the iterates $\hat{\bm\theta}^j$ converge to a stationary point.
 
 \subsection*{Learning rate-Step Size selection and convergence considerations}
 
@@ -577,7 +483,12 @@ For $\mu$-strongly convex $\ell$, two key properties ensure favorable optimizati
     \item Fast convergence, with at least linear convergence and exponential error decay. 
 \end{itemize}
 
-These properties become particularly relevant in Operator Inference frameworks when an $L^2$-regularization term is added to the loss.  The regularizer enforces strong convexity and smoothness, thus ensuring the above convergence properties.
+In the context of Operator Inference, an $L^2$-regularization term is often added to the loss function not to guarantee strong convexity for gradient-based convergence analysis, but rather to improve numerical conditioning and stabilize the solution \cite{opinf2025}. This regularization modifies the least-squares loss by penalizing the Frobenius norm of the inferred operator, leading to the following regularized objective:\\
+\begin{equation*}
+    \bigl\|\mathbf{D}\widehat{\mathbf{O}}^T - \mathbf{Z}^T\bigr\|_F^2 + \lambda_{\mathrm{reg}}^2 \bigl\|\widehat{\mathbf{O}}^T\bigr\|_F^2,
+    \label{eq:opinf_regularized_loss}
+\end{equation*}
+where $\mathbf{D}\in\mathbb{R}^{k\times d},\widehat{\mathbf{O}}\in\mathbb{R}^{r\times d},\mathbf{Z}\in\mathbb{R}^{r\times k}$ are the data matrix, the operator (parameter) matrix, and the derivative (left-hand side data) matrix respectively and $\lambda_{\mathrm{reg}} > 0$ is the regularization hyperparameter. The regularized term promotes well-posedness by ensuring that the normal equations matrix becomes strictly positive definite, which aids in solving ill-conditioned problems and prevents overfitting to noisy training data. While this improves the numerical stability of the solution, it does not directly ensure fast convergence rates of GD, especially when $\lambda_{\mathrm{reg}}$ is small and the objective function lacks strong convexity.
 
 \subsection*{Adaptive Step-Size: Armijo Line Search.} 
 Rather than fixing $\eta_j$, Algorithm \ref{algorithm_1} employs a backtracking procedure to adaptively choose $\eta_j$ so that the Armijo sufficient decrease condition is satisfied \cite{nocedal1999numerical}:
@@ -589,14 +500,14 @@ Rather than fixing $\eta_j$, Algorithm \ref{algorithm_1} employs a backtracking 
 \SetAlgoLined
 \caption{Armijo Backtracking Line Search + Gradient Descent}
 \textbf{Step 1. Initialization:} Choose $\alpha\in(0,1)$, $\beta\in(0,1)$, and initial step size $\eta_{0} > 0$. Set iteration counter $j=0$\;
-\textbf{Step 2. Compute descent direction:} Evaluate gradient $\mathscr{G}^j = \nabla \ell(\hat{\mathbf{q}},\hat{\bm\theta}^j)$\;
+\textbf{Step 2. Compute descent direction:} Evaluate gradient $\mathscr{G}^j = \nabla \tilde\ell(\hat{\bm\theta}^j)$\;
 \textbf{Step 3. Backtracking loop:}
 
 $$\eta \;\leftarrow\;\eta_{0}
     \quad\text{while}\quad
-    \ell\bigl(\hat{\mathbf{q}},\hat{\bm\theta}^j - \eta\,\mathscr{G}^j\bigr)
+    \tilde\ell\bigl(\hat{\bm\theta}^j - \eta\,\mathscr{G}^j\bigr)
     >
-    \ell(\hat{\mathbf{q}},\hat{\bm\theta}^j)
+    \tilde\ell(\hat{\bm\theta}^j)
     \;-\;\alpha\,\eta\,\|\mathscr{G}^j\|^2
     \quad\text{do}\quad
     \eta \leftarrow \beta\,\eta$$
@@ -608,9 +519,7 @@ $$\hat{\bm\theta}^{j+1} = \hat{\bm\theta}^j - \eta_j\,\mathscr{G}^j\,.$$
 \end{minipage}
 \end{center}
 
-
-In non-convex scenarios, GD may only reach stationary points.  For large-scale or stochastic settings, variants such as Stochastic Gradient Descent (SGD) are often preferred \cite{ruder2017overviewgradientdescentoptimization}.
-
+For large-scale or stochastic settings, variants such as Stochastic Gradient Descent (SGD) are often preferred \cite{ruder2017overviewgradientdescentoptimization} but although plain GD in non-convex problems only guarantees convergence to some stationary point, in our approach we warm-start GD from the Operator Inference solution. Since this guess already lies near a high-quality minimum, GD will converge fast and is less likely to fall into suboptimal stationary points.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -635,19 +544,19 @@ Down below, we present a complete adjoint-based training algorithm that integrat
 Initialize $j=0$, $\hat{\bm\theta}^j=\hat{\bm\theta}^{0}_{\text{OpInf}}$, and step-size bounds.
 \begin{enumerate}[label=\arabic*.]
   \item \textbf{Forward solve:}
-    compute ROM solution $\tilde{\mathbf{q}}(t;\hat{\bm\theta}^j)$ via reduced ODE.
+    compute ROM solution $\tilde{\mathbf{q}}(t;\hat{\bm\theta}^j) = \hat{\mathbf{q}}(t)$ via reduced ODE.
   \item \textbf{Residual:}
-    set $\mathbf{r}(t)\coloneqq\hat{\mathbf{q}}_{\text{true}}(t)-\tilde{\mathbf{q}}_{\text{pred}}(t;\hat{\bm\theta}^j)$.
+    set $\mathbf{r}(\hat{\mathbf{q}}(t),t)\coloneqq\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\text{true}}(t)$.
   \item \textbf{Adjoint solve:}
     integrate adjoint ODE \eqref{eq:adjoint_eqs} backward for $\bm\lambda(t)$ using Eqs.~\eqref{eq:gradient_1},~\eqref{eq:gradient_3}.
   \item \textbf{Gradient assembly:}
-    form $\nabla\ell(\hat{\bm\theta}^j)$ via Eq.~\eqref{eq:gradient_lagrange} using gradients from \eqref{eq:gradient_2},~\eqref{eq:gradient_4}.
+    form $\nabla\tilde\ell(\hat{\bm\theta}^j)$ via Eq.~\eqref{eq:gradient_lagrange} using gradients from \eqref{eq:gradient_2},~\eqref{eq:gradient_4}.
   \item \textbf{Armijo line search:}
-    choose step size \(\eta_j\) by backtracking (Algorithm~\ref{algorithm_1}).
+    choose step size $\eta_j$ by backtracking (Algorithm~\ref{algorithm_1}).
   \item \textbf{Update:}
-    $\hat{\bm\theta}^{j+1}=\hat{\bm\theta}^j-\eta_j\nabla\ell(\hat{\bm\theta}^j)$.
+    $\hat{\bm\theta}^{j+1}=\hat{\bm\theta}^j-\eta_j\nabla\tilde\ell(\hat{\bm\theta}^j)$.
   \item \textbf{Stopping criteria:}
-    check convergence, if $\|\nabla\ell(\hat{\bm\theta}^{j+1})\|\le\epsilon$ or $j=j_{max}$, stop; else $j\leftarrow j+1$ and repeat.
+    check convergence, if $\|\nabla\tilde\ell(\hat{\bm\theta}^{j+1})\|\le\epsilon$ or $j=j_{max}$, stop; else $j\leftarrow j+1$ and repeat.
 \end{enumerate}
 \textbf{Step 5. Return} {$\hat{\bm\theta}^*$}.
 \end{algorithm}
