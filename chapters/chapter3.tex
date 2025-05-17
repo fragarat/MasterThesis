@@ -400,7 +400,7 @@ Thus, collecting all four transposed blocks, the expression for the gradient yie
 
 \subsection{$\bm{\nabla}_{\hat{\bm{\theta}}}~g\bigl(\hat{\mathbf{q}}(t), \hat{\bm{\theta}}\bigr)$}
 
-By definition, the loss integrand $g$ is independent of $\hat{\bm{\theta}}$. The constraints incorporated into the Lagrangian account for this dependence, which in our case implies that the corresponding gradient term vanishes. Hence,
+By definition, the loss integrand $g$ is independent of $\hat{\bm{\theta}}$. The constraints incorporated into the Lagrangian account for this dependence, which in our case implies that the corresponding gradient term vanishes. Hence,\\
 \begin{equation}
     \nabla_{\hat{\bm{\theta}}}~g = \mathbf{0}.
     \label{eq:gradient_4}
@@ -544,13 +544,13 @@ Down below, we present a complete adjoint-based training algorithm that integrat
 Initialize $j=0$, $\hat{\bm\theta}^j=\hat{\bm\theta}^{0}_{\text{OpInf}}$, and step-size bounds.
 \begin{enumerate}[label=\arabic*.]
   \item \textbf{Forward solve:}
-    compute ROM solution $\tilde{\mathbf{q}}(t;\hat{\bm\theta}^j) = \hat{\mathbf{q}}(t)$ via reduced ODE.
+    compute ROM solution $\tilde{\mathbf{q}}(t,\hat{\bm\theta}^j) = \hat{\mathbf{q}}(t)$ via reduced ODE.
   \item \textbf{Residual:}
     set $\mathbf{r}(\hat{\mathbf{q}}(t),t)\coloneqq\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\text{true}}(t)$.
   \item \textbf{Adjoint solve:}
-    integrate adjoint ODE \eqref{eq:adjoint_eqs} backward for $\bm\lambda(t)$ using Eqs.~\eqref{eq:gradient_1},~\eqref{eq:gradient_3}.
+    integrate adjoint ODE \eqref{eq:adjoint_eqs} backward for $\bm\lambda(t)$ by Eqs.~\eqref{eq:gradient_1},~\eqref{eq:gradient_3}.
   \item \textbf{Gradient assembly:}
-    form $\nabla\tilde\ell(\hat{\bm\theta}^j)$ via Eq.~\eqref{eq:gradient_lagrange} using gradients from \eqref{eq:gradient_2},~\eqref{eq:gradient_4}.
+    form $\nabla\tilde\ell(\hat{\bm\theta}^j)$ via Eq.~\eqref{eq:gradient_lagrange} using gradient from \eqref{eq:gradient_2}.
   \item \textbf{Armijo line search:}
     choose step size $\eta_j$ by backtracking (Algorithm~\ref{algorithm_1}).
   \item \textbf{Update:}
