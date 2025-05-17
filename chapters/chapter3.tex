@@ -519,7 +519,7 @@ $$\hat{\bm\theta}^{j+1} = \hat{\bm\theta}^j - \eta_j\,\mathscr{G}^j\,.$$
 \end{minipage}
 \end{center}
 
-For large-scale or stochastic settings, variants such as Stochastic Gradient Descent (SGD) are often preferred \cite{ruder2017overviewgradientdescentoptimization} but although plain GD in non-convex problems only guarantees convergence to some stationary point, in our approach we warm-start GD from the Operator Inference solution. Since this guess already lies near a high-quality minimum, GD will converge fast and is less likely to fall into suboptimal stationary points.
+For large-scale or stochastic settings, variants such as Stochastic Gradient Descent (SGD) are often preferred \cite{ruder2017overviewgradientdescentoptimization} due to their lower memory requirements and computational cost. However, for smaller datasets, as in the experiments discussed later, Gradient Descent is favored for its higher precision. Although plain GD in non-convex problems only guarantees convergence to some stationary point, in our approach we warm-start GD from the Operator Inference solution. Since this guess already lies near a high-quality minimum, GD will converge fast and is less likely to fall into suboptimal stationary points.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
