@@ -28,11 +28,11 @@ To avoid explicit differentiation as in the classical OpInf approach, we introdu
         \tilde{\ell}: \mathbb{R}^d  \to \mathbb{R}\,,\quad \hat{\bm{\theta}} \mapsto \int_0^T \norm{\tilde{\mathbf{q}}(t,\hat{\bm{\theta}}) - \hat{\mathbf{q}}_\mathrm{true}(t)}_2^2~\dd t,
         \label{eq:continuous_reduced_loss}
     \end{equation}
-    where $\tilde{\mathbf{q}}(t, \hat{\bm{\theta}}) \coloneqq \tilde{\mathbf{q}}(0) + \displaystyle\int_{0}^t\left[ \hat{\mathbf{c}} + \hat{\mathbf{A}}\tilde{\mathbf{q}}(\tau) + \hat{\mathbf{H}}\left(\tilde{\mathbf{q}}(\tau)\otimes\tilde{\mathbf{q}}(\tau) \right) +\hat{\mathbf{B}}\mathbf{u}(\tau) \right]\dd \tau $.
+    where $\tilde{\mathbf{q}}(t, \hat{\bm{\theta}}) \coloneqq \tilde{\mathbf{q}}(0) + \displaystyle\int_{0}^t \hat{\mathbf{f}}(\tilde{\mathbf{q}}(\tau),\hat{\bm{\theta}})\dd \tau, \quad t\in\mathcal{T}$.
 
 \end{definition}
-Note that $\tilde{\ell}(\hat{\bm{\theta}}) = \ell(\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}}))$ in which $\tilde{\mathbf{q}}$ satisfies the constraint $\tilde{\mathbf{q}}(t, \hat{\bm{\theta}}) = \tilde{\mathbf{q}}(0) + \displaystyle\int_{0}^t \hat{\mathbf{f}}(\tilde{\mathbf{q}}(\tau),\hat{\bm{\theta}})\dd \tau $.
-
+Note that $\tilde{\ell}(\hat{\bm{\theta}}) = \ell(\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}}))$ in which $\tilde{\mathbf{q}}$ satisfies the constraint\\ 
+$$\tilde{\mathbf{q}}(t, \hat{\bm{\theta}}) = \tilde{\mathbf{q}}(0) + \displaystyle\int_{0}^t\left[ \hat{\mathbf{c}} + \hat{\mathbf{A}}\tilde{\mathbf{q}}(\tau) + \hat{\mathbf{H}}\left(\tilde{\mathbf{q}}(\tau)\otimes\tilde{\mathbf{q}}(\tau) \right) +\hat{\mathbf{B}}\mathbf{u}(\tau) \right]\dd \tau.$$
 Based on the reduced loss functional \eqref{eq:continuous_reduced_loss}, that implicitly considers the integral form of OpInf, the learning task is to find\\
 \begin{equation}
   \hat{\bm{\theta}}^*
@@ -40,16 +40,15 @@ Based on the reduced loss functional \eqref{eq:continuous_reduced_loss}, that im
   \min_{\hat{\bm{\theta}}}\;
   \tilde{\ell}\bigl(\hat{\bm{\theta}}\bigr).
 \end{equation}
-
 To differentiate functionals, we first recall the Gâteaux derivative \cite{bonnans2013perturbation}:\\
 \begin{definition}
     For a mapping $\mathbf{f}: \mathcal{X}\to\mathcal{Y}$ between normed spaces, the \emph{Gâteaux derivative} of $\mathbf{f}$ at $\mathbf{x}$ in the “direction” $\mathbf{v}$ is\\
     $$\bm{D}_{\mathbf{x}}~\mathbf{f}(\mathbf{x};\,\mathbf{v})
   \;:=\;
-  \lim_{\epsilon\to0}
-    \frac{\mathbf{f}(\mathbf{x} + \epsilon\,\mathbf{v})
+  \lim_{\varepsilon\to0}
+    \frac{\mathbf{f}(\mathbf{x} + \varepsilon\,\mathbf{v})
            \;-\;\mathbf{f}(\mathbf{x})}
-         {\epsilon}\,,$$
+         {\varepsilon}\,,$$
     whenever this limit exists.
 \end{definition}
 Computing the total gradient w.r.t. the parameters for minimizing the loss functional requires the chain rule:\\
@@ -105,7 +104,7 @@ The associated Lagrangian to \eqref{eq:opt_problem} is defined as\\
         \label{eq:lagrange_cost}
     \end{equation}
 Since the constraints are satisfied for $\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}})$, it follows\\
-$$\mathscr{L}\bigl(\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}}, \bm{\lambda}(\cdot)\bigr) = \tilde{\ell} (\hat{\theta}).$$
+$$\mathscr{L}\bigl(\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}}, \bm{\lambda}(\cdot)\bigr) = \tilde{\ell} (\hat{\bm{\theta}}).$$
 In order to perform a gradient-based optimization process we need to compute\\
 \begin{align*}
     \dv{\tilde{\ell}}{\hat{\bm{\theta}}} &= \dv{}{\hat{\bm{\theta}}} \mathscr{L}\bigl(\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}}),\hat{\bm{\theta}},\bm{\lambda}(\cdot)\bigr) \\
@@ -182,7 +181,7 @@ We recognize all the terms multiplying the sensitivity $\displaystyle\dv{\hat{\m
 \end{equation*}
 By construction, as we have shown in the problem setup,  minimizing the Lagrangian $\mathscr{L}$ is the same as minimizing the loss functional $\tilde\ell$ since\\
 $$\pdv{\mathscr{L}}{\hat{\bm{\theta}}} = \dv{\tilde\ell}{\hat{\bm{\theta}}}.$$
-By definition, $g$ is not dependent of $\hat{\bm{\theta}}$ which implies that $\displaystyle\pdv{g}{\hat{\bm{\theta}}}=0$. Hence, the final expression for the gradients yields\\
+By definition, $g$ is not dependent on $\hat{\bm{\theta}}$ which implies that $\displaystyle\pdv{g}{\hat{\bm{\theta}}}=0$. Hence, the final expression for the gradients yields\\
 \begin{equation*}
     \pdv{\mathscr{L}}{\hat{\bm{\theta}}} =\dv{\tilde\ell}{\hat{\bm{\theta}}} = \int_0^T \bm{\lambda}(t)^{\top} \pdv{\hat{\mathbf{f}}}{\hat{\bm{\theta}}}~\dd t.
 \end{equation*}
@@ -280,16 +279,16 @@ In conclusion, the adjoint method computes the costate $\bm{\lambda}(t)$ by rigo
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Equations of the Four Gradients}
+\section{Equations of the Three Gradients}
 \label{sec:four_gradients}
 
-Note that the adjoint method used here requires computing the following four gradients:\\
-$$\pdv{\hat{\mathbf{f}}}{\hat{\mathbf{q}}},  \quad \pdv{g}{\hat{\mathbf{q}}}, \quad \pdv{\hat{\mathbf{f}}}{\hat{\bm{\theta}}},\quad \text{and} \quad \pdv{g}{\hat{\bm{\theta}}},$$
+Note that the adjoint method used here requires computing the following three gradients:\\
+$$\pdv{\hat{\mathbf{f}}}{\hat{\mathbf{q}}},  \quad \pdv{g}{\hat{\mathbf{q}}}, \quad \text{and} \quad \pdv{\hat{\mathbf{f}}}{\hat{\bm{\theta}}},$$
 where\\
 $$\hat{\mathbf{f}}:\mathbb{R}^r \times \mathbb{R}^d \to \mathbb{R}^r$$ 
 denotes the right-hand side of the reduced-order model (ROM-OpInf) dynamics, and\\
-$$g:\mathcal{C}^1(\mathcal{T})^r\to \mathbb{R}$$ 
-is the integrand of the loss functional $\ell$. The efficient computation of these gradients is crucial for both the backward integration of the adjoint equation and for evaluating the total derivative of the reduced loss $\tilde\ell$. What follows is a detailed derivation of the expressions of each of these gradients.
+$$g:\mathbb{R}^r\times [0,T]\to \mathbb{R}$$ 
+defines the integrand of the loss functional $\ell$. The efficient computation of these gradients is crucial for both the backward integration of the adjoint equation and for evaluating the total derivative of the reduced loss $\tilde\ell$. What follows is a detailed derivation of the expressions of each of these gradients.
 
 \subsection{$\bm{\nabla}_{\hat{\mathbf{q}}}~\hat{\mathbf{f}}\bigl(\hat{\mathbf{q}}(t), \hat{\bm{\theta}}\bigr)$}
 
@@ -329,16 +328,17 @@ where $\mathbf{I}_r$ is the identity matrix of size $r$. Therefore, the gradient
 \end{equation}
 where we define $\mathbf{M}(\hat{\mathbf{q}}(t)) := \left( \hat{\mathbf{H}}( \hat{\mathbf{q}}(t) \otimes \mathbf{I}_r ) \right)^{\top} \in \mathbb{R}^{r \times r}$.
 
-Note that this result is consistent with the formulation given in the first proof \eqref{eq:gradient_fq}.
+Note that this result is consistent with the formulation presented in the first proof example, which concerns the quadratic form \eqref{eq:gradient_fq}.
 
 
-\subsection{$\bm{\nabla}_{\hat{\mathbf{q}}}\,g\bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}\bigr)$}
+\subsection{$\bm{\nabla}_{\hat{\mathbf{q}}}\,g\bigl(\hat{\mathbf{q}}(t),t\bigr)$}
 
-By definition, the loss integrand is\\
-$$g\bigl(\hat{\mathbf{q}}(\cdot),t\bigr)= \Bigl\|\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\Bigr\|_2^2\,$$
-We introduce, by convenience, the residual\\
-$$\mathbf{r}(\hat{\mathbf{q}}(\cdot),t):=  \hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t).$$
-Then, the Gateaux derivative of $g$ in the direction $\mathbf{v}(\cdot)\in\mathcal{C}^1(\mathcal{T})^r$ is\\
+By definition, the loss integrand is given by\\
+$$g\bigl(\hat{\mathbf{q}},t\bigr)= \Bigl\|\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\Bigr\|_2^2\,,$$
+where $\hat{\mathbf{q}}(t)$ represents the state vector at time $t$.
+We introduce, for convenience, the residual\\
+$$\mathbf{r}(\hat{\mathbf{q}},t):=  \hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t).$$
+Then, the Gateaux derivative of $g$ in the direction $\mathbf{v}\in\mathbb{R}^r$ is\\
 \begin{align*}
 \label{eq:gradient_3}
 \bm{D}_{\hat{\mathbf{q}}}\,g[\mathbf{v}]
@@ -350,12 +350,12 @@ g\bigl(\hat{\mathbf{q}}+\varepsilon\mathbf{v},t\bigr)\Big|_{\varepsilon=0}=
  &= 2\left(\mathbf{r}(\hat{\mathbf{q}}(t),t)\right)^{\top}\mathbf{v}(t),
 \end{align*}
 where the norm derivative equality follows from the identity\\
-$$\frac{d}{d\varepsilon}\|\mathbf{r} + \varepsilon\,\mathbf{y}\|^2
-= \frac{d}{d\varepsilon}\bigl[(\mathbf{r} + \varepsilon\,\mathbf{y})^\top (\mathbf{r} + \varepsilon\,\mathbf{y})\bigr]= 2\,(\mathbf{r} + \varepsilon\,\mathbf{y})^\top\,\mathbf{y}.$$
+$$\frac{d}{d\varepsilon}\|\mathbf{r} + \varepsilon\,\mathbf{v}\|^2
+= \frac{d}{d\varepsilon}\bigl[(\mathbf{r} + \varepsilon\,\mathbf{v})^\top (\mathbf{r} + \varepsilon\,\mathbf{v})\bigr]= 2\,(\mathbf{r} + \varepsilon\,\mathbf{v})^\top\,\mathbf{v}.$$
 Hence, we read off the expression for the final gradient\\
 \begin{equation}
 \label{eq:gradient_3}
-\nabla_{\hat{\mathbf{q}}}\,g\bigl(\hat{\mathbf{q}}(t),t\bigr) = 2\left(\mathbf{r}(\hat{\mathbf{q}}(t),t)\right) = 2\left(\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\right).
+\nabla_{\hat{\mathbf{q}}}\,g\bigl(\hat{\mathbf{q}},t\bigr) = 2\left(\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\right).
 \end{equation}
 
 \subsection{$\bm{\nabla}_{\hat{\bm{\theta}}}\,\hat{\mathbf{f}}\bigl(\hat{\mathbf{q}}(t),\,\hat{\bm{\theta}}\bigr)$}
@@ -398,14 +398,6 @@ Thus, collecting all four transposed blocks, the expression for the gradient yie
   \nabla_{\hat{\bm{\theta}}}^{\top}\,\hat{\mathbf{f}}=\bigl[\,\mathbf{I}_r,\;\hat{\mathbf{q}}(t)^{\!\top}\otimes\mathbf{I}_r,\;(\hat{\mathbf{q}}(t)\otimes\hat{\mathbf{q}}(t))^{\!\top}\otimes\mathbf{I}_r,\;\mathbf{u}(t)^{\!\top}\otimes\mathbf{I}_r\bigr]\;\in\;\mathbb{R}^{r\times d}.
 \end{equation}
 
-\subsection{$\bm{\nabla}_{\hat{\bm{\theta}}}~g\bigl(\hat{\mathbf{q}}(t), \hat{\bm{\theta}}\bigr)$}
-
-By definition, the loss integrand $g$ is independent of $\hat{\bm{\theta}}$. The constraints incorporated into the Lagrangian account for this dependence, which in our case implies that the corresponding gradient term vanishes. Hence,\\
-\begin{equation}
-    \nabla_{\hat{\bm{\theta}}}~g = \mathbf{0}.
-    \label{eq:gradient_4}
-\end{equation}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Gradient Descent for Parameter Optimization}
 \label{sec:gd_opt}
@@ -425,7 +417,7 @@ where
 \end{itemize}
 The procedure halts once a suitable stopping criterion is met. A common stopping condition is\\
 \begin{equation}
-    \|\nabla \tilde\ell\bigl(\hat{\bm\theta}^j\bigr)\|\;\le\;\epsilon,
+    \|\nabla \tilde\ell\bigl(\hat{\bm\theta}^j\bigr)\|_2\;\le\;\epsilon,
     \label{eq:gd_stop}
 \end{equation}
 for a prescribed tolerance $\epsilon>0$.  Under a proper choice of $\{\eta_j\}$ and mild assumptions on~$\tilde\ell$, the iterates $\hat{\bm\theta}^j$ converge to a stationary point.
@@ -437,26 +429,26 @@ The choice of $ \eta_j $ affects the convergence behavior. A constant step size 
 We introduce two key definitions that will be used in the convergence analysis of the gradient descent method \cite{garrigos2023handbook}.
 
 \begin{definition}[$L$-smooth function]
-A differentiable function $\ell: \mathbb{R}^p \to \mathbb{R}$ is said to be $L$-smooth if there exists a constant $L > 0$ such that for all $\bm\omega, \bm{\tilde{\omega}} \in \mathbb{R}^p$,\\
+A differentiable function $\mathcal{J}: \mathbb{R}^p \to \mathbb{R}$ is said to be $L$-smooth if there exists a constant $L > 0$ such that for all $\bm\omega, \bm{\tilde{\omega}} \in \mathbb{R}^p$,\\
 \begin{equation} \label{eq:L_smoothness}
-    \| \nabla \ell(\bm{\omega}) - \nabla \ell(\bm{\tilde{\omega}}) \| \leq L \| \bm{\omega} - \bm{\tilde{\omega}} \|.
+    \| \nabla \mathcal{J}(\bm{\omega}) - \nabla \mathcal{J}(\bm{\tilde{\omega}}) \|_2 \leq L \| \bm{\omega} - \bm{\tilde{\omega}} \|_2.
 \end{equation}
-This condition ensures that the gradient of $\ell$ is Lipschitz continuous with constant $L$.
+This condition ensures that the gradient of $\mathcal{J}$ is Lipschitz continuous with constant $L$.
 \end{definition}
-
+\newpage
 \begin{definition}[$\mu$-strongly convex function]
-A function $\ell: \mathbb{R}^p \to \mathbb{R}$ is said to be $\mu$-strongly convex if there exists a constant $\mu > 0$ such that for all $\bm\omega, \bm{\tilde{\omega}} \in \mathbb{R}^p$,\\
+A function $\mathcal{J}: \mathbb{R}^p \to \mathbb{R}$ is said to be $\mu$-strongly convex if there exists a constant $\mu > 0$ such that for all $\bm\omega, \bm{\tilde{\omega}} \in \mathbb{R}^p$,\\
 \begin{equation} \label{eq:mu_strong_convexity}
-    \ell(\bm{\tilde{\omega}}) \geq \ell(\bm\omega) + \nabla \ell(\bm\omega)^{\top}(\bm{\tilde{\omega}} - \bm\omega) + \frac{\mu}{2} \| \bm{\tilde{\omega}} - \bm\omega \|^2.
+    \mathcal{J}(\bm{\tilde{\omega}}) \geq \mathcal{J}(\bm\omega) + \nabla \mathcal{J}(\bm\omega)^{\top}(\bm{\tilde{\omega}} - \bm\omega) + \frac{\mu}{2} \| \bm{\tilde{\omega}} - \bm\omega \|_2^2.
 \end{equation}
 \end{definition}
-This condition implies that $\ell$ has a lower bound on its curvature, ensuring strong convexity. An equivalent characterization of $\mu$-strong convexity is given in terms of the Hessian matrix:\\
+This condition implies that $\mathcal{J}$ has a lower bound on its curvature, ensuring strong convexity. An equivalent characterization of $\mu$-strong convexity is given in terms of the Hessian matrix:\\
 \begin{equation} \label{eq:hessian_characterization}
-    \ell ~~ \mu\text{-strongly convex~} \Leftrightarrow \nabla^2 \ell(\bm\omega) \succeq \mu \mathbf{I}, \quad \forall \bm\omega \in \mathbb{R}^p
+    \mathcal{J} ~~ \mu\text{-strongly convex~} \Leftrightarrow \nabla^2 \mathcal{J}(\bm\omega) \succeq \mu \mathbf{I}, \quad \forall \bm\omega \in \mathbb{R}^p
 \end{equation}
-where $\nabla^2 \ell(\bm\omega)$ denotes the Hessian of $\ell$ at $\bm\omega$, and $\mu \mathbf{I}$ represents the identity matrix scaled by $\mu$. This ensures that all eigenvalues of the Hessian are at least $\mu$, guaranteeing a strong convexity lower bound.
+where $\nabla^2 \mathcal{J}(\bm\omega)$ denotes the Hessian of $\mathcal{J}$ at $\bm\omega$, and $\mu \mathbf{I}$ represents the identity matrix scaled by $\mu$. This ensures that all eigenvalues of the Hessian are at least $\mu$, guaranteeing a strong convexity lower bound.
 
-Under suitable conditions, such as $L$-smoothness and $\mu$-strong convexity of $\ell(\bm\omega)$, and an appropriate step size, GD is guaranteed to converge to a minimizer of $\ell(\bm\omega)$ \cite{garrigos2023handbook}. Table \ref{tab:table-01} summarizes the convergence error rates of GD under different smoothness and convexity assumptions for different step-size choices.
+Under suitable conditions, such as $L$-smoothness and $\mu$-strong convexity of $\mathcal{J}(\bm\omega)$, and an appropriate step size, GD is guaranteed to converge to a minimizer of $\mathcal{J}(\bm\omega)$ \cite{garrigos2023handbook}. Table \ref{tab:table-01} summarizes the convergence error rates of GD under different smoothness and convexity assumptions for different step-size choices.
 
 \begin{table}[!htpb]
     \centering
@@ -464,20 +456,20 @@ Under suitable conditions, such as $L$-smoothness and $\mu$-strong convexity of 
         \toprule
         \textbf{Condition} & \textbf{Step Size ($\bm\eta$)} & \textbf{Error Rate} \\ 
         \midrule
-        $\ell$ is $L$-smooth  & $\dfrac{1}{L}$  & $\ell(\bm\omega^{j}) - \ell(\bm\omega^{*}) \le \dfrac{1}{j\eta}\norm{\bm\omega^0 - \bm\omega^*}^2$  \\
+        $\mathcal{J}$ is $L$-smooth  & $\dfrac{1}{L}$  & $\mathcal{J}(\bm\omega^{j}) - \mathcal{J}(\bm\omega^{*}) \le \dfrac{1}{j\eta}\norm{\bm\omega^0 - \bm\omega^*}_2^2$  \\
         \midrule
-        \makecell{$\ell$ is $L$-smooth and\\$\mu$-strongly convex}   & $\dfrac{1}{L}$ & $\norm{\bm\omega^{j} - \bm\omega^{*}} \le \left(1-\dfrac{\mu}{L}\right)^j\norm{\bm\omega^0 - \bm\omega^*}$  \\
+        \makecell{$\mathcal{J}$ is $L$-smooth and\\$\mu$-strongly convex}   & $\dfrac{1}{L}$ & $\norm{\bm\omega^{j} - \bm\omega^{*}}_2 \le \left(1-\dfrac{\mu}{L}\right)^j\norm{\bm\omega^0 - \bm\omega^*}_2$  \\
         \midrule
-        \makecell{$\ell$ is $L$-smooth and\\$\mu$-strongly convex}   & $\dfrac{2}{L+\mu}$   & $\norm{\bm\omega^{j} - \bm\omega^{*}} \le \left(\dfrac{L-\mu}{L+\mu}\right)^j\norm{\bm\omega^0 - \bm\omega^*}$  \\
+        \makecell{$\mathcal{J}$ is $L$-smooth and\\$\mu$-strongly convex}   & $\dfrac{2}{L+\mu}$   & $\norm{\bm\omega^{j} - \bm\omega^{*}}_2 \le \left(\dfrac{L-\mu}{L+\mu}\right)^j\norm{\bm\omega^0 - \bm\omega^*}_2$  \\
         [1.5em]
-        \multicolumn{3}{l}{\textit{Note that $\dfrac{L-\mu}{L+\mu}=\dfrac{\kappa-1}{\kappa+1}$, where $\kappa\coloneqq\dfrac{L}{\mu}$ is the condition number of $~\nabla^2\ell$}} \\
+        \multicolumn{3}{l}{\textit{Note that $\dfrac{L-\mu}{L+\mu}=\dfrac{\kappa-1}{\kappa+1}$, where $\kappa\coloneqq\dfrac{L}{\mu}$ is the condition number of $~\nabla^2\mathcal{J}$}} \\
         \bottomrule
     \end{tabular}
     \caption{GD error rates under different smoothness and convexity assumptions.}
     \label{tab:table-01}
 \end{table}
 
-For $\mu$-strongly convex $\ell$, two key properties ensure favorable optimization behavior:
+For $\mu$-strongly convex $\mathcal{J}$, two key properties ensure favorable optimization behavior:
 \begin{itemize}
     \item Uniqueness of the minimizer, ensuring a well-defined optimization solution.
     \item Fast convergence, with at least linear convergence and exponential error decay. 
@@ -508,13 +500,13 @@ $$\eta \;\leftarrow\;\eta_{0}
     \tilde\ell\bigl(\hat{\bm\theta}^j - \eta\,\mathscr{G}^j\bigr)
     >
     \tilde\ell(\hat{\bm\theta}^j)
-    \;-\;\alpha\,\eta\,\|\mathscr{G}^j\|^2
+    \;-\;\alpha\,\eta\,\|\mathscr{G}^j\|_2^2
     \quad\text{do}\quad
     \eta \leftarrow \beta\,\eta$$
 \textbf{Step 4. Update:} Set step size $\eta_j = \eta$ and update
 
 $$\hat{\bm\theta}^{j+1} = \hat{\bm\theta}^j - \eta_j\,\mathscr{G}^j\,.$$
-\textbf{Step 5. Stopping criterion:} If $\|\mathscr{G}^{j+1}\|\le\epsilon$ (or another criterion) then stop; otherwise set $j\leftarrow j+1$ and go to Step 2.
+\textbf{Step 5. Stopping criterion:} If $\|\mathscr{G}^{j+1}\|_2\le\epsilon$ (or another criterion) then stop; otherwise set $j\leftarrow j+1$ and go to Step 2.
 \end{algorithm}
 \end{minipage}
 \end{center}
@@ -546,7 +538,7 @@ Initialize $j=0$, $\hat{\bm\theta}^j=\hat{\bm\theta}^{0}_{\text{OpInf}}$, and st
   \item \textbf{Forward solve:}
     compute ROM solution $\tilde{\mathbf{q}}(t,\hat{\bm\theta}^j) = \hat{\mathbf{q}}(t)$ via reduced ODE.
   \item \textbf{Residual:}
-    set $\mathbf{r}(\hat{\mathbf{q}}(t),t)\coloneqq\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\text{true}}(t)$.
+    set $\mathbf{r}(\hat{\mathbf{q}},t)\coloneqq\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\text{true}}(t)$.
   \item \textbf{Adjoint solve:}
     integrate adjoint ODE \eqref{eq:adjoint_eqs} backward for $\bm\lambda(t)$ by Eqs.~\eqref{eq:gradient_1},~\eqref{eq:gradient_3}.
   \item \textbf{Gradient assembly:}
@@ -556,7 +548,7 @@ Initialize $j=0$, $\hat{\bm\theta}^j=\hat{\bm\theta}^{0}_{\text{OpInf}}$, and st
   \item \textbf{Update:}
     $\hat{\bm\theta}^{j+1}=\hat{\bm\theta}^j-\eta_j\nabla\tilde\ell(\hat{\bm\theta}^j)$.
   \item \textbf{Stopping criteria:}
-    check convergence, if $\|\nabla\tilde\ell(\hat{\bm\theta}^{j+1})\|\le\epsilon$ or $j=j_{max}$, stop; else $j\leftarrow j+1$ and repeat.
+    check convergence, if $\|\nabla\tilde\ell(\hat{\bm\theta}^{j+1})\|_2\le\epsilon$ or $j=j_{max}$, stop; else $j\leftarrow j+1$ and repeat.
 \end{enumerate}
 \textbf{Step 5. Return} {$\hat{\bm\theta}^*$}.
 \end{algorithm}

@@ -12,7 +12,7 @@ In this work, we have developed and analyzed an adjoint-based training framework
     The adjoint method consistently outperforms OpInf when the training snapshots are corrupted by noise. Because it minimizes a global loss over the entire time interval, it filters out spurious fluctuations and produces more reliable parameter estimates under noisy or incomplete measurements.
 
   \item \textbf{Cost efficiency.}  
-    The adjoint-based training involves a forward and backward solve, its overall computational cost scales constantly with the number of parameters $d$, not the dimension of the full state. For very large or high-fidelity models, this constant cost per iteration is more favorable than intrusive projection methods whose cost grows linearly with the full dimension.
+    The adjoint-based training involves a forward and backward solve independently of the number of parameters $d$. For very large or high-fidelity models, this constant cost per iteration is more favorable than primal sensitivity methods whose cost grows linearly with the number of parameters.
 
   \item \textbf{Flexibility and extensibility.}  
     The adjoint framework integrates seamlessly with a variety of time-integration schemes and loss functionals, and it can readily incorporate additional physics constraints or regularization terms. This modularity makes it a versatile tool for constructing physics-aware reduced models across diverse dynamical systems.

@@ -134,7 +134,7 @@ Once state and input data have been collected and projected onto a lower-dimensi
 $$\dot{\hat{\mathbf{q}}}(t) \approx \mathbf{V}_r^{\top}\dot{\mathbf{q}}(t).$$
 Next, a discrete training loss is defined as\\
 \begin{align}
-    \ell(\hat{\bm{\theta}}) &= \sum_{i=1}^{k} \left\| \hat{\mathbf{f}}(t_i, \hat{\mathbf{q}}(t_i), \mathbf{u}(t_i)) - \dot{\hat{\mathbf{q}}}(t_i) \right\|_2^2 \notag \\
+    &\sum_{i=1}^{k} \left\| \hat{\mathbf{f}}(t_i, \hat{\mathbf{q}}(t_i), \mathbf{u}(t_i)) - \dot{\hat{\mathbf{q}}}(t_i) \right\|_2^2 \notag \\
     &= \sum_{i=1}^{k} \left\| \left[ \hat{\mathbf{c}} + \hat{\mathbf{A}}\hat{\mathbf{q}}(t_i) + \hat{\mathbf{H}}\bigl[ \hat{\mathbf{q}}(t_i) \otimes \hat{\mathbf{q}}(t_i) \bigr] + \hat{\mathbf{B}}\mathbf{u}(t_i) \right] - \dot{\hat{\mathbf{q}}}(t_i) \right\|_2^2,
     \label{loss_opinf}
 \end{align}

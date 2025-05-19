@@ -31,7 +31,7 @@ can be seen as a third-order tensor $\mathcal{H}\in\mathbb{R}^{r\times r\times r
 The \emph{mode-1} unfolding (matricization) $H_{(1)}\in\mathbb{R}^{r\times r^2}$ of $\mathcal{H}$ is defined such that\\
 $$
 H_{(1)}\,\bigl(\hat{\mathbf{q}}(t)\otimes\hat{\mathbf{q}}(t)\bigr)
-= \left[\sum_{j,k}H_{1,j,k}\hat{q}_j\hat{q}_k,\dots,\sum_{j,k}H_{r,j,k}\hat{q}_j\hat{q}_k\right]^T
+= \left[\sum_{j,k}H_{1,j,k}\hat{q}_j\hat{q}_k,\dots,\sum_{j,k}H_{r,j,k}\hat{q}_j\hat{q}_k\right]^{\top}
 = \mathcal{H}\bigl(\hat{\mathbf{q}}(t),\hat{\mathbf{q}}(t)\bigr).
 $$
 Concretely, if we flatten $\hat{\mathbf{q}}(t)$ into a length-$r^2$ vector by stacking its entries in column-major order, then
@@ -40,17 +40,20 @@ $$
 $$
 and
 $$
-\mathcal{H}(\hat{\mathbf{q}},\hat{\mathbf{q}}) = H_{(1)}\,\mathrm{vec}(\hat{\mathbf{q}}\,\hat{\mathbf{q}}^T) = \hat{\mathbf{H}}(\hat{\mathbf{q}}\otimes\hat{\mathbf{q}}).$$
+\mathcal{H}(\hat{\mathbf{q}},\hat{\mathbf{q}}) = H_{(1)}\,\mathrm{vec}(\hat{\mathbf{q}}\,\hat{\mathbf{q}}^{\top}) = \hat{\mathbf{H}}(\hat{\mathbf{q}}\otimes\hat{\mathbf{q}}).$$
 
 \subsection*{Example: Burgers' Equation}
-Consider the 1D viscous Burgers' equation:\\
-$$\frac{\partial \mathbf{q}}{\partial t} + \mathbf{q}\frac{\partial \mathbf{q}}{\partial x} = \nu \frac{\partial^2 \mathbf{q}}{\partial x^2}.$$
+Consider the 1D viscous Burgers' equation for the scalar field $q:[0,1]\times [0,T]\to\mathbb{R}$:\\
+$$\frac{\partial }{\partial t}q(x,t) + q\;\frac{\partial }{\partial x}q(x,t) = \nu \frac{\partial^2}{\partial x^2}q(x,t).$$
+Upon spatial discretization at \(n\) grid points, we write\\
+$$\mathbf{q}(t) = \bigl[q(x_1,t),\,q(x_2,t),\,\dots,\,q(x_n,t)\bigr]^{\top}
+  \;\in\;\mathbb{R}^n.$$
 Then, the full-order viscous Burgers’ convective term yields\\
 $$\mathbf{N}(\mathbf{q}) \;=\; -\,\mathbf{q}\;\circ\;\bigl(\mathbf{D}_x\,\mathbf{q}\bigr)
 \quad\in\;\mathbb{R}^n,$$
-where $\circ$ is the Hadamard (entrywise) product and $\mathbf{D}_x\in\mathbb{R}^{n\times n}$ is the finite-difference matrix for $\partial_x$. After POD projection, we write the reduced ansatz as\\$$\mathbf{q}(t)\approx \Phi\,\hat{\mathbf{q}}(t),\quad \Phi\in\mathbb{R}^{n\times r},\;\hat{\mathbf{q}}\in\mathbb{R}^r.$$ Inserting into $\mathbf{N}$ and projecting onto the basis\\$$\Phi^T\,\mathbf{N}(\Phi\,\hat{\mathbf{q}})\;=\;
-    -\,\Phi^T \Bigl[\,( \Phi\,\hat{\mathbf{q}})\,\circ\,(\mathbf{D}_x\,\Phi\,\hat{\mathbf{q}})\Bigr].$$
-This can be expressed as a bilinear form using the identity $\displaystyle (a\circ b)_\ell = \sum_{j,k}\delta_{\ell j}\,a_j\,\delta_{\ell k}\,b_k$. Then, it can be shown that\\$$\bigl[\Phi^T(\Phi\,\hat q\circ D_x\Phi\,\hat q)\bigr]_i
+where $\circ$ is the Hadamard (entrywise) product and $\mathbf{D}_x\in\mathbb{R}^{n\times n}$ is the finite-difference matrix for $\partial_x$. After POD projection, we write the reduced ansatz as\\$$\mathbf{q}(t)\approx \Phi\,\hat{\mathbf{q}}(t),\quad \Phi\in\mathbb{R}^{n\times r},\;\hat{\mathbf{q}}\in\mathbb{R}^r.$$ Inserting into $\mathbf{N}$ and projecting onto the basis\\$$\Phi^{\top}\,\mathbf{N}(\Phi\,\hat{\mathbf{q}})\;=\;
+    -\,\Phi^{\top} \Bigl[\,( \Phi\,\hat{\mathbf{q}})\,\circ\,(\mathbf{D}_x\,\Phi\,\hat{\mathbf{q}})\Bigr].$$
+This can be expressed as a bilinear form using the identity $\displaystyle (a\circ b)_\ell = \sum_{j,k}\delta_{\ell j}\,a_j\,\delta_{\ell k}\,b_k$. Then, it can be shown that\\$$\bigl[\Phi^{\top}(\Phi\,\hat q\circ D_x\Phi\,\hat q)\bigr]_i
     \;=\;
     \sum_{j=1}^r\sum_{k=1}^r
       \underbrace{\sum_{\ell=1}^n \Phi_{\ell,i}\,\Phi_{\ell,j}\,[D_x\,\Phi]_{\ell,k}}_{\,\mathcal{H}_{i,j,k}\,}
@@ -69,14 +72,14 @@ This can be expressed as a bilinear form using the identity $\displaystyle (a\ci
     \quad
     1\le i,j,k\le r,$$
   so that\\
-  $$\Phi^T\,\mathbf{N}(\Phi\,\hat{\mathbf{q}})
+  $$\Phi^{\top}\,\mathbf{N}(\Phi\,\hat{\mathbf{q}})
     \;=\;
     H_{(1)}\;\bigl(\hat{\mathbf{q}}\otimes\hat{\mathbf{q}}\bigr)
     \;=\;
     \hat{\mathbf{H}}\;(\hat{\mathbf{q}}\otimes\hat{\mathbf{q}}).$$
 Here $\hat{\mathbf{H}} \in \mathbb{R}^{r \times r^2}$ encodes the projected nonlinear interactions. This matricized form enables efficient computation of $\hat{\mathbf{H}}$ during operator inference while preserving the cubic nonlinear structure.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+\newpage
 \section*{Cubic Spline Interpolation}
 \label{sec:cubic_interp}
 Cubic splines are piecewise polynomial functions that ensure smoothness and continuity up to the second derivative at the data points. Given $ N $ points $ \{ (t_i, u_i) \}_{i=1}^N $, the cubic spline $S(t)$ is defined piecewise as:\\
