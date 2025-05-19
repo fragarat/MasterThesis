@@ -45,7 +45,7 @@ H_opinf = opinf.operators.QuadraticOperator.expand_entries(H_opinf)
 # Start from the OpInf solution.
 theta = np.concatenate([A_opinf.ravel(), H_opinf.ravel()])
 
-############################### Adjoint ##############################
+################################# RHS ################################
 ######################################################################
 
 # Integral of q(tau) from 0 to t_k for each t_k.
@@ -116,20 +116,15 @@ for j in range(max_iter):
     for k in range(k_samples):
         lambda_k = lambda_values[:, k]
         q_k = Q_[:, k]
-        error_k = q_k - tilde_Q[:, k]
         
         # Gradient parts for A.
         outer_A = np.outer(lambda_k, q_k).flatten()
         grad_A += outer_A * dt
-        outer_g_A = np.outer(error_k, q_k).flatten()
-        grad_A -= 2 * outer_g_A * dt
         
         # Gradient parts for H.
         q_outer = np.outer(q_k, q_k).flatten()
         outer_H = np.outer(lambda_k, q_outer).flatten()
         grad_H += outer_H * dt
-        outer_g_H = np.outer(error_k, q_outer).flatten()
-        grad_H -= 2 * outer_g_H * dt
     
     gradient = np.concatenate([grad_A, grad_H])
     grad_norm = np.linalg.norm(gradient)
