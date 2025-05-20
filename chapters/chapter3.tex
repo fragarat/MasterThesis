@@ -115,7 +115,7 @@ In order to perform a gradient-based optimization process we need to compute\\
     \dfrac{\partial\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}})}{\partial\hat{\bm{\theta}}}
   \biggr).
 \end{align*}
-Then, we enforce stationarity of the derivative, $\dfrac{\partial\mathscr{L}}{\partial\hat{\mathbf{q}}} = 0$, condition that will provide the adjoint equations, ensuring\\
+Then, we enforce stationarity of the derivative, $\dfrac{\partial\mathscr{L}}{\partial\hat{\mathbf{q}}} = \bm{0}$, condition that will provide the adjoint equations, ensuring\\
 \begin{equation}
   \label{eq:equal_grad}
   \frac{\mathrm{d}\tilde{\ell}}{\mathrm{d}\hat{\bm{\theta}}}
@@ -128,7 +128,7 @@ For such problem, the classical adjoint method as stated in \cite{bradley2024pde
     \label{thm:adjoint_method}
     Assume $\hat{\mathbf{f}}$ and $g$ are continuously differentiable in both $\hat{\mathbf{q}}$ and $\hat{\bm{\theta}}$ and that the initial state $\hat{\mathbf{q}}(0)=\hat{\mathbf{q}}_0$ is fixed (independent of $\hat{\bm{\theta}}$). The adjoint variable $\bm{\lambda}(t)\in\mathcal{C}^1(\mathcal{T})^r$ associated to a minimization problem such in \eqref{eq:opt_problem} satisfies a back propagation ODE\\ 
     \begin{equation}
-        \dot{\bm{\lambda}}(t) = -\left[ \left(\dfrac{\partial \hat{\mathbf{f}}}{\partial\hat{\mathbf{q}}}\right)^{\top}\bm{\lambda}(t) + \left( \dfrac{\partial g}{\partial \hat{\mathbf{q}}} \right)^{\top} \right],\quad\bm{\lambda}(T)=0,
+        \dot{\bm{\lambda}}(t) = -\left[ \left(\dfrac{\partial \hat{\mathbf{f}}}{\partial\hat{\mathbf{q}}}\right)^{\top}\bm{\lambda}(t) + \left( \dfrac{\partial g}{\partial \hat{\mathbf{q}}} \right)^{\top} \right],\quad\bm{\lambda}(T)=\bm{0},
         \label{eq:adjoint_eqs}
     \end{equation}
     and the gradients w.r.t. the parameters of $\tilde\ell$ for the training loss\\
@@ -181,7 +181,7 @@ We recognize all the terms multiplying the sensitivity $\displaystyle\dv{\hat{\m
 \end{equation*}
 By construction, as we have shown in the problem setup,  minimizing the Lagrangian $\mathscr{L}$ is the same as minimizing the loss functional $\tilde\ell$ since\\
 $$\pdv{\mathscr{L}}{\hat{\bm{\theta}}} = \dv{\tilde\ell}{\hat{\bm{\theta}}}.$$
-By definition, $g$ is not dependent on $\hat{\bm{\theta}}$ which implies that $\displaystyle\pdv{g}{\hat{\bm{\theta}}}=0$. Hence, the final expression for the gradients yields\\
+By definition, $g$ is not dependent on $\hat{\bm{\theta}}$ which implies that $\displaystyle\pdv{g}{\hat{\bm{\theta}}}=\bm{0}$. Hence, the final expression for the gradients yields\\
 \begin{equation*}
     \pdv{\mathscr{L}}{\hat{\bm{\theta}}} =\dv{\tilde\ell}{\hat{\bm{\theta}}} = \int_0^T \bm{\lambda}(t)^{\top} \pdv{\hat{\mathbf{f}}}{\hat{\bm{\theta}}}~\dd t.
 \end{equation*}
@@ -200,14 +200,14 @@ Here, $\hat{\mathbf{H}}\in \mathbb{R}^{r\times r^2}$ is Kronecker-symmetric, i.e
     &-\bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0),
 \end{align*}
 where the adjoint variable $\bm{\lambda}\in\mathcal{C}^1(\mathcal{T})^r$ has the same size as the state variable $\hat{\mathbf{q}}$. The adjoint equation for $\bm{\lambda}(t)$ is derived by setting\\
-$$ \bm{D}_{\hat{\mathbf{q}}} \mathscr{L}(\hat{\mathbf{q}},\bm{\lambda,\hat{\bm{\theta}}};\mathbf{v}) = \dv{}{\varepsilon}[\mathscr{L}(\hat{\mathbf{q}}+\varepsilon \mathbf{v},\bm{\lambda,\hat{\bm{\theta}}})]_{\varepsilon=0} = 0~~~\forall~\mathbf{v}\in\mathcal{C}^1(\mathcal{T})^r,$$a directional (Gâteaux) derivative. Noting first that\\
+$$ \bm{D}_{\hat{\mathbf{q}}} \mathscr{L}(\hat{\mathbf{q}},\bm{\lambda,\hat{\bm{\theta}}};\mathbf{v}) = \dv{}{\varepsilon}[\mathscr{L}(\hat{\mathbf{q}}+\varepsilon \mathbf{v},\bm{\lambda,\hat{\bm{\theta}}})]_{\varepsilon=0} = \bm{0}~~~\forall~\mathbf{v}\in\mathcal{C}^1(\mathcal{T})^r,$$a directional (Gâteaux) derivative. Noting first that\\
 \begin{align*}
     \dv{}{\varepsilon}[\mathcal{\ell}(\hat{\mathbf{q}}+\varepsilon \mathbf{v},\hat{\bm{\theta}})]_{\varepsilon=0} &= \int_0^T \dv{}{\varepsilon}[g(\hat{\mathbf{q}}(t)+\varepsilon \mathbf{v}(t),t)]_{\varepsilon=0}~\mathrm{d}t = \int_0^T \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t)^{\top}\mathbf{v}(t)~\mathrm{d}t,\\
     \dv{}{\varepsilon}[\boldsymbol{c}(\hat{\mathbf{q}}+\varepsilon \mathbf{v},\hat{\bm{\theta}})]_{\varepsilon=0} &= \dot{\mathbf{v}}(t) - \hat{\mathbf{A}}\mathbf{v}(t) - 2\hat{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \mathbf{v}(t)],
 \end{align*}
 the adjoint equations are given by\\
 \begin{align*}
-    0 &= \int_0^T \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t)^{\top}\mathbf{v}(t)~\mathrm{d}t\\
+    \bm{0} &= \int_0^T \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t)^{\top}\mathbf{v}(t)~\mathrm{d}t\\
     &- \int_0^T \bm{\lambda}(t)^{\top} \left( \dot{\mathbf{v}}(t) - \hat{\mathbf{A}}\mathbf{v}(t) - 2\hat{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \mathbf{v}(t)] \right)~\mathrm{d}t~- \bm{\lambda}(0)^{\top}\mathbf{v}(0). 
 \end{align*}
 We want to write these adjoint equations as a weak form with test function $\mathbf{v}$. Integration by parts yields\\
@@ -217,7 +217,7 @@ We want to write these adjoint equations as a weak form with test function $\mat
 \end{align*}
 Using this identity and transposing each (scalar) term, the adjoint equations become\\
 \begin{equation*}
-    0 = \int_0^T \mathbf{v}(t)^{\top} \left( \dot{\bm{\lambda}}(t) + \hat{\mathbf{A}}^{\top} \bm{\lambda}(t) + 2\tilde{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \bm{\lambda}(t)] + \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t) \right)\mathrm{d}t - \mathbf{v}(T)^{\top}\bm{\lambda}(T), 
+    \bm{0} = \int_0^T \mathbf{v}(t)^{\top} \left( \dot{\bm{\lambda}}(t) + \hat{\mathbf{A}}^{\top} \bm{\lambda}(t) + 2\tilde{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \bm{\lambda}(t)] + \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t) \right)\mathrm{d}t - \mathbf{v}(T)^{\top}\bm{\lambda}(T), 
 \end{equation*}
 where $\tilde{\mathbf{H}}\in\mathbb{R}^{r\times r^2}$ is the matrix such that\\
 $$\bm{\lambda}^{\top}\hat{\mathbf{H}}[\hat{\mathbf{q}}\otimes \mathbf{v}] = \mathbf{v}^{\top}\tilde{\mathbf{H}}[\hat{\mathbf{q}}\otimes \bm{\lambda}],~~~\forall~\hat{\mathbf{q}}, \mathbf{v}, \bm{\lambda} \in \mathbb{R}^r.$$
@@ -242,9 +242,98 @@ We defer the computation of $\nabla_{\hat{\mathbf{q}}}~g$, along with the remain
 
 %%%%%%
 
-\subsection*{Proof (Sensitivity Analysis of Primal Problem)}
+\subsection*{Proof (Sensitivity Analysis of the Primal Problem)}
 
-ADD HERE proof by sensitivity analysis without Lagrangian. Primal problem. Use this to discuss the save in computational cost with the adjoint.
+We start from the \emph{primal} sensitivity equations for the state $\hat{\mathbf{q}}(t)$ and parameters $\hat{\bm{\theta}}_i$ for $i=1,\dots,d$:\\
+$$\dot{\hat{\mathbf{q}}}(t)
+= \hat{\mathbf{f}}\bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}\bigr),
+\qquad
+\partial_{\hat{\bm{\theta}}_i}\dot{\hat{\mathbf{q}}}(t)
+= \frac{\partial \hat{\mathbf{f}}}{\partial \hat{\mathbf{q}}}
+  \bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}\bigr)^{\!\top}
+  \,\partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{q}}(t)
++ \partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{f}}
+  \bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}\bigr).$$
+Multiplying the second equation by an arbitrary test function $\mathbf{v}(t)\in\mathbb{R}^r$, integrating from $0$ to $T$, and rearranging, we can rewrite this equation in its weak form\\
+$$\int_{0}^{T}
+\Biggl[
+  \partial_{\hat{\bm{\theta}}_i}\dot{\hat{\mathbf{q}}}(t)
+  - \biggl(\dfrac{\partial \hat{\mathbf{f}}}{\partial \hat{\mathbf{q}}}\biggr)^{\!\top}\,
+    \partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{q}}(t)
+\Biggr]^{\!\top}
+\mathbf{v}(t)\,\mathrm{d}t
+=
+\int_{0}^{T}
+\bigl(\partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{f}}\bigr)^{\!\top}
+\mathbf{v}(t)\,\mathrm{d}t,$$
+or, in operator notation,\\
+$$\langle L\,\partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{q}},\,\mathbf{v}\rangle
+= \langle \partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{f}},\,\mathbf{v}\rangle.$$
+On the other hand, the gradient of the loss $\tilde{\ell}$ with respect to $\hat{\bm{\theta}}_i$ is\\
+$$\frac{\mathrm{d}}{\mathrm{d}\hat{\bm{\theta}}_i}\,\tilde\ell
+= \int_{0}^{T}
+\frac{\partial g}{\partial \hat{\mathbf{q}}}\bigl(\hat{\mathbf{q}}(t),t\bigr)^{\!\top}
+\,\partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{q}}(t)\,\mathrm{d}t
+= \langle \nabla_{\hat{\mathbf{q}}}\,g,\,\partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{q}}\rangle.$$
+Now, we define the adjoint problem by introducing an adjoint variable $\bm{\lambda}(t)\in\mathbb{R}^r$ such that\\
+$$\langle \mathbf{w},\,\tilde L\,\bm{\lambda}\rangle
+= \langle \nabla_{\hat{\mathbf{q}}}\,g,\,\mathbf{w}\rangle
+\quad\forall\,\mathbf{w}\text{ with }\mathbf{w}(0)=\bm{0},$$
+where $\tilde L$ is the adjoint of $L$.  By the definition of the adjoint operator this is equivalent to\\
+$$\langle L\,\mathbf{w},\,\bm{\lambda}\rangle
+= \langle \nabla_{\hat{\mathbf{q}}}\,g,\,\mathbf{w}\rangle.$$
+Choosing $\mathbf{w} = \partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{q}}$ in this identity immediately gives\\
+$$\frac{\dd}{\dd\hat{\bm{\theta}}_i}\,\tilde\ell
+= \bigl\langle L\,\partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{q}},\,\bm{\lambda}\bigr\rangle
+\underset{
+  \substack{
+    \text{primal problem}\\
+    \text{with }\mathbf{v}\,=\,\bm{\lambda}
+  }
+}{=}
+\bigl\langle \partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{f}},\,\bm{\lambda}\bigr\rangle
+= \int_{0}^{T}
+  \bm{\lambda}(t)^{\!\top}\,
+  \partial_{\hat{\theta}_i}\hat{\mathbf{f}}(t)\,
+  \dd t.$$
+To derive the adjoint ODE itself, we expand\\
+$$\langle L\,\mathbf{w},\,\bm{\lambda}\rangle
+= \int_{0}^{T}
+\Biggl[
+  \dot{\mathbf{w}}(t)
+  - \biggl(\dfrac{\partial\hat{\mathbf{f}}}{\partial\hat{\mathbf{q}}}\biggr)^{\!\top}
+    \mathbf{w}(t)
+\Biggr]^{\!\top}
+\bm{\lambda}(t)\,\mathrm{d}t
+= \int_{0}^{T}
+\biggl(\dfrac{\partial g}{\partial\hat{\mathbf{q}}}\biggr)^{\!\top}
+\mathbf{w}(t)\,\mathrm{d}t = \langle \nabla_{\hat{\mathbf{q}}}\,g,\,\mathbf{w}\rangle.$$
+Integrating by parts the term\\
+$$\int_{0}^{T}\dot{\mathbf{w}}(t)^{\!\top}\bm{\lambda}(t)\,\dd t =  \left[ \mathbf{w}(t)^{\top}\bm{\lambda}(t)\right]_0^T - \int_0^T \dot{\bm{\lambda}}(t)^{\top}\cdot\mathbf{w}(t)~\dd t,$$
+using $\mathbf{w}(0)=\bm{0}$ and imposing the natural terminal condition $\bm{\lambda}(T)=\bm{0}$ to kill the boundary term, we obtain\\
+$$\int_{0}^{T}
+\bigl[
+  -\,\dot{\bm{\lambda}}(t)
+\bigr]^{\!\top}
+\mathbf{w}(t)\,\mathrm{d}t
+=
+\int_{0}^{T}
+\Biggl[
+  \biggl(\dfrac{\partial\hat{\mathbf{f}}}{\partial\hat{\mathbf{q}}}\biggr)^{\!\top}\bm{\lambda}(t)
+  + \biggl(\dfrac{\partial g}{\partial\hat{\mathbf{q}}}\biggr)^{\!\top}
+\Biggr]^{\!\top}
+\mathbf{w}(t)\,\mathrm{d}t.$$
+Since $\mathbf{w}$ is arbitrary, the integrands coincide, yielding the final expression for the adjoint equations\\
+$$\dot{\bm{\lambda}}(t)
+= -\Biggl[
+    \biggl(\dfrac{\partial\hat{\mathbf{f}}}{\partial\hat{\mathbf{q}}}\biggr)^{\!\top}\bm{\lambda}(t)
+    + \biggl(\dfrac{\partial g}{\partial\hat{\mathbf{q}}}\biggr)^{\!\top}
+  \Biggr],
+\quad
+\bm{\lambda}(T)=\mathbf{0}.$$
+\qed
+
+\noindent\textbf{Remark.} While the adjoint equations are independent of $i=1,\dots, d$, i.e., the size of the $\hat{\bm{\theta}}$ parameters, the primal sensitivity equations require solving $d$ systems for $\displaystyle\{\partial_{\hat{\bm{\theta}}_i} \dot{\hat{\mathbf{q}}}(t)\}_{i=1}^d$, making the adjoint method particularly advantageous to the primal when $d \gg 1$.
 
 %%%%%%
 
@@ -435,7 +524,6 @@ A differentiable function $\mathcal{J}: \mathbb{R}^p \to \mathbb{R}$ is said to 
 \end{equation}
 This condition ensures that the gradient of $\mathcal{J}$ is Lipschitz continuous with constant $L$.
 \end{definition}
-\newpage
 \begin{definition}[$\mu$-strongly convex function]
 A function $\mathcal{J}: \mathbb{R}^p \to \mathbb{R}$ is said to be $\mu$-strongly convex if there exists a constant $\mu > 0$ such that for all $\bm\omega, \bm{\tilde{\omega}} \in \mathbb{R}^p$,\\
 \begin{equation} \label{eq:mu_strong_convexity}
