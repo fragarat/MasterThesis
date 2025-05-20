@@ -147,7 +147,7 @@ For such problem, the classical adjoint method as stated in \cite{bradley2024pde
     \end{equation}
 \end{theorem}
 
-\subsection*{Proof (by Lagrangian Formulation)}
+\subsection*{Proof (Lagrangian Formulation)}
 
 Consider the stated loss and equality constraint minimization problem\\
 \begin{align*}
@@ -242,7 +242,7 @@ We defer the computation of $\nabla_{\hat{\mathbf{q}}}~g$, along with the remain
 
 %%%%%%
 
-\subsection*{Proof (by Sensitivity Analysis)}
+\subsection*{Proof (Sensitivity Analysis of Primal Problem)}
 
 ADD HERE proof by sensitivity analysis without Lagrangian. Primal problem. Use this to discuss the save in computational cost with the adjoint.
 
@@ -335,7 +335,7 @@ Note that this result is consistent with the formulation presented in the first 
 
 By definition, the loss integrand is given by\\
 $$g\bigl(\hat{\mathbf{q}},t\bigr)= \Bigl\|\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\Bigr\|_2^2\,,$$
-where $\hat{\mathbf{q}}(t)$ represents the state vector at time $t$.
+where $\hat{\mathbf{q}}(t)$ denotes the predicted state vector at time $t$, and $\hat{\mathbf{q}}_{\text{true}}(t)$ is the corresponding true data state vector at the same time point.
 We introduce, for convenience, the residual\\
 $$\mathbf{r}(\hat{\mathbf{q}},t):=  \hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t).$$
 Then, the Gateaux derivative of $g$ in the direction $\mathbf{v}\in\mathbb{R}^r$ is\\

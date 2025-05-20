@@ -43,8 +43,8 @@ $$
 \mathcal{H}(\hat{\mathbf{q}},\hat{\mathbf{q}}) = H_{(1)}\,\mathrm{vec}(\hat{\mathbf{q}}\,\hat{\mathbf{q}}^{\top}) = \hat{\mathbf{H}}(\hat{\mathbf{q}}\otimes\hat{\mathbf{q}}).$$
 
 \subsection*{Example: Burgers' Equation}
-Consider the 1D viscous Burgers' equation for the scalar field $q:[0,1]\times [0,T]\to\mathbb{R}$:\\
-$$\frac{\partial }{\partial t}q(x,t) + q\;\frac{\partial }{\partial x}q(x,t) = \nu \frac{\partial^2}{\partial x^2}q(x,t).$$
+Consider the 1D viscous Burgers' equation for the scalar field $q(x,t):[0,1]\times [0,T]\to\mathbb{R}$:\\
+$$\frac{\partial q}{\partial t} + q\;\frac{\partial q}{\partial x} = \nu \frac{\partial^2 q}{\partial x^2}.$$
 Upon spatial discretization at \(n\) grid points, we write\\
 $$\mathbf{q}(t) = \bigl[q(x_1,t),\,q(x_2,t),\,\dots,\,q(x_n,t)\bigr]^{\top}
   \;\in\;\mathbb{R}^n.$$
