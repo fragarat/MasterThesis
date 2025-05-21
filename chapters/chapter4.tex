@@ -418,7 +418,7 @@ $$\bigl(\mathbf{L}_x^{1D}\bigr)_{jj}= -\frac{2}{\Delta x^2}, \quad \bigl(\mathbf
 \end{itemize}
 For the time-stepping scheme, we use a semi-implicit Crank-Nicolson step for the diffusion and explicit Euler for the reaction term:\\
 $$\dfrac{\mathbf{q}^{m+1} - \mathbf{q}^{m}}{\Delta t} = \dfrac{\mathfrak{D}}{2}\mathbf{L}(\mathbf{q}^{m+1}+\mathbf{q}^m)\;+\,\rho\,\mathbf{q}^m\circ(\mathbf{1} - \mathbf{q}^m),$$ 
-where "$\circ$" denotes the Hadamard product.
+where $\circ$ denotes the Hadamard product.
 
 By defining,
 $$\alpha \;\coloneqq\;\frac{\mathfrak{D}\,\Delta t}{2}, \quad \bm{\mathcal{A}} \;\coloneqq\; \mathbf{I} - \alpha\,\mathbf{L}, \quad \bm{\mathcal{B}} \;\coloneqq\; \mathbf{I} + \alpha\,\mathbf{L},$$

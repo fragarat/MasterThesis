@@ -267,12 +267,12 @@ $$\int_{0}^{T}
 \bigl(\partial_{\hat{\theta}_i}\hat{\mathbf{f}}\bigr)^{\!\top}
 \mathbf{v}(t)\,\mathrm{d}t,$$
 or, in operator notation,\\
-$$\langle L\,\partial_{\hat{\theta}_i}\hat{\mathbf{q}},\,\mathbf{v}\rangle
+$$\langle \mathcal{L}\,\partial_{\hat{\theta}_i}\hat{\mathbf{q}},\,\mathbf{v}\rangle
 = \langle \partial_{\hat{\theta}_i}\hat{\mathbf{f}},\,\mathbf{v}\rangle,$$
 where the operator\\
-$$ L: \mathcal{C}^1(\mathcal{T})^r\to\mathcal{C}^0(\mathcal{T})^r,$$ 
+$$ \mathcal{L}: \mathcal{C}^1(\mathcal{T})^r\to\mathcal{C}^0(\mathcal{T})^r,$$ 
 with both domain and codomain equipped with the usual $L^2$-inner product, is given by\\
-$$(L\mathbf{w})(t) = \dot{\mathbf{w}}(t) - \biggl(\dfrac{\partial \hat{\mathbf{f}}}{\partial \hat{\mathbf{q}}}\biggr)^{\top}\mathbf{w}(t),$$
+$$(\mathcal{L}\mathbf{w})(t) = \dot{\mathbf{w}}(t) - \biggl(\dfrac{\partial \hat{\mathbf{f}}}{\partial \hat{\mathbf{q}}}\biggr)^{\top}\mathbf{w}(t),$$
 for any $\mathbf{w}(\cdot)\in\mathcal{C}^1(\mathcal{T})^r$. 
 
 On the other hand, the gradient of the loss $\tilde{\ell}$ with respect to $\hat{\theta}_i$ is\\
@@ -282,15 +282,15 @@ $$\frac{\mathrm{d}}{\mathrm{d}\hat{\theta}_i}\,\tilde\ell
 \,\partial_{\hat{\theta}_i}\hat{\mathbf{q}}(t)\,\mathrm{d}t
 = \langle \nabla_{\hat{\mathbf{q}}}\,g,\,\partial_{\hat{\theta}_i}\hat{\mathbf{q}}\rangle.$$
 Now, we define the adjoint problem by introducing an adjoint variable $\bm{\lambda}(\cdot)\in\mathcal{C}^1(\mathcal{T})^r$ such that\\
-$$\langle \mathbf{w},\,\tilde L\,\bm{\lambda}\rangle
+$$\langle \mathbf{w},\,\tilde{\mathcal{L}}\,\bm{\lambda}\rangle
 = \langle \nabla_{\hat{\mathbf{q}}}\,g,\,\mathbf{w}\rangle
 \quad\forall\,\mathbf{w}(\cdot)\in\mathcal{C}^1(\mathcal{T})^r\text{ with }\mathbf{w}(0)=\bm{0},$$
-where $\tilde L$ is the adjoint of $L$.  By the definition of the adjoint operator this is equivalent to\\
-$$\langle L\,\mathbf{w},\,\bm{\lambda}\rangle
+where $\tilde{\mathcal{L}}$ is the adjoint of $\mathcal{L}$.  By the definition of the adjoint operator this is equivalent to\\
+$$\langle \mathcal{L}\,\mathbf{w},\,\bm{\lambda}\rangle
 = \langle \nabla_{\hat{\mathbf{q}}}\,g,\,\mathbf{w}\rangle.$$
 Choosing $\mathbf{w} = \partial_{\hat{\theta}_i}\hat{\mathbf{q}}$ in this identity immediately gives\\
 $$\frac{\dd}{\dd\hat{\theta}_i}\,\tilde\ell
-= \bigl\langle L\,\partial_{\hat{\theta}_i}\hat{\mathbf{q}},\,\bm{\lambda}\bigr\rangle
+= \bigl\langle \mathcal{L}\,\partial_{\hat{\theta}_i}\hat{\mathbf{q}},\,\bm{\lambda}\bigr\rangle
 \underset{
   \substack{
     \text{primal problem}\\
@@ -303,7 +303,7 @@ $$\frac{\dd}{\dd\hat{\theta}_i}\,\tilde\ell
   \partial_{\hat{\theta}_i}\hat{\mathbf{f}}(t)\,
   \dd t.$$
 To derive the adjoint ODE itself, we expand\\
-$$\langle L\,\mathbf{w},\,\bm{\lambda}\rangle
+$$\langle \mathcal{L}\,\mathbf{w},\,\bm{\lambda}\rangle
 = \int_{0}^{T}
 \Biggl[
   \dot{\mathbf{w}}(t)
@@ -336,7 +336,7 @@ $$\dot{\bm{\lambda}}(t)
     + \biggl(\dfrac{\partial g}{\partial\hat{\mathbf{q}}}\biggr)^{\!\top}
   \Biggr],
 \quad
-\bm{\lambda}(T)=\mathbf{0}.$$
+\bm{\lambda}(T)=\bm{0}.$$
 \qed
 
 \noindent\textbf{Remark.} While the adjoint equations are independent of $i=1,\dots, d$, i.e., the size of the $\hat{\bm{\theta}}$ parameters, the primal sensitivity equations require solving $d$ systems for $\displaystyle\{\partial_{\hat{\theta}_i} \dot{\hat{\mathbf{q}}}(t)\}_{i=1}^d$, making the adjoint method particularly advantageous to the primal when $d \gg 1$.
@@ -606,7 +606,7 @@ $$\hat{\bm\theta}^{j+1} = \hat{\bm\theta}^j - \eta_j\,\mathscr{G}^j\,.$$
 \end{minipage}
 \end{center}
 
-For large-scale or stochastic settings, variants such as Stochastic Gradient Descent (SGD) are often preferred \cite{ruder2017overviewgradientdescentoptimization} due to their lower memory requirements and computational cost. However, for smaller datasets, as in the experiments discussed later, Gradient Descent is favored for its higher precision. Although plain GD in non-convex problems only guarantees convergence to some stationary point, in our approach we warm-start GD from the Operator Inference solution. Since this guess already lies near a high-quality minimum, GD will converge fast and is less likely to fall into suboptimal stationary points.
+For large-scale or stochastic settings, variants such as Stochastic Gradient Descent (SGD) are often preferred \cite{ruder2017overviewgradientdescentoptimization} due to their lower memory requirements and computational cost. However, for smaller datasets, as in the experiments discussed later, Gradient Descent is favored for its higher precision. Although GD with an Armijo line search in non-convex problems, such as the constrained minimization problem we consider, only guarantees convergence to some stationary point, in our approach we warm-start GD from the Operator Inference solution. Since this guess already lies near a high-quality minimum, GD will converge fast and is less likely to fall into suboptimal stationary points.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
