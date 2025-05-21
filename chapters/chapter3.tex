@@ -244,54 +244,60 @@ We defer the computation of $\nabla_{\hat{\mathbf{q}}}~g$, along with the remain
 
 \subsection*{Proof (Sensitivity Analysis of the Primal Problem)}
 
-We start from the \emph{primal} sensitivity equations for the state $\hat{\mathbf{q}}(t)$ and parameters $\hat{\bm{\theta}}_i$ for $i=1,\dots,d$:\\
+We start from the \emph{primal} sensitivity equations for the state $\hat{\mathbf{q}}(t)$ and parameters $\hat{\theta}_i$ for $i=1,\dots,d$:\\
 $$\dot{\hat{\mathbf{q}}}(t)
 = \hat{\mathbf{f}}\bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}\bigr),
 \qquad
-\partial_{\hat{\bm{\theta}}_i}\dot{\hat{\mathbf{q}}}(t)
+\partial_{\hat{\theta}_i}\dot{\hat{\mathbf{q}}}(t)
 = \frac{\partial \hat{\mathbf{f}}}{\partial \hat{\mathbf{q}}}
   \bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}\bigr)^{\!\top}
-  \,\partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{q}}(t)
-+ \partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{f}}
+  \,\partial_{\hat{\theta}_i}\hat{\mathbf{q}}(t)
++ \partial_{\hat{\theta}_i}\hat{\mathbf{f}}
   \bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}\bigr).$$
-Multiplying the second equation by an arbitrary test function $\mathbf{v}(t)\in\mathbb{R}^r$, integrating from $0$ to $T$, and rearranging, we can rewrite this equation in its weak form\\
+Multiplying the second equation by an arbitrary test function $\mathbf{v}(\cdot)\in\mathcal{C}^1(\mathcal{T})^r$, integrating from $0$ to $T$, and rearranging, we can rewrite this equation in its weak form\\
 $$\int_{0}^{T}
 \Biggl[
-  \partial_{\hat{\bm{\theta}}_i}\dot{\hat{\mathbf{q}}}(t)
-  - \biggl(\dfrac{\partial \hat{\mathbf{f}}}{\partial \hat{\mathbf{q}}}\biggr)^{\!\top}\,
-    \partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{q}}(t)
+  \partial_{\hat{\theta}_i}\dot{\hat{\mathbf{q}}}(t)
+  - \biggl(\dfrac{\partial \hat{\mathbf{f}}}{\partial \hat{\mathbf{q}}}\biggr)^{\top}\,
+    \partial_{\hat{\theta}_i}\hat{\mathbf{q}}(t)
 \Biggr]^{\!\top}
 \mathbf{v}(t)\,\mathrm{d}t
 =
 \int_{0}^{T}
-\bigl(\partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{f}}\bigr)^{\!\top}
+\bigl(\partial_{\hat{\theta}_i}\hat{\mathbf{f}}\bigr)^{\!\top}
 \mathbf{v}(t)\,\mathrm{d}t,$$
 or, in operator notation,\\
-$$\langle L\,\partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{q}},\,\mathbf{v}\rangle
-= \langle \partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{f}},\,\mathbf{v}\rangle.$$
-On the other hand, the gradient of the loss $\tilde{\ell}$ with respect to $\hat{\bm{\theta}}_i$ is\\
-$$\frac{\mathrm{d}}{\mathrm{d}\hat{\bm{\theta}}_i}\,\tilde\ell
+$$\langle L\,\partial_{\hat{\theta}_i}\hat{\mathbf{q}},\,\mathbf{v}\rangle
+= \langle \partial_{\hat{\theta}_i}\hat{\mathbf{f}},\,\mathbf{v}\rangle,$$
+where the operator\\
+$$ L: \mathcal{C}^1(\mathcal{T})^r\to\mathcal{C}^0(\mathcal{T})^r,$$ 
+with both domain and codomain equipped with the usual $L^2$-inner product, is given by\\
+$$(L\mathbf{w})(t) = \dot{\mathbf{w}}(t) - \biggl(\dfrac{\partial \hat{\mathbf{f}}}{\partial \hat{\mathbf{q}}}\biggr)^{\top}\mathbf{w}(t),$$
+for any $\mathbf{w}(\cdot)\in\mathcal{C}^1(\mathcal{T})^r$. 
+
+On the other hand, the gradient of the loss $\tilde{\ell}$ with respect to $\hat{\theta}_i$ is\\
+$$\frac{\mathrm{d}}{\mathrm{d}\hat{\theta}_i}\,\tilde\ell
 = \int_{0}^{T}
 \frac{\partial g}{\partial \hat{\mathbf{q}}}\bigl(\hat{\mathbf{q}}(t),t\bigr)^{\!\top}
-\,\partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{q}}(t)\,\mathrm{d}t
-= \langle \nabla_{\hat{\mathbf{q}}}\,g,\,\partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{q}}\rangle.$$
-Now, we define the adjoint problem by introducing an adjoint variable $\bm{\lambda}(t)\in\mathbb{R}^r$ such that\\
+\,\partial_{\hat{\theta}_i}\hat{\mathbf{q}}(t)\,\mathrm{d}t
+= \langle \nabla_{\hat{\mathbf{q}}}\,g,\,\partial_{\hat{\theta}_i}\hat{\mathbf{q}}\rangle.$$
+Now, we define the adjoint problem by introducing an adjoint variable $\bm{\lambda}(\cdot)\in\mathcal{C}^1(\mathcal{T})^r$ such that\\
 $$\langle \mathbf{w},\,\tilde L\,\bm{\lambda}\rangle
 = \langle \nabla_{\hat{\mathbf{q}}}\,g,\,\mathbf{w}\rangle
-\quad\forall\,\mathbf{w}\text{ with }\mathbf{w}(0)=\bm{0},$$
+\quad\forall\,\mathbf{w}(\cdot)\in\mathcal{C}^1(\mathcal{T})^r\text{ with }\mathbf{w}(0)=\bm{0},$$
 where $\tilde L$ is the adjoint of $L$.  By the definition of the adjoint operator this is equivalent to\\
 $$\langle L\,\mathbf{w},\,\bm{\lambda}\rangle
 = \langle \nabla_{\hat{\mathbf{q}}}\,g,\,\mathbf{w}\rangle.$$
-Choosing $\mathbf{w} = \partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{q}}$ in this identity immediately gives\\
-$$\frac{\dd}{\dd\hat{\bm{\theta}}_i}\,\tilde\ell
-= \bigl\langle L\,\partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{q}},\,\bm{\lambda}\bigr\rangle
+Choosing $\mathbf{w} = \partial_{\hat{\theta}_i}\hat{\mathbf{q}}$ in this identity immediately gives\\
+$$\frac{\dd}{\dd\hat{\theta}_i}\,\tilde\ell
+= \bigl\langle L\,\partial_{\hat{\theta}_i}\hat{\mathbf{q}},\,\bm{\lambda}\bigr\rangle
 \underset{
   \substack{
     \text{primal problem}\\
     \text{with }\mathbf{v}\,=\,\bm{\lambda}
   }
 }{=}
-\bigl\langle \partial_{\hat{\bm{\theta}}_i}\hat{\mathbf{f}},\,\bm{\lambda}\bigr\rangle
+\bigl\langle \partial_{\hat{\theta}_i}\hat{\mathbf{f}},\,\bm{\lambda}\bigr\rangle
 = \int_{0}^{T}
   \bm{\lambda}(t)^{\!\top}\,
   \partial_{\hat{\theta}_i}\hat{\mathbf{f}}(t)\,
@@ -333,7 +339,7 @@ $$\dot{\bm{\lambda}}(t)
 \bm{\lambda}(T)=\mathbf{0}.$$
 \qed
 
-\noindent\textbf{Remark.} While the adjoint equations are independent of $i=1,\dots, d$, i.e., the size of the $\hat{\bm{\theta}}$ parameters, the primal sensitivity equations require solving $d$ systems for $\displaystyle\{\partial_{\hat{\bm{\theta}}_i} \dot{\hat{\mathbf{q}}}(t)\}_{i=1}^d$, making the adjoint method particularly advantageous to the primal when $d \gg 1$.
+\noindent\textbf{Remark.} While the adjoint equations are independent of $i=1,\dots, d$, i.e., the size of the $\hat{\bm{\theta}}$ parameters, the primal sensitivity equations require solving $d$ systems for $\displaystyle\{\partial_{\hat{\theta}_i} \dot{\hat{\mathbf{q}}}(t)\}_{i=1}^d$, making the adjoint method particularly advantageous to the primal when $d \gg 1$.
 
 %%%%%%
 
@@ -488,6 +494,7 @@ Thus, collecting all four transposed blocks, the expression for the gradient yie
 \end{equation}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 \section{Gradient Descent for Parameter Optimization}
 \label{sec:gd_opt}
 
