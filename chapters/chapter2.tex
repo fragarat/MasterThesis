@@ -140,7 +140,7 @@ Next, a discrete training loss is defined as\\
 \end{align}
 where the reduced operators $\hat{\mathbf{c}}$, $\hat{\mathbf{A}}$, $\hat{\mathbf{H}}$, and $\hat{\mathbf{B}}$ are to be determined.
 
-Finally, OpInf identifies the reduced operators by solving the following least-squares problem (i.e., linear regression with respect to \(\hat{\bm{\theta}}\)) to minimize the training loss:\\
+Finally, OpInf identifies the reduced operators by solving the following least-squares problem (a linear regression in \(\hat{\bm{\theta}}\)) to minimize the training loss\\
 \begin{equation}
     \min_{\hat{\bm{\theta}} \in \hat{\bm{\Theta}}} \sum_{i=1}^{k} \left\| \left[ \hat{\mathbf{c}} + \hat{\mathbf{A}}\hat{\mathbf{q}}(t_i) + \hat{\mathbf{H}}\bigl[ \hat{\mathbf{q}}(t_i) \otimes \hat{\mathbf{q}}(t_i) \bigr] + \hat{\mathbf{B}}\mathbf{u}(t_i) \right] - \dot{\hat{\mathbf{q}}}(t_i) \right\|_2^2.
     \label{eq:lst_opinf}

@@ -33,7 +33,7 @@ To avoid explicit differentiation as in the classical OpInf approach, we introdu
 \end{definition}
 Note that $\tilde{\ell}(\hat{\bm{\theta}}) = \ell(\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}}))$ in which $\tilde{\mathbf{q}}$ satisfies the constraint\\ 
 $$\tilde{\mathbf{q}}(t, \hat{\bm{\theta}}) = \tilde{\mathbf{q}}(0) + \displaystyle\int_{0}^t\left[ \hat{\mathbf{c}} + \hat{\mathbf{A}}\tilde{\mathbf{q}}(\tau) + \hat{\mathbf{H}}\left(\tilde{\mathbf{q}}(\tau)\otimes\tilde{\mathbf{q}}(\tau) \right) +\hat{\mathbf{B}}\mathbf{u}(\tau) \right]\dd \tau.$$
-Based on the reduced loss functional \eqref{eq:continuous_reduced_loss}, that implicitly considers the integral form of OpInf, the learning task is to find\\
+Based on the reduced loss functional \eqref{eq:continuous_reduced_loss} that implicitly considers the integral form of OpInf, the learning task is to find\\
 \begin{equation}
   \hat{\bm{\theta}}^*
   \;=\;
@@ -254,7 +254,7 @@ $$\dot{\hat{\mathbf{q}}}(t)
   \,\partial_{\hat{\theta}_i}\hat{\mathbf{q}}(t)
 + \partial_{\hat{\theta}_i}\hat{\mathbf{f}}
   \bigl(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}\bigr).$$
-Multiplying the second equation by an arbitrary test function $\mathbf{v}(\cdot)\in\mathcal{C}^1(\mathcal{T})^r$, integrating from $0$ to $T$, and rearranging, we can rewrite this equation in its weak form\\
+Multiplying the second equation by an arbitrary test function $\mathbf{v}(\cdot)\in\mathcal{C}^1(\mathcal{T})^r$, integrating from $0$ to $T$, and rearranging, we can rewrite the primal problem in its weak form\\
 $$\int_{0}^{T}
 \Biggl[
   \partial_{\hat{\theta}_i}\dot{\hat{\mathbf{q}}}(t)

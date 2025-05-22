@@ -10,7 +10,7 @@ For each model, we compare the adjoint method against the classical OpInf approa
 \end{enumerate}
 We hypothesize that, because the adjoint method computes exact gradients of the loss functional, it will provide more robust and accurate parameter estimates, especially when training data are noisy or sparsely sampled, than OpInf, which relies on finite-difference approximations of time derivatives.  
 
-All experiments share a common numerical setup. We construct a POD basis $\mathbf{V}_r$ that captures at least $99.9\%$ of the snapshot energy ($\kappa_r\ge0.999$). In OpInf regression, we employ finite-difference stencils up to second and sixth order (\texttt{'ord2'}, \texttt{'ord6'}) to approximate $\dot{\mathbf{Q}}$. Time integrals are evaluated via the cumulative trapezoidal rule from \texttt{'scipy.integrate'} \cite{virtanen2020scipy}, and the adjoint equations are solved backward in time with an implicit Euler scheme. Armijo backtracking parameters are fixed at $\alpha=10^{-4}$, $\beta=0.5$, $\eta_0=10^{-3}$, and gradient descent is terminated for a tolerance value of $\epsilon=10^{-8}$ or after 1000 iterations (see code in  Appendix~\ref{lst:adjoint}). Finally, we use the optimized parameters $\hat{\bm\theta}^*$ to predict new trajectories by solving the learned ROM with \texttt{'solve\_ivp(method="BDF")'} \cite{scipy-solveivp}.
+All experiments share a common numerical setup. We construct a POD basis $\mathbf{V}_r$ that captures at least $99.9\%$ of the snapshot energy ($\kappa_r\ge0.999$). In OpInf regression, we employ finite-difference stencils up to second and sixth order (\texttt{'ord2'}, \texttt{'ord6'}) to approximate $\dot{\mathbf{Q}}$. Time integrals are evaluated via the cumulative trapezoidal rule from \texttt{'scipy.integrate'} \cite{virtanen2020scipy}, and the adjoint equations are solved backward in time with an implicit Euler scheme. Armijo backtracking parameters are fixed at $\alpha=10^{-4}$, $\beta=0.5$, $\eta_0=10^{-3}$, and gradient descent is terminated for a tolerance value of $\epsilon=10^{-8}$ or after 1000 iterations (see code in  Appendix~\ref{lst:adjoint}). Finally, we use the optimized parameters $\hat{\bm\theta}^*$ to predict new trajectories by solving the learned ROM using SciPy's \texttt{'solve\_ivp(method="BDF")'} \cite{scipy-solveivp}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -27,7 +27,7 @@ All experiments share a common numerical setup. We construct a POD basis $\mathb
 To generate the dataset for model reduction via Operator Inference, we solve the one-dimensional viscous Burgers’ equation (for Python implementation, see Appendix \ref{lst:burgers}):\\
 $$q_t + q\,q_x = \nu\,q_{xx}, \quad x\in[0,1],~t\in[0,T],~\nu=0.01,$$
 subject to homogeneous Dirichlet boundary conditions\\
-$$q(t,0) = q(t,1) = \bm{0},$$
+$$q(t,0) = q(t,1) = 0,$$
 and the sine-wave initial condition\\
 $$q(x,0) = \sin\bigl(2\pi x\bigr).$$
 Then, the following finite-difference discretization scheme is used:
@@ -47,9 +47,7 @@ Then, the following finite-difference discretization scheme is used:
     where $\mathbf{T}_{\Delta x}=\text{tridiag}\{1,~-2,~1\}$ is the standard second-difference matrix with zero-Dirichlet boundaries.
 \end{itemize}
  
-Stacking the solution of the above sparse system of equations at each time yields the snapshot matrix $\mathbf{Q}_{\mathrm{FOM}} = \mathbf{Q}\in\mathbb{R}^{(N+2)\times(M+1)}$, which we use for model reduction.  Three views of these dynamics appear in Figure~\ref{fig:burgers-data}.
-
-\vspace{0.3cm}
+Stacking the solution of the above sparse system of equations at each time yields the snapshot matrix $\mathbf{Q}_{\mathrm{FOM}} = \mathbf{Q}\in\mathbb{R}^{(N+2)\times(M+1)}$, which we use for model reduction.  Three views of these dynamics are shown in Figure~\ref{fig:burgers-data}.
 
 \begin{figure}[h!]
   \centering
@@ -77,9 +75,6 @@ Stacking the solution of the above sparse system of equations at each time yield
   \caption{Dynamics of the viscous Burgers’ equation used for data generation.}
   \label{fig:burgers-data}
 \end{figure}
-
-%%%%
-
 For the Burgers’ dataset, Algorithm~\ref{algorithm_2} is trained on the time interval $t\in[0,0.5]$ and then used to predict over $t\in[0.5,1.0]$. We systematically reduce the number of snapshots to 100\% (10~000 points), 10\% (1~000 points), 1\% (100 points), and 0.2\% (20 points) of the original temporal grid. In each scenario, we estimate OpInf parameters with both second-order (\texttt{'ord2'}) and sixth-order (\texttt{'ord6'}) finite differences, applying an $L^2$-regularization weight $\xi=10^{-2}$.  
 
 Figure~\ref{fig:five_by_two} displays, for each sampling level, the true reduced states $\hat{\mathbf{q}}_{\mathrm{true}}$ (solid) versus the predicted trajectories $\hat{\mathbf{q}}_{\mathrm{pred}}$ (dashed) for both the OpInf and adjoint-trained models. Even at extreme sampling sparsity, the adjoint method produces predictions that are visually indistinguishable from those of OpInf, demonstrating its resilience in the absence of noise.
