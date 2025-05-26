@@ -282,7 +282,7 @@ as a function of the ROM dimension $r$. Again, each subplot corresponds to one o
 
 To assess robustness under imperfect data, we corrupt the full-order snapshots with additive Gaussian noise.  Specifically, we draw\\
 $$\mathrm{error} \sim \mathcal{N}\bigl(0,\sigma^2\bigr),
-\quad \sigma = \|\mathbf{q}\|_{\mathrm{max}}\,\frac{\text{pct}}{100},$$ 
+\quad \sigma=\dfrac{\text{pct}}{100}\max_{1 \leq j \leq k} \left\| \mathbf{q}(t_j) \right\|_2,$$ 
 for noise levels of 1\%, 5\%, 10\%, and 20\%.  Each noisy dataset is then used to train both the OpInf and adjoint models over $t\in[0,0.5]$, with predictions made on $[0.5,1]$. Figure~\ref{fig:five_by_two3} visualizes the true reduced states (scatter and solid) against the trained predictions (dashed) for both methods at each noise level. As noise increases, the adjoint-trained ROM consistently tracks true trajectories more accurately than OpInf, highlighting its superior gradient fidelity in the presence of data corruption.
 
 %%%%%% Prediction Error vs. Time (noise - Burgers) %%%%%%

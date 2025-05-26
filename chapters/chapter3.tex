@@ -418,7 +418,7 @@ $$
 $$
 where $\mathbf{I}_r$ is the identity matrix of size $r$. Therefore, the gradient is given by:\\
 \begin{equation}
-    \nabla_{\hat{\mathbf{q}}}~\hat{\mathbf{f}}(\hat{\mathbf{q}}, \hat{\bm{\theta}}) = \hat{\mathbf{A}}^{\top} + \left( 2\hat{\mathbf{H}}\bigl( \hat{\mathbf{q}} \otimes \mathbf{I}_r \bigr) \right)^{\top} = \hat{\mathbf{A}}^{\top} + 2\mathbf{M}(\hat{\mathbf{q}}) \quad \in \mathbb{R}^{r \times r},
+    \nabla_{\hat{\mathbf{q}}}~\hat{\mathbf{f}}(\hat{\mathbf{q}}, \hat{\bm{\theta}}) = \hat{\mathbf{A}}^{\top} + \left( 2\hat{\mathbf{H}}\bigl( \hat{\mathbf{q}} \otimes \mathbf{I}_r \bigr) \right)^{\top} = \hat{\mathbf{A}}^{\top} + 2\mathbf{M}(\hat{\mathbf{q}}) ~~ \in \mathbb{R}^{r \times r},
     \label{eq:gradient_1}
 \end{equation}
 where we define $\mathbf{M}(\hat{\mathbf{q}}(t)) := \left( \hat{\mathbf{H}}( \hat{\mathbf{q}}(t) \otimes \mathbf{I}_r ) \right)^{\top} \in \mathbb{R}^{r \times r}$.
@@ -450,7 +450,7 @@ $$\frac{d}{d\varepsilon}\|\mathbf{r} + \varepsilon\,\mathbf{v}\|^2
 Hence, we read off the expression for the final gradient\\
 \begin{equation}
 \label{eq:gradient_3}
-\nabla_{\hat{\mathbf{q}}}\,g\bigl(\hat{\mathbf{q}},t\bigr) = 2\left(\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\right).
+\nabla_{\hat{\mathbf{q}}}\,g\bigl(\hat{\mathbf{q}},t\bigr) = 2\left(\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\right)~~\in\mathbb{R}^r.
 \end{equation}
 
 \subsection{$\bm{\nabla}_{\hat{\bm{\theta}}}\,\hat{\mathbf{f}}\bigl(\hat{\mathbf{q}}(t),\,\hat{\bm{\theta}}\bigr)$}
@@ -490,7 +490,7 @@ By convenience for a further implementation, we express the gradients w.r.t. $\h
 Thus, collecting all four transposed blocks, the expression for the gradient yields\\
 \begin{equation}
   \label{eq:gradient_2}
-  \nabla_{\hat{\bm{\theta}}}^{\top}\,\hat{\mathbf{f}}=\bigl[\,\mathbf{I}_r,\;\hat{\mathbf{q}}(t)^{\!\top}\otimes\mathbf{I}_r,\;(\hat{\mathbf{q}}(t)\otimes\hat{\mathbf{q}}(t))^{\!\top}\otimes\mathbf{I}_r,\;\mathbf{u}(t)^{\!\top}\otimes\mathbf{I}_r\bigr]\;\in\;\mathbb{R}^{r\times d}.
+  \nabla_{\hat{\bm{\theta}}}^{\top}\,\hat{\mathbf{f}}=\bigl[\,\mathbf{I}_r,\;\hat{\mathbf{q}}(t)^{\!\top}\otimes\mathbf{I}_r,\;(\hat{\mathbf{q}}(t)\otimes\hat{\mathbf{q}}(t))^{\!\top}\otimes\mathbf{I}_r,\;\mathbf{u}(t)^{\!\top}\otimes\mathbf{I}_r\bigr]~~\in\;\mathbb{R}^{r\times d}.
 \end{equation}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
