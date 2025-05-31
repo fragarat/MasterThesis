@@ -626,9 +626,9 @@ Down below, we present a complete adjoint-based training algorithm that integrat
 \textbf{Step 1. Data collection and preprocessing:} Gather snapshots $\mathbf{Q}=[\mathbf{q}_{t_1},\dots,\mathbf{q}_{t_k}]$, $\mathbf{U}=[\mathbf{u}_{t_1},\dots,\mathbf{u}_{t_k}]$.
 \quad [Optional] lift/scale/center the data\;
 \textbf{Step 2. Dimensionality reduction:} Compute POD basis $\mathbf{V}_r$ (cumulative energy criterion or fixed ROM dimension $r$). Project: $\hat{\mathbf{Q}} \approx \mathbf{V}_r^\top\mathbf{Q}$\;
-\textbf{Step 3. Initial parameter guess:} Solve OpInf regression with $\dot{\mathbf{Q}}$ to obtain $\hat{\bm\theta}^{0}_{\text{OpInf}}$\;
+\textbf{Step 3. Initial parameter guess:} Solve OpInf regression with $\dot{\mathbf{Q}}$ to obtain $\hat{\bm\theta}^{*}_{\text{OpInf}}$\;
 \textbf{Step 4. Gradient descent loop:}
-Initialize $j=0$, $\hat{\bm\theta}^j=\hat{\bm\theta}^{0}_{\text{OpInf}}$, and step-size bounds.
+Initialize $j=0$, $\hat{\bm\theta}^0=\hat{\bm\theta}^{*}_{\text{OpInf}}$, and step-size bounds.
 \begin{enumerate}[label=\arabic*.]
   \item \textbf{Forward solve:}
     compute ROM solution $\tilde{\mathbf{q}}(t,\hat{\bm\theta}^j) = \hat{\mathbf{q}}(t)$ via reduced ODE.
