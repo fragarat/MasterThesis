@@ -76,7 +76,7 @@ The selection of the truncation dimension $r$ is typically based on the relative
 \end{equation}
 where $\epsilon_{\text{POD}} > 0$ is a prescribed tolerance and $\sigma_i$ denotes the $i$th singular value of $\mathbf{Q}$. The optimality of the POD basis is characterized by the projection error:\\
 \begin{equation}
-    \mathbb{E}\left[\left\|\mathbf{q} - \mathbf{V}_r^{}\mathbf{V}_r^\top\mathbf{q}\right\|_2^2\right] = \sum_{i=r+1}^k \sigma_i^2,
+    \sum_{i=1}^k\left[\left\|\mathbf{q}(t_i) - \mathbf{V}_r^{}\mathbf{V}_r^\top\mathbf{q}(t_i)\right\|_2^2\right] = \sum_{i=r+1}^k \sigma_i^2,
     \label{eq:pod_error}
 \end{equation}
 which is minimized among all rank-$r$ orthonormal bases.
