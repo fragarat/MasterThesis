@@ -99,11 +99,11 @@ Since $\mathbf{V}_r^{\top}\mathbf{V}_r^{} = \mathbf{I}$ and using the property $
     &\eqqcolon \hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\mathbf{u}(t);\bm{\hat{\theta}})
     \label{eq:redopinf}
 \end{align}
-where the \textit{reduced order operators} are defined as\\$$\mathbb{R}^r \ni\hat{\mathbf{c}}=\mathbf{V}_r^{\top}\mathbf{c},~~\mathbb{R}^{r\times r} \ni\hat{\mathbf{A}}=\mathbf{V}_r^{\top}\mathbf{A}\mathbf{V}_r^{},~~\mathbb{R}^{r\times r^2} \ni\hat{\mathbf{H}}=\mathbf{V}_r^{\top}\mathbf{H(\mathbf{V}_r^{}\otimes\mathbf{V}_r^{\top})},~~\mathbb{R}^{r\times m} \ni\hat{\mathbf{B}}=\mathbf{V}_r^{\top}\mathbf{B},$$ $\bm{\hat{\theta}}=\bigl[ \hat{\mathbf{c}}~\hat{\mathbf{A}}~\hat{\mathbf{H}}~\hat{\mathbf{B}} \bigr] \in\bm{\hat{\Theta}}$ denotes the collection of parameters where $\bm{\hat{\Theta}}\in\mathbb{R}^{r\times (1+r+r^2+m)}$ is the possible parameter space, and $\hat{\mathbf{f}}$ is the right-hand side of the reduced model. Thus, the projection-based Galerkin ROM preserves the same polynomial structure as $\mathbf{f}$ \eqref{eq:fompoly}.
+where the \textit{reduced order operators} are defined as\\$$\mathbb{R}^r \ni\hat{\mathbf{c}}=\mathbf{V}_r^{\top}\mathbf{c},~~\mathbb{R}^{r\times r} \ni\hat{\mathbf{A}}=\mathbf{V}_r^{\top}\mathbf{A}\mathbf{V}_r^{},~~\mathbb{R}^{r\times r^2} \ni\hat{\mathbf{H}}=\mathbf{V}_r^{\top}\mathbf{H(\mathbf{V}_r^{}\otimes\mathbf{V}_r^{\top})},~~\mathbb{R}^{r\times m} \ni\hat{\mathbf{B}}=\mathbf{V}_r^{\top}\mathbf{B},$$ $\bm{\hat{\theta}}=\bigl[ \hat{\mathbf{c}}~\hat{\mathbf{A}}~\hat{\mathbf{H}}~\hat{\mathbf{B}} \bigr] \in\bm{\hat{\Theta}}$ denotes the collection of parameters where $\bm{\hat{\Theta}}\in\mathbb{R}^{r\times (1+r+r^2+m)}$ is the possible parameter space, and $\hat{\mathbf{f}}$ is the right-hand side of the reduced model. Thus, the projection-based Galerkin ROM preserves the same polynomial structure as $\mathbf{f}$ \eqref{eq:fompoly}. Later in this work, we will consider the more simple form $\hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})$, omitting the given input $\mathbf{u}$ as a variable since it is not relevant in the derivation of our new framework.
 
 Within MOR we differentiate:
     \begin{itemize}
-        \item \emph{Intrusive (Galerkin) approach:} Requires explicit access to $\mathbf{c}$, $\mathbf{A}$, $\mathbf{H}$, $\mathbf{B}$ so that the reduced order operators can be assembled. This can be difficult if the high-fidelity solver is proprietary or a black box.
+        \item \emph{Intrusive (projection-based) approach:} Requires explicit access to $\mathbf{c}$, $\mathbf{A}$, $\mathbf{H}$, $\mathbf{B}$ so that the reduced order operators can be assembled. This can be difficult if the high-fidelity solver is proprietary or a black box.
         \item \emph{Non-intrusive (data-driven) approach:} Does not explicitly project $\mathbf{c}$, $\mathbf{A}$, $\mathbf{H}$, and $\mathbf{B}$. Instead, one gathers time-series data (snapshots of $\mathbf{q}(t)$ and, if needed, $\dot{\mathbf{q}}(t)$), projects onto $\mathbf{V}_r$, and learns reduced operators by regression. This is ideal if the original solver is a black box or prohibitively complex to modify. Operator Inference is a prototypical non-intrusive method.
     \end{itemize}
 
@@ -169,14 +169,21 @@ Finally, OpInf identifies the reduced operators by solving the following least-s
     \min_{\hat{\bm{\theta}} \in \hat{\bm{\Theta}}} \sum_{i=1}^{k} \left\| \left[ \hat{\mathbf{c}} + \hat{\mathbf{A}}\hat{\mathbf{q}}(t_i) + \hat{\mathbf{H}}\bigl[ \hat{\mathbf{q}}(t_i) \otimes \hat{\mathbf{q}}(t_i) \bigr] + \hat{\mathbf{B}}\mathbf{u}(t_i) \right] - \dot{\hat{\mathbf{q}}}(t_i) \right\|_2^2.
     \label{eq:lst_opinf}
 \end{equation}
-In practice, it is common to include a regularization term to the training loss, $\mathcal{R}(\hat{\bm{\theta}})$, which penalizes the magnitude of the entries of the learned operators. This regularization improves the conditioning of the learning problem. For further details and numerical implementations, readers may refer to the online resource \cite{opinf2025} and the seminal work by Peherstorfer and Willcox \cite{peherstorfer2016data}.
+
+The use of polynomial parametrizations in Operator Inference is motivated by the fact that many projection-based reduced-order models (ROMs) of PDEs naturally take a polynomial form. For instance, the semi-discretization of the viscous Burgers' equation typically leads to a full-order ODE system with quadratic nonlinearities. A subsequent Galerkin projection onto a proper orthogonal decomposition (POD) basis then yields a reduced quadratic system.
+
+In non-intrusive model reduction, however, we do not compute reduced operators via Galerkin projection, as this would require access to the internals of the full-order solver. Instead, the reduced operators are inferred directly from data. This approach assumes that the training data reflect a polynomial structure compatible with the chosen model form.
+
+When the original system involves nonpolynomial nonlinearities, this assumption may fail, leading to poor model performance. In such cases, a lifting transformation can be applied to rewrite the system in a higher-dimensional space where the dynamics exhibit a polynomial structure. These lifting maps, which often introduce auxiliary variables, enable Operator Inference to approximate the system more accurately by aligning the data with the polynomial model structure.
+
+In practice, it is also common to include a regularization term to the training loss, $\mathcal{R}(\hat{\bm{\theta}})$ in \eqref{eq:lst_opinf}, which penalizes the magnitude of the entries of the learned operators. This regularization improves the conditioning of the learning problem. For further details and numerical implementations, readers may refer to the online resource \cite{opinf2025} and the seminal work by Peherstorfer and Willcox \cite{peherstorfer2016data}.
 \end{enumerate}
 
 \subsection*{Advantages and Applications}
 Operator Inference offers several distinct advantages over traditional model reduction approaches:
 \begin{itemize}
     \item \textbf{Non-intrusive}: Requires only solution snapshots rather than explicit access to full-order model operators.
-    \item \textbf{Physics-aware}: Galerkin projection preserves the structure of the full-order governing equations through polynomial operator parameterization.
+    \item \textbf{Physics-aware}: Galerkin projection preserves the structure of the full-order governing equations through polynomial parameterization for the reduced system.
     \item \textbf{Computationally efficient}: Avoids expensive high-dimensional operations through dimensionality reduction.  
 \end{itemize}
 
