@@ -402,11 +402,11 @@ denotes the right-hand side of the reduced-order model (ROM-OpInf) dynamics, and
 $$g:\mathbb{R}^r\times [0,T]\to \mathbb{R}$$ 
 defines the integrand of the loss functional $\ell$. The efficient computation of these gradients is crucial for both the backward integration of the adjoint equation and for evaluating the total derivative of the reduced loss $\tilde\ell$. What follows is a detailed derivation of the expressions of each of these gradients.
 
-\subsection{$\bm{\nabla}_{\hat{\mathbf{q}}}~\hat{\mathbf{f}}\bigl(\hat{\mathbf{q}}(t), \hat{\bm{\theta}}\bigr)$}
+\subsection{$\bm{\nabla}_{\hat{\mathbf{q}}}~\hat{\mathbf{f}}\bigl(\hat{\mathbf{q}}, \hat{\bm{\theta}}\bigr)$}
 
 We begin by recalling the definition:\\
 $$
-\hat{\mathbf{f}}(\hat{\mathbf{q}}(t), \hat{\bm{\theta}}) = \hat{\mathbf{c}} + \hat{\mathbf{A}}\hat{\mathbf{q}}(t) + \hat{\mathbf{H}}\bigl( \hat{\mathbf{q}}(t)\otimes \hat{\mathbf{q}}(t) \bigr) + \hat{\mathbf{B}}\mathbf{u}(t).
+\hat{\mathbf{f}}(\hat{\mathbf{q}}, \hat{\bm{\theta}}) = \hat{\mathbf{c}} + \hat{\mathbf{A}}\hat{\mathbf{q}} + \hat{\mathbf{H}}\bigl( \hat{\mathbf{q}}\otimes \hat{\mathbf{q}} \bigr) + \hat{\mathbf{B}}\mathbf{u}.
 $$
 To compute the derivative of $\hat{\mathbf{f}}$ with respect to $\hat{\mathbf{q}}$, we consider the Gâteaux derivative in the direction of an arbitrary vector $\mathbf{v}\in \mathbb{R}^r$:\\
 $$
@@ -414,7 +414,7 @@ $$
 $$
 Expanding the function $\hat{\mathbf{f}}$ at $\hat{\mathbf{q}} + \varepsilon \mathbf{v}$, we obtain:\\
 $$
-\hat{\mathbf{f}}(\hat{\mathbf{q}} + \varepsilon \mathbf{v}, \hat{\bm{\theta}}) = \hat{\mathbf{c}} + \hat{\mathbf{A}}(\hat{\mathbf{q}} + \varepsilon \mathbf{v}) + \hat{\mathbf{H}}\bigl( (\hat{\mathbf{q}} + \varepsilon \mathbf{v}) \otimes (\hat{\mathbf{q}} + \varepsilon \mathbf{v}) \bigr) + \hat{\mathbf{B}}\mathbf{u}(t).
+\hat{\mathbf{f}}(\hat{\mathbf{q}} + \varepsilon \mathbf{v}, \hat{\bm{\theta}}) = \hat{\mathbf{c}} + \hat{\mathbf{A}}(\hat{\mathbf{q}} + \varepsilon \mathbf{v}) + \hat{\mathbf{H}}\bigl( (\hat{\mathbf{q}} + \varepsilon \mathbf{v}) \otimes (\hat{\mathbf{q}} + \varepsilon \mathbf{v}) \bigr) + \hat{\mathbf{B}}\mathbf{u}.
 $$
 The quadratic term expands as:\\
 $$
@@ -422,7 +422,7 @@ $$
 $$
 Substituting back into the expression for $\hat{\mathbf{f}}$, we get:\\
 $$
-\hat{\mathbf{f}}(\hat{\mathbf{q}} + \varepsilon \mathbf{v}, \hat{\bm{\theta}}) = \hat{\mathbf{c}} + \hat{\mathbf{A}}\hat{\mathbf{q}} + \varepsilon \hat{\mathbf{A}}\mathbf{v} + \hat{\mathbf{H}}(\hat{\mathbf{q}} \otimes \hat{\mathbf{q}}) + \varepsilon \hat{\mathbf{H}}(\hat{\mathbf{q}} \otimes \mathbf{v} + \mathbf{v} \otimes \hat{\mathbf{q}}) + \hat{\mathbf{B}}\mathbf{u}(t) + \mathcal{O}(\varepsilon^2).
+\hat{\mathbf{f}}(\hat{\mathbf{q}} + \varepsilon \mathbf{v}, \hat{\bm{\theta}}) = \hat{\mathbf{c}} + \hat{\mathbf{A}}\hat{\mathbf{q}} + \varepsilon \hat{\mathbf{A}}\mathbf{v} + \hat{\mathbf{H}}(\hat{\mathbf{q}} \otimes \hat{\mathbf{q}}) + \varepsilon \hat{\mathbf{H}}(\hat{\mathbf{q}} \otimes \mathbf{v} + \mathbf{v} \otimes \hat{\mathbf{q}}) + \hat{\mathbf{B}}\mathbf{u} + \mathcal{O}(\varepsilon^2).
 $$
 Differentiating with respect to $\varepsilon$ and evaluating at $\varepsilon = 0$ yields:\\
 $$
@@ -438,24 +438,24 @@ where $\mathbf{I}_r$ is the identity matrix of size $r$. Therefore, the gradient
     \nabla_{\hat{\mathbf{q}}}~\hat{\mathbf{f}}(\hat{\mathbf{q}}, \hat{\bm{\theta}}) = \hat{\mathbf{A}}^{\top} + \left( 2\hat{\mathbf{H}}\bigl( \hat{\mathbf{q}} \otimes \mathbf{I}_r \bigr) \right)^{\top} = \hat{\mathbf{A}}^{\top} + 2\mathbf{M}(\hat{\mathbf{q}}) ~~ \in \mathbb{R}^{r \times r},
     \label{eq:gradient_1}
 \end{equation}
-where we define $\mathbf{M}(\hat{\mathbf{q}}(t)) := \left( \hat{\mathbf{H}}( \hat{\mathbf{q}}(t) \otimes \mathbf{I}_r ) \right)^{\top} \in \mathbb{R}^{r \times r}$.
+where we define $\mathbf{M}(\hat{\mathbf{q}}) := \left( \hat{\mathbf{H}}( \hat{\mathbf{q}} \otimes \mathbf{I}_r ) \right)^{\top} \in \mathbb{R}^{r \times r}$.
 
 Note that this result is consistent with the formulation presented in the first proof example, which concerns the quadratic form \eqref{eq:gradient_fq}.
 
 
-\subsection{$\bm{\nabla}_{\hat{\mathbf{q}}}\,g\bigl(\hat{\mathbf{q}}(t),t\bigr)$}
+\subsection{$\bm{\nabla}_{\hat{\mathbf{q}}}\,g\bigl(\hat{\mathbf{q}},t\bigr)$}
 
 By definition, the loss integrand is given by\\
-$$g\bigl(\hat{\mathbf{q}},t\bigr)= \Bigl\|\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\Bigr\|_2^2\,,$$
+$$g\bigl(\hat{\mathbf{q}}(t),t\bigr)= \Bigl\|\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\Bigr\|_2^2\,,$$
 where $\hat{\mathbf{q}}(t)$ denotes the predicted state vector at time $t$, and $\hat{\mathbf{q}}_{\text{true}}(t)$ is the corresponding true data state vector at the same time point.
 We introduce, for convenience, the residual\\
-$$\mathbf{r}(\hat{\mathbf{q}},t):=  \hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t).$$
+$$\mathbf{r}(\hat{\mathbf{q}}(t),t):=  \hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t).$$
 Then, the Gateaux derivative of $g$ in the direction $\mathbf{v}\in\mathbb{R}^r$ is\\
 \begin{align*}
 \label{eq:gradient_3}
 \bm{D}_{\hat{\mathbf{q}}}\,g[\mathbf{v}]
 &=\frac{\mathrm{d}}{\mathrm{d}\varepsilon}
-g\bigl(\hat{\mathbf{q}}+\varepsilon\mathbf{v},t\bigr)\Big|_{\varepsilon=0}=
+g\bigl(\hat{\mathbf{q}}(t)+\varepsilon\mathbf{v},t\bigr)\Big|_{\varepsilon=0}=
 \frac{\mathrm{d}}{\mathrm{d}\varepsilon}\left( \Bigl\|\hat{\mathbf{q}}(t) + \varepsilon\mathbf{v}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\Bigr\|_2^2\right) \Big|_{\varepsilon=0}\\
  &= \frac{\mathrm{d}}{\mathrm{d}\varepsilon}\left( \Bigl\|\mathbf{r}(\hat{\mathbf{q}}(t),t) + \varepsilon\mathbf{v}(t))\Bigr\|_2^2\right) \Big|_{\varepsilon=0}\\
  &= 2\left(\mathbf{r}(\hat{\mathbf{q}}(t),t) + \varepsilon\mathbf{v}(t))\right)^{\top}\mathbf{v}(t) \Big|_{\varepsilon=0}\\
@@ -467,10 +467,10 @@ $$\frac{d}{d\varepsilon}\|\mathbf{r} + \varepsilon\,\mathbf{v}\|^2
 Hence, we read off the expression for the final gradient\\
 \begin{equation}
 \label{eq:gradient_3}
-\nabla_{\hat{\mathbf{q}}}\,g\bigl(\hat{\mathbf{q}},t\bigr) = 2\left(\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\right)~~\in\mathbb{R}^r.
+\nabla_{\hat{\mathbf{q}}(t)}\,g\bigl(\hat{\mathbf{q}}(t),t\bigr) = 2\left(\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\right)~~\in\mathbb{R}^r.
 \end{equation}
 
-\subsection{$\bm{\nabla}_{\hat{\bm{\theta}}}\,\hat{\mathbf{f}}\bigl(\hat{\mathbf{q}}(t),\,\hat{\bm{\theta}}\bigr)$}
+\subsection{$\bm{\nabla}_{\hat{\bm{\theta}}}\,\hat{\mathbf{f}}\bigl(\hat{\mathbf{q}},\,\hat{\bm{\theta}}\bigr)$}
 
 Recall that, according to Definition \ref{def:continuous_loss}, the parameter vector is defined as\\
 $$\hat{\bm{\theta}}=\bigl[\,\underbrace{\hat{\mathbf{c}}}_{\in\mathbb{R}^r}\;,\;\underbrace{\operatorname{vec}(\hat{\mathbf{A}})}_{\in\mathbb{R}^{r^2}}\;,\;\underbrace{\operatorname{vec}(\hat{\mathbf{H}})}_{\in\mathbb{R}^{r^3}}\;,\;\underbrace{\operatorname{vec}(\hat{\mathbf{B}})}_{\in\mathbb{R}^{rm}}\bigr]\;\in\; \mathbb{R}^d,\quad d = r + r^2 + r^3 + rm.$$
@@ -502,12 +502,12 @@ $$\nabla_{\hat{\mathbf{H}}}\,\hat{\mathbf{f}}=(\,\hat{\mathbf{q}}\otimes\hat{\ma
 \noindent\textbf{(iv)} Gradient w.r.t. $\hat{\mathbf{B}}$.
 
 Analogously, one shows\\
-$$\nabla_{\hat{\mathbf{B}}}\,\hat{\mathbf{f}}=\mathbf{u}(t)\otimes\mathbf{I}_r\;\in\;\mathbb{R}^{rm\times r}.$$
+$$\nabla_{\hat{\mathbf{B}}}\,\hat{\mathbf{f}}=\mathbf{u}\otimes\mathbf{I}_r\;\in\;\mathbb{R}^{rm\times r}.$$
 By convenience for a further implementation, we express the gradients w.r.t. $\hat{\bm{\theta}}$ in its transposed form to match the adjoint-method formulation of the loss functional in \eqref{eq:gradient_lagrange}.
 Thus, collecting all four transposed blocks, the expression for the gradient yields\\
 \begin{equation}
   \label{eq:gradient_2}
-  \nabla_{\hat{\bm{\theta}}}^{\top}\,\hat{\mathbf{f}}=\bigl[\,\mathbf{I}_r,\;\hat{\mathbf{q}}(t)^{\!\top}\otimes\mathbf{I}_r,\;(\hat{\mathbf{q}}(t)\otimes\hat{\mathbf{q}}(t))^{\!\top}\otimes\mathbf{I}_r,\;\mathbf{u}(t)^{\!\top}\otimes\mathbf{I}_r\bigr]~~\in\;\mathbb{R}^{r\times d}.
+  \nabla_{\hat{\bm{\theta}}}^{\top}\,\hat{\mathbf{f}}(\hat{\mathbf{q}},\hat{\bm{\theta}})=\bigl[\,\mathbf{I}_r,\;\hat{\mathbf{q}}^{\!\top}\otimes\mathbf{I}_r,\;(\hat{\mathbf{q}}\otimes\hat{\mathbf{q}})^{\!\top}\otimes\mathbf{I}_r,\;\mathbf{u}^{\!\top}\otimes\mathbf{I}_r\bigr]~~\in\;\mathbb{R}^{r\times d}.
 \end{equation}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
