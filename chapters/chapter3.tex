@@ -166,6 +166,7 @@ For such problem, the classical adjoint method as stated in \cite{bradley2024pde
 \end{theorem}
 
 \subsection*{Proof (Lagrangian Formulation)}
+Theorem \eqref{thm:adjoint_method} and its proof were inspired by ideas and examples presented in \cite{bradley2024pde,Antil2018}, adapting similar key steps to our problem and assumptions.
 
 Consider the  Lagrangian ($\mathscr{L}$) defined as\\
 \begin{align*}
@@ -263,6 +264,7 @@ We defer the computation of $\nabla_{\hat{\mathbf{q}}}~g$, along with the remain
 %%%%%%
 
 \subsection*{Alternative Proof (Sensitivity Analysis of the Primal Problem)}
+An alternative approach to proving Theorem \ref{thm:adjoint_method}, proposed by Prof. Mengwu Guo, yields the following proof. We include it here as it offers additional insight into the problem.
 
 We start from the \emph{primal} sensitivity equations for the state solution $\tilde{\mathbf{q}}(t,\hat{\bm{\theta}})$ and parameters $\hat{\theta}_i$ for $i=1,\dots,d$:\\
 $$\dot{\tilde{\mathbf{q}}}(t)
@@ -456,10 +458,10 @@ Then, the Gateaux derivative of $g$ in the direction $\mathbf{v}\in\mathbb{R}^r$
 \bm{D}_{\hat{\mathbf{q}}}\,g[\mathbf{v}]
 &=\frac{\mathrm{d}}{\mathrm{d}\varepsilon}
 g\bigl(\hat{\mathbf{q}}(t)+\varepsilon\mathbf{v},t\bigr)\Big|_{\varepsilon=0}=
-\frac{\mathrm{d}}{\mathrm{d}\varepsilon}\left( \Bigl\|\hat{\mathbf{q}}(t) + \varepsilon\mathbf{v}(t) - \hat{\mathbf{q}}_{\mathrm{true}}(t)\Bigr\|_2^2\right) \Big|_{\varepsilon=0}\\
- &= \frac{\mathrm{d}}{\mathrm{d}\varepsilon}\left( \Bigl\|\mathbf{r}(\hat{\mathbf{q}}(t),t) + \varepsilon\mathbf{v}(t))\Bigr\|_2^2\right) \Big|_{\varepsilon=0}\\
- &= 2\left(\mathbf{r}(\hat{\mathbf{q}}(t),t) + \varepsilon\mathbf{v}(t))\right)^{\top}\mathbf{v}(t) \Big|_{\varepsilon=0}\\
- &= 2\left(\mathbf{r}(\hat{\mathbf{q}}(t),t)\right)^{\top}\mathbf{v}(t),
+\frac{\mathrm{d}}{\mathrm{d}\varepsilon}\left( \Bigl\|\hat{\mathbf{q}}(t) + \varepsilon\mathbf{v} - \hat{\mathbf{q}}_{\mathrm{true}}(t)\Bigr\|_2^2\right) \Big|_{\varepsilon=0}\\
+ &= \frac{\mathrm{d}}{\mathrm{d}\varepsilon}\left( \Bigl\|\mathbf{r}(\hat{\mathbf{q}}(t),t) + \varepsilon\mathbf{v})\Bigr\|_2^2\right) \Big|_{\varepsilon=0}\\
+ &= 2\left(\mathbf{r}(\hat{\mathbf{q}}(t),t) + \varepsilon\mathbf{v}\right)^{\top}\mathbf{v}~ \Big|_{\varepsilon=0}\\
+ &= 2\left(\mathbf{r}(\hat{\mathbf{q}}(t),t)\right)^{\top}\mathbf{v},
 \end{align*}
 where the norm derivative equality follows from the identity\\
 $$\frac{d}{d\varepsilon}\|\mathbf{r} + \varepsilon\,\mathbf{v}\|^2
@@ -630,7 +632,7 @@ For large-scale or stochastic settings, variants such as Stochastic Gradient Des
 
 \section{Adjoint Method Algorithm}
 
-Down below, we present a complete adjoint-based training algorithm that integrates data preprocessing, reduced-order modeling, and gradient-based parameter refinement. Algorithm~\ref{algorithm_2} summarizes the workflow: after collecting and optionally preprocessing the full-order data, we obtain an initial parameter guess via Operator Inference, then iteratively solve the forward and adjoint equations to compute gradients and perform backtracking gradient descent until convergence.
+Down below, we present a complete adjoint-based training algorithm that integrates data preprocessing, reduced-order modeling, and gradient-based parameter refinement. Algorithm~\ref{algorithm_2} summarizes the workflow: after collecting and optionally preprocessing the full-order data, we obtain an initial parameter guess via Operator Inference \cite{opinf2025}, then iteratively solve the forward and adjoint equations to compute gradients and perform backtracking gradient descent until convergence.
 
 %% Final Adjoint Method Algorithm
 \begin{center}
