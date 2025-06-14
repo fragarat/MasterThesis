@@ -3,14 +3,14 @@
 
 In this chapter, we evaluate the proposed adjoint-based training method on two canonical nonlinear PDEs: the 1D viscous Burgers’ equation and the 2D Fisher-KPP equation. These test cases were chosen to challenge the reduced-order modeling framework in distinct ways: Burgers’ equation with a small viscosity parameter $\nu=0.01$ produces sharp gradients and nonlinear advection-diffusion interactions, while the Fisher-KPP equation exhibits reaction-diffusion dynamics in two spatial dimensions.  
 
-For each model, we compare the adjoint method against the classical OpInf approach under two perturbation scenarios:
+For each model, we compare the adjoint method against the standard OpInf \cite{opinf2025} approach under two perturbation scenarios:
 \begin{enumerate}[label=(\roman*)]
   \item reducing the temporal sampling density of the training snapshots, and
   \item adding synthetic noise to the data.
 \end{enumerate}
 We hypothesize that, because the adjoint method computes exact gradients of the loss functional, it will provide more robust and accurate parameter estimates, especially when training data are noisy or sparsely sampled, than OpInf, which relies on finite-difference approximations of time derivatives.  
 
-All experiments share a common numerical setup. We construct a POD basis $\mathbf{V}_r$ that captures at least $99.9\%$ of the snapshot energy ($\kappa_r\ge0.999$). In OpInf regression, we employ finite-difference stencils up to second and sixth order (\texttt{'ord2'}, \texttt{'ord6'}) to approximate $\dot{\mathbf{Q}}$. Time integrals are evaluated via the cumulative trapezoidal rule from \texttt{'scipy.integrate'} \cite{virtanen2020scipy}, and the adjoint equations are solved backward in time with an implicit Euler scheme. Armijo backtracking parameters are fixed at $\alpha=10^{-4}$, $\beta=0.5$, $\eta_0=10^{-3}$, and gradient descent is terminated for a tolerance value of $\epsilon=10^{-8}$ or after 1000 iterations (see code in  Appendix~\ref{lst:adjoint}). Finally, we use the optimized parameters $\hat{\bm\theta}^*$ to predict new trajectories by solving the learned ROM using SciPy's \texttt{'solve\_ivp(method="BDF")'} \cite{scipy-solveivp}.
+All experiments share a common numerical setup. Standard OpInf solutions are obtained through the Python package \texttt{opinf} provided by the Willcox Research Group \cite{opinf2025}. We construct a POD basis $\mathbf{V}_r$ that captures at least $99.9\%$ of the snapshot energy ($\kappa_r\ge0.999$). In OpInf regression, we employ finite-difference stencils up to second and sixth order (\texttt{'ord2'}, \texttt{'ord6'}) to approximate $\dot{\mathbf{Q}}$. Time integrals are evaluated via the cumulative trapezoidal rule from \texttt{'scipy.integrate'} \cite{virtanen2020scipy}, and the adjoint equations are solved backward in time with an implicit Euler scheme. Armijo backtracking parameters are fixed at $\alpha=10^{-4}$, $\beta=0.5$, $\eta_0=10^{-3}$, and gradient descent is terminated for a tolerance value of $\epsilon=10^{-8}$ or after 1000 iterations (see the implementation of Algorithm \ref{algorithm_2} in  Appendix~\ref{lst:adjoint}). Finally, we use the optimized parameters $\hat{\bm\theta}^*$ to predict new trajectories by solving the learned ROM using SciPy's \texttt{'solve\_ivp(method="BDF")'} \cite{scipy-solveivp}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -34,13 +34,13 @@ Then, the following finite-difference discretization scheme is used:
 \begin{itemize}
   \item Temporal grid: final time $T=1$, number of steps $M=9999$, so $\Delta t = T/M$.
   \item Spatial grid: domain length $L=1$, $N=2^7$ interior nodes, $\Delta x = L/(N+1)$; we number grid points $x_j = j\,\Delta x$ for $j=0,\ldots,N+1$.
-  \item Convection term (Lax–Wendroff):\\
-    $$(\mathbf{LW})_j = q_j^m
+  \item Convection term (Lax–Wendroff): let $\mathbf{w}^m = \mathbf{LW}(\mathbf{q}^m) \in \mathbb{R}^{N+2}$ denote the Lax-Wendroff update of the state $\mathbf{q}^m$. Its $j$th component is then\\
+    $$w_j^m = q_j^m
       - \frac{\Delta t}{2\,\Delta x}\,q_j^m\,(q_{j+1}^m - q_{j-1}^m)
       + \frac{\Delta t^2}{2\,\Delta x^2}\,q_j^m
         \Bigl[\tfrac12(q_{j+1}^m - q_{j-1}^m)^2
                + q_j^m\,(q_{j+1}^m - 2q_j^m + q_{j-1}^m)\Bigr].$$
-    Dirichlet BCs are enforced by setting $(\mathbf{LW})_0 = (\mathbf{LW})_{N+1} = 0$.
+    Dirichlet BCs are enforced by setting $w_0^m = w_{N+1}^m = 0$.
   \item Diffusion term (Trapezoidal rule):\\
     $$\Biggl(\mathbf{I} - \dfrac{\nu\,\Delta t}{2}\,\mathbf{T}_{\Delta x}\Biggr)\,\mathbf{q}^{m+1}
       = \mathbf{LW}(\mathbf{q}^m) + \dfrac{\nu\,\Delta t}{2}\,\mathbf{T}_{\Delta x}\,\mathbf{q}^m,$$
@@ -75,7 +75,8 @@ Stacking the solution of the above sparse system of equations at each time yield
   \caption{Dynamics of the viscous Burgers’ equation used for data generation.}
   \label{fig:burgers-data}
 \end{figure}
-For the Burgers’ dataset, Algorithm~\ref{algorithm_2} is trained on the time interval $t\in[0,0.5]$ and then used to predict over $t\in[0.5,1.0]$. We systematically reduce the number of snapshots to 100\% (10~000 points), 10\% (1~000 points), 1\% (100 points), and 0.2\% (20 points) of the original temporal grid. In each scenario, we estimate OpInf parameters with both second-order (\texttt{'ord2'}) and sixth-order (\texttt{'ord6'}) finite differences, applying an $L^2$-regularization weight $\xi=10^{-2}$.  
+%For the Burgers’ dataset, Algorithm~\ref{algorithm_2} is trained on the time interval $t\in[0,0.5]$ and then used to predict over $t\in[0.5,1.0]$. 
+From the Burgers’ snapshot data matrix $\mathbf{Q}$, we first apply Algorithm~\ref{algorithm_2} to obtain the optimal parameter vector $\hat{\bm{\theta}}$, using as training data the snapshots on the time interval $t\in[0,0.5]$. We then use these learned parameters to predict the system’s evolution over the remaining interval $t\in(0.5,1.0]$ by integrating the reduced dynamical model with a BDF solver \cite{scipy-solveivp}. In the first set of tests, we systematically reduce the number of snapshots to 100\% (10~000 points), 10\% (1~000 points), 1\% (100 points), and 0.2\% (20 points) of the original temporal grid to simulate sparse data. In each scenario, we estimate OpInf parameters with both second-order (\texttt{'ord2'}) and sixth-order (\texttt{'ord6'}) finite differences, applying an $L^2$-regularization weight $\xi=10^{-2}$.  
 
 Figure~\ref{fig:five_by_two} displays, for each sampling level, the true reduced states $\hat{\mathbf{q}}_{\mathrm{true}}$ (solid) versus the predicted trajectories $\hat{\mathbf{q}}_{\mathrm{pred}}$ (dashed) for both the OpInf and adjoint-trained models.  Here, each curve $\hat{q}_{i,\mathrm{true}}(t)$ corresponds to the $i$th row (up to dimension $r$) of the reduced snapshot data matrix $\hat{\mathbf{Q}}$, and $\hat{q}_{i,\mathrm{pred}}(t)$ denotes its corresponding predicted trajectory value at time $t$. Even at extreme sampling sparsity, the adjoint method produces predictions that are visually indistinguishable from those of OpInf, demonstrating its resilience in the absence of noise.
 
@@ -504,7 +505,7 @@ Visualization of the dynamics for the Fisher-KPP equation is shown in Figure~\re
 
 %Global summary for FKPP noise experiments%
 
-In the case of the 2D Fisher-KPP equation, we omit the data density reduction study since it yielded virtually the same conclusions as for Burgers' with no significant performance gap between sixth-order OpInf and the adjoint method. Instead, we focus solely on the noise perturbation results, which are displayed in Figures~\ref{fig:five_by_two4}, \ref{fig:twobytwo5}, and \ref{fig:twobytwo6}. Due to stability considerations in the reaction-diffusion dynamics, we extended in this case the training window to cover 75\% of the total simulation time.
+We also carried out the data-density reduction study on the 2D Fisher-KPP equation. Since its results mirrored those for Burgers’, showing no significant performance gap between sixth-order OpInf and the adjoint method, we omit the detailed analysis here. Instead, we focus solely on the noise perturbation results, which are displayed in Figures~\ref{fig:five_by_two4}, \ref{fig:twobytwo5}, and \ref{fig:twobytwo6}. Due to stability considerations in the reaction-diffusion dynamics, we extended in this case the training window to cover 75\% of the total simulation time.
 
 Across all four noise levels (1\%, 5\%, 10\%, and 20\%), the adjoint-trained ROM consistently outperformed the best OpInf configuration (\texttt{'ord6'}), both in trajectory fidelity and in error metrics. 
 
