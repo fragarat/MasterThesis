@@ -12,7 +12,7 @@ $$\sum_{i=1}^k \underbrace{\norm{\hat{\mathbf{q}}_\text{true}(t_i)-\tilde{\mathb
 \quad \overset{\text{interp.}}{\longrightarrow} \quad  
 \int_0^T \underbrace{\norm{\hat{\mathbf{q}}_\text{true}(t)-\tilde{\mathbf{q}}(t,\hat{\bm\theta})}_2^2}_{g(\tilde{\mathbf{q}}(t,\hat{\bm\theta}),t)} \dd t,
 $$
-where $\tilde{\mathbf{q}}(t,\hat{\bm\theta})$ represents the predicted trajectory according to our dynamical model.
+where $\tilde{\mathbf{q}}(t,\hat{\bm\theta})$ denotes the reduced predicted trajectory produced by our dynamical model (i.e.\ the solution of \eqref{eq:redopinf}). Since $\tilde{\mathbf{q}}(t,\hat{\bm\theta})$ is generated from the discrete “ground-truth” snapshots $\{\mathbf{q}_{\mathrm{true}}(t_i)\}$, we need only interpolate those $\mathbf{q}_{\mathrm{true}}(t_i)$ values in time.
 
 To avoid explicit differentiation as in the classical OpInf approach, we introduce a continuous-time loss functional that compares a trajectory reconstructed by integrating the learned operators against the observed data in an $L^2$ sense.
 
@@ -20,10 +20,10 @@ To avoid explicit differentiation as in the classical OpInf approach, we introdu
     \label{def:continuous_loss}
     Consider the right-hand side of the reduced system, i.e., $\hat{\mathbf{f}}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})$, as in \eqref{eq:redopinf}, for a given input $\mathbf{u}(t)$, over the time domain $\mathcal{T}=[0,T]$. Let $\hat{\mathbf{q}}\in\mathcal{C}^1(\mathcal{T})^r$ be the reduced trajectory and $[\hat{\mathbf{c}}~\hat{\mathbf{A}}~\hat{\mathbf{H}}~\hat{\mathbf{B}}]=\hat{\bm{\theta}}\in\mathbb{R}^d$ the vector of all reduced operators, with $d=r+r^2+r^3+rm$ parameters. We define the continuous-time training loss functional $\ell(\hat{\mathbf{q}}(t))$ as the discrepancy between the observed and the predicted data, i.e.,\\
     \begin{equation}
-        \ell: \mathcal{C}^1(\mathcal{T})^r  \to \mathbb{R}\,,\quad \hat{\mathbf{q}}(\cdot) \mapsto \int_0^T \Big\|\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_\mathrm{true}(t)\Big\|_2^2~\dd t,
+        \ell: \mathcal{C}^1(\mathcal{T})^r  \to \mathbb{R}\,,\quad \hat{\mathbf{q}}(\cdot) \mapsto \int_0^T \Big\|\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_\mathrm{true}(t)\Big\|_2^2~\dd t = \int_0^Tg(\hat{\mathbf{q}}(t),t)~\dd t,
         \label{eq:continuous_loss}
     \end{equation}
-    with $g(\hat{\mathbf{q}}(t),t) \coloneqq \Big\|\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_\mathrm{true}(t)\Big\|_2^2$. We define the reduced loss functional as\\ 
+    where $g(\hat{\mathbf{q}}(t),t) \coloneqq \Big\|\hat{\mathbf{q}}(t) - \hat{\mathbf{q}}_\mathrm{true}(t)\Big\|_2^2$. We define the reduced loss functional as\\ 
     \begin{equation}
         \tilde{\ell}: \mathbb{R}^d  \to \mathbb{R}\,,\quad \hat{\bm{\theta}} \mapsto \int_0^T \norm{\tilde{\mathbf{q}}(t,\hat{\bm{\theta}}) - \hat{\mathbf{q}}_\mathrm{true}(t)}_2^2~\dd t,
         \label{eq:continuous_reduced_loss}
@@ -42,7 +42,7 @@ To avoid explicit differentiation as in the classical OpInf approach, we introdu
 Note that $\tilde{\ell}(\hat{\bm{\theta}}) = \ell(\tilde{\mathbf{q}}(\cdot,\hat{\bm{\theta}}))$ since $\tilde{\mathbf{q}}$ satisfies the reduced-order governing equation \eqref{eq:ODE_IC}.
 %$$\tilde{\mathbf{q}}(t, \hat{\bm{\theta}}) = \tilde{\mathbf{q}}(0) + \displaystyle\int_{0}^t\left[ \hat{\mathbf{c}} + \hat{\mathbf{A}}\tilde{\mathbf{q}}(\tau) + \hat{\mathbf{H}}\left(\tilde{\mathbf{q}}(\tau)\otimes\tilde{\mathbf{q}}(\tau) \right) +\hat{\mathbf{B}}\mathbf{u}(\tau) \right]\dd \tau.$$
 
-Based on the reduced loss functional \eqref{eq:continuous_reduced_loss} that considers the time integral of the RHS of our dynamical system, the learning task is to find\\
+Based on the reduced loss functional \eqref{eq:continuous_reduced_loss} that considers the time integral of the RHS of our reduced dynamical system, the learning task is to find\\
 \begin{equation}
   \hat{\bm{\theta}}^*
   \;=\;
@@ -94,7 +94,6 @@ Directly computing this sensitivity $\mathrm{d} \tilde{\mathbf{q}}/\mathrm{d} \h
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\newpage
 
 \section{The Adjoint-State Equations}
 \label{sec:adjoint_eqs}
@@ -215,16 +214,16 @@ We now consider the previously stated OpInf quadratic form in \eqref{eq:fompoly}
 $$\boldsymbol{c}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}}) \coloneqq \dot{\hat{\mathbf{q}}}(t) - \hat{\mathbf{c}} - \hat{\mathbf{A}}\hat{\mathbf{q}}(t) - \hat{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \hat{\mathbf{q}}(t)] - \hat{\mathbf{B}}\mathbf{u}.$$
 Here, $\hat{\mathbf{H}}\in \mathbb{R}^{r\times r^2}$ is Kronecker-symmetric, i.e., $\hat{\mathbf{H}}[\hat{\mathbf{q}}\otimes \mathbf{v}] = \hat{\mathbf{H}}[\mathbf{v}\otimes \hat{\mathbf{q}}]$. Then, the Lagrangian (objective - adjoint $\times$ constraint - adjoint(0) $\times$ initial condition) can be rewritten as\\
 \begin{align*}
-    \mathscr{L}(\hat{\mathbf{q}}, \bm{\lambda}; \hat{\bm{\theta}}) &= \ell(\hat{\mathbf{q}}(t)) - \int_0^T \bm{\lambda}(t)^{\top}\boldsymbol{c}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})~\mathrm{d}t - \bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0)\\
+    \mathscr{L}(\hat{\mathbf{q}}(\cdot),\hat{\bm{\theta}},\bm{\lambda}(\cdot)) &= \ell(\hat{\mathbf{q}}(\cdot)) - \int_0^T \bm{\lambda}(t)^{\top}\boldsymbol{c}(\hat{\mathbf{q}}(t),\hat{\bm{\theta}})~\mathrm{d}t - \bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0)\\
     &= \int_0^T g\bigl(\hat{\mathbf{q}}(t),t \bigl)~\mathrm{d}t \\
-    &- \int_0^T \bm{\lambda}(t)^{\top}\bigl(\dot{\hat{\mathbf{q}}}(t) - \hat{\mathbf{c}} - \hat{\mathbf{A}}\hat{\mathbf{q}}(t) - \hat{\mathbf{H}}(\hat{\mathbf{q}}(t)\otimes \hat{\mathbf{q}}(t)) - \hat{\mathbf{B}}\mathbf{u}\bigr)~\mathrm{d}t \\
+    &- \int_0^T \bm{\lambda}(t)^{\top}\bigl(\dot{\hat{\mathbf{q}}}(t) - \hat{\mathbf{c}} - \hat{\mathbf{A}}\hat{\mathbf{q}}(t) - \hat{\mathbf{H}}(\hat{\mathbf{q}}(t)\otimes \hat{\mathbf{q}}(t)) - \hat{\mathbf{B}}\mathbf{u}(t)\bigr)~\mathrm{d}t \\
     &-\bm{\lambda}(0)^{\top}(\hat{\mathbf{q}}(0)-\hat{\mathbf{q}}_0),
 \end{align*}
-where the adjoint variable $\bm{\lambda}\in\mathcal{C}^1(\mathcal{T})^r$ has the same size as the state variable $\hat{\mathbf{q}}$. The adjoint equation for $\bm{\lambda}(t)$ is derived by setting\\
-$$ \bm{D}_{\hat{\mathbf{q}}} \mathscr{L}(\hat{\mathbf{q}},\bm{\lambda,\hat{\bm{\theta}}};\mathbf{v}) = \dv{}{\varepsilon}[\mathscr{L}(\hat{\mathbf{q}}+\varepsilon \mathbf{v},\bm{\lambda,\hat{\bm{\theta}}})]_{\varepsilon=0} = \bm{0}~~~\forall~\mathbf{v}\in\mathcal{C}^1(\mathcal{T})^r,$$a directional (Gâteaux) derivative. Noting first that\\
+where the adjoint variable $\bm{\lambda}\in\mathcal{C}^1(\mathcal{T})^r$ has the same dimension as the state variable $\hat{\mathbf{q}}(\cdot)$. The adjoint equation for $\bm{\lambda}(\cdot)$ is derived by setting\\
+$$ \bm{D}_{\hat{\mathbf{q}}} \mathscr{L}(\hat{\mathbf{q}},\hat{\bm{\theta}},\bm{\lambda};\mathbf{v}) = \dv{}{\varepsilon}[\mathscr{L}(\hat{\mathbf{q}}+\varepsilon \mathbf{v},\bm{\lambda,\hat{\bm{\theta}}})]_{\varepsilon=0} = \bm{0}~~~\forall~\mathbf{v}\in\mathcal{C}^1(\mathcal{T})^r,$$a directional (Gâteaux) derivative. Noting first that\\
 \begin{align*}
-    \dv{}{\varepsilon}[\mathcal{\ell}(\hat{\mathbf{q}}+\varepsilon \mathbf{v},\hat{\bm{\theta}})]_{\varepsilon=0} &= \int_0^T \dv{}{\varepsilon}[g(\hat{\mathbf{q}}(t)+\varepsilon \mathbf{v}(t),t)]_{\varepsilon=0}~\mathrm{d}t = \int_0^T \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t)^{\top}\mathbf{v}(t)~\mathrm{d}t,\\
-    \dv{}{\varepsilon}[\boldsymbol{c}(\hat{\mathbf{q}}+\varepsilon \mathbf{v},\hat{\bm{\theta}})]_{\varepsilon=0} &= \dot{\mathbf{v}}(t) - \hat{\mathbf{A}}\mathbf{v}(t) - 2\hat{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \mathbf{v}(t)],
+    \dv{}{\varepsilon}[\mathcal{\ell}(\hat{\mathbf{q}}+\varepsilon \mathbf{v},\hat{\bm{\theta}})]_{\varepsilon=0} &= \int_0^T \dv{}{\varepsilon}[g(\hat{\mathbf{q}}+\varepsilon \mathbf{v},t)]_{\varepsilon=0}~\mathrm{d}t = \int_0^T \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}},t)^{\top}\mathbf{v}~\mathrm{d}t,\\
+    \dv{}{\varepsilon}[\boldsymbol{c}(\hat{\mathbf{q}}+\varepsilon \mathbf{v},\hat{\bm{\theta}})]_{\varepsilon=0} &= \dot{\mathbf{v}} - \hat{\mathbf{A}}\mathbf{v} - 2\hat{\mathbf{H}}[\hat{\mathbf{q}}\otimes \mathbf{v}],
 \end{align*}
 the adjoint equations are given by\\
 \begin{align*}
@@ -246,7 +245,7 @@ Since $\mathbf{v}$ is arbitrary, we recognize the above expression as a weak for
 \begin{equation*}
     -\dot{\bm{\lambda}}(t) = \hat{\mathbf{A}}^{\top} \bm{\lambda}(t) + 2\tilde{\mathbf{H}}[\hat{\mathbf{q}}(t)\otimes \bm{\lambda}(t)] + \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t),~~~\bm{\lambda}(T)=\bm{0},\quad t\in [0,T].
 \end{equation*}
-This linear (but non-autonomous) system can be solved with `backward time-integration' given a trajectory $\hat{\mathbf{q}}(t)$. The system can be written in a more clearly linear form (with respect to $\bm{\lambda}(t)$) as\\
+This linear (but non-autonomous) system can be solved with `backward time-integration' given a trajectory $\hat{\mathbf{q}}(t)$. The system can be written in a clearer linear form (with respect to $\bm{\lambda}(t)$) as\\
 \begin{align}
     \label{eq:gradient_fq}
      \dot{\bm{\lambda}}(t) &= -\left(\hat{\mathbf{A}}^{\top} + 2\mathbf{M}(\hat{\mathbf{q}}(t))\right)\bm{\lambda}(t) - \nabla_{\hat{\mathbf{q}}}~g(\hat{\mathbf{q}}(t),t),\notag\\
@@ -264,7 +263,7 @@ We defer the computation of $\nabla_{\hat{\mathbf{q}}}~g$, along with the remain
 %%%%%%
 
 \subsection*{Alternative Proof (Sensitivity Analysis of the Primal Problem)}
-An alternative approach to proving Theorem \ref{thm:adjoint_method}, proposed by Prof. Mengwu Guo, yields the following proof. We include it here as it offers additional insight into the problem.
+An alternative approach to proving Theorem \ref{thm:adjoint_method}, proposed by the thesis supervisor, yields the following proof. We include it here as it offers additional insight into the problem.
 
 We start from the \emph{primal} sensitivity equations for the state solution $\tilde{\mathbf{q}}(t,\hat{\bm{\theta}})$ and parameters $\hat{\theta}_i$ for $i=1,\dots,d$:\\
 $$\dot{\tilde{\mathbf{q}}}(t)
@@ -366,19 +365,19 @@ $$\dot{\bm{\lambda}}(t)
 \end{remark}
 %%%%%%
 
-\subsection*{Theoretical Validation}
+\subsection*{Theoretical and Empirical Validation}
 
 One question that arises at this point is whether the solution provided by the adjoint method $\bm{\lambda}(t)$, obtained by solving the backward propagation ODE, is indeed correct and reliable for guiding the optimization of $\hat{\bm{\theta}}$. To address this, we present both theoretical and possible empirical verification arguments in support of the adjoint approach.
 
-The correctness of the adjoint method follows from three fundamental principles of mathematical optimization:
+The exactness (up to numerical precision) of the computed loss gradient through the adjoint method follows from three fundamental principles of mathematical optimization:
 
 \begin{itemize}
     \item \textbf{Optimality Conditions.}  The adjoint equations emerge directly from the Karush-Kuhn-Tucker (KKT) conditions for constrained optimization \cite{nocedal1999numerical}. By forming the Lagrangian as in \eqref{eq:lagrange_cost},
   the first-order stationarity conditions with respect to~$\hat{\mathbf{q}}$ yield the adjoint ODE that ensures the computed gradients respect the dynamical constraints.
     
-    \item \textbf{Duality}: The adjoint variable $\bm{\lambda}(t)$ has a fundamental interpretation as sensitivity measure. Specifically, it quantifies how perturbations in the state vector $\hat{\mathbf{q}}(t)$ propagate through the system to affect the final loss. This duality perspective aligns with reverse-mode automatic differentiation in machine learning \cite{chen2018neural}, where gradients flow backward through computational graphs.
+    \item \textbf{Duality}: The adjoint variable $\bm{\lambda}(t)$ has a fundamental interpretation as a sensitivity measure. Specifically, it quantifies how perturbations in the state vector $\hat{\mathbf{q}}(t)$ propagate through the system to affect the final loss. This duality perspective aligns with reverse-mode automatic differentiation in machine learning \cite{chen2018neural}, where gradients flow backward through computational graphs.
 
-    \item \textbf{Consistency with Pontryagin's Maximum Principle.}  Defining the Hamiltonian\\
+    \item \textbf{Consistency with Pontryagin's Maximum Principle.}  Defining the Hamiltonian of the optimal-control problem\\
   $$\mathcal{H}(\hat{\mathbf{q}}, \bm{\lambda}, \hat{\bm{\theta}}) 
       = \bm{\lambda}^\top \hat{\mathbf{f}}(\hat{\mathbf{q}}, \hat{\bm{\theta}}) 
       + g(\hat{\mathbf{q}}, t),$$
@@ -389,7 +388,7 @@ The correctness of the adjoint method follows from three fundamental principles 
   The adjoint method exactly recovers these necessary conditions for optimality in control theory \cite{liberzon2011calculus}.
 \end{itemize}
 
-In conclusion, the adjoint method computes the costate $\bm{\lambda}(t)$ by rigorously enforcing the first-order optimality conditions of the Lagrangian in a dynamical setting. Its theoretical basis in the Karush-Kuhn-Tucker framework, duality interpretation, and alignment with Pontryagin's principle ensures that the resulting gradients are exact up to numerical precision. Coupled with empirical validation strategies such as finite-difference gradient checking, convergence monitoring, and assessment of physical plausibility, the adjoint method provides a reliable and accurate mechanism for optimizing parameters in dynamical systems.
+In conclusion, the adjoint method computes the costate or adjoint variable $\bm{\lambda}(t)$ by rigorously enforcing the first-order optimality conditions of the Lagrangian in a dynamical setting. Its theoretical basis in the Karush-Kuhn-Tucker framework, duality interpretation, and alignment with Pontryagin's principle ensures that the resulting gradients are exact up to numerical precision. Coupled with empirical validation strategies such as finite-difference gradient checking, convergence monitoring, and assessment of physical plausibility, the adjoint method provides a reliable and accurate mechanism for optimizing parameters in dynamical systems.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -414,7 +413,7 @@ To compute the derivative of $\hat{\mathbf{f}}$ with respect to $\hat{\mathbf{q}
 $$
 \bm{D}_{\hat{\mathbf{q}}}~\hat{\mathbf{f}}(\hat{\mathbf{q}}, \hat{\bm{\theta}}; \mathbf{v}) = \bm{D}_{\hat{\mathbf{q}}}~\hat{\mathbf{f}}[\mathbf{v}] = \lim_{\varepsilon \to 0} \frac{\hat{\mathbf{f}}(\hat{\mathbf{q}} + \varepsilon \mathbf{v}, \hat{\bm{\theta}}) - \hat{\mathbf{f}}(\hat{\mathbf{q}}, \hat{\bm{\theta}})}{\varepsilon} = \dv{}{\varepsilon} \left[ \hat{\mathbf{f}}(\hat{\mathbf{q}} + \varepsilon \mathbf{v}, \hat{\bm{\theta}}) \right]_{\varepsilon = 0}.
 $$
-Expanding the function $\hat{\mathbf{f}}$ at $\hat{\mathbf{q}} + \varepsilon \mathbf{v}$, we obtain:\\
+We have:\\
 $$
 \hat{\mathbf{f}}(\hat{\mathbf{q}} + \varepsilon \mathbf{v}, \hat{\bm{\theta}}) = \hat{\mathbf{c}} + \hat{\mathbf{A}}(\hat{\mathbf{q}} + \varepsilon \mathbf{v}) + \hat{\mathbf{H}}\bigl( (\hat{\mathbf{q}} + \varepsilon \mathbf{v}) \otimes (\hat{\mathbf{q}} + \varepsilon \mathbf{v}) \bigr) + \hat{\mathbf{B}}\mathbf{u}.
 $$
@@ -517,7 +516,7 @@ Thus, collecting all four transposed blocks, the expression for the gradient yie
 \section{Gradient Descent for Parameter Optimization}
 \label{sec:gd_opt}
 
-Having obtained the gradient of the reduced loss functional $\tilde\ell(\hat{\bm\theta})$ via the adjoint method, we proceed to minimize $\tilde\ell$ over $\hat{\bm\theta}\in\mathbb{R}^d$ using the gradient descent (GD) algorithm \cite{ruder2017overviewgradientdescentoptimization,SENGUPTA2014521}.  Concretely, starting from an initial parameter vector $\hat{\bm\theta}^0$, we generate a sequence $\{\hat{\bm\theta}^j\}_{j\ge0}$ by iteratively stepping against the gradient:\\
+Having obtained the gradient of the reduced loss functional $\tilde\ell(\hat{\bm\theta})$ via the adjoint method, we proceed to minimize $\tilde\ell$ over $\hat{\bm\theta}\in\mathbb{R}^d$ using the gradient descent (GD) algorithm \cite{ruder2017overviewgradientdescentoptimization,SENGUPTA2014521}.  Concretely, starting from an initial parameter vector $\hat{\bm\theta}^0$, we generate a sequence $\{\hat{\bm\theta}^j\}_{j\ge0}$ by iteratively updating the parameters in the direction of the negative gradient (descent direction):\\
 \begin{equation}
     \hat{\bm\theta}^{j+1}
     = \hat{\bm\theta}^j
@@ -625,14 +624,14 @@ $$\hat{\bm\theta}^{j+1} = \hat{\bm\theta}^j - \eta_j\,\mathscr{G}^j\,.$$
 \end{minipage}
 \end{center}
 
-For large-scale or stochastic settings, variants such as Stochastic Gradient Descent (SGD) are often preferred \cite{ruder2017overviewgradientdescentoptimization} due to their lower memory requirements and computational cost. However, for smaller datasets, as in the experiments discussed later, Gradient Descent is favored for its higher precision. Although GD with an Armijo line search in non-convex problems, such as the constrained minimization problem we consider, only guarantees convergence to some stationary point, in our approach we warm-start GD from the Operator Inference solution. Since this guess already lies near a high-quality minimum, GD will converge fast and is less likely to fall into suboptimal stationary points.
+For large-scale or stochastic settings, variants such as Stochastic Gradient Descent (SGD) are often preferred \cite{ruder2017overviewgradientdescentoptimization} due to their lower memory requirements and computational cost. However, for smaller datasets, as in the experiments discussed later, Gradient Descent is favored for its higher precision. Although GD with an Armijo line search in non-convex problems, such as the constrained minimization problem we consider, only guarantees convergence to some stationary point, in our approach we warm-start GD from the Operator Inference solution by solving a regression problem as in \eqref{eq:lst_opinf}. Since this guess already lies near a high-quality minimum, GD will converge fast and is less likely to fall into suboptimal stationary points.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Adjoint Method Algorithm}
 
-Down below, we present a complete adjoint-based training algorithm that integrates data preprocessing, reduced-order modeling, and gradient-based parameter refinement. Algorithm~\ref{algorithm_2} summarizes the workflow: after collecting and optionally preprocessing the full-order data, we obtain an initial parameter guess via Operator Inference \cite{opinf2025}, then iteratively solve the forward and adjoint equations to compute gradients and perform backtracking gradient descent until convergence.
+Down below, we present a complete adjoint-based training algorithm that integrates data preprocessing, reduced-order modeling, and gradient-based parameter refinement. Algorithm~\ref{algorithm_2} summarizes the workflow derived from the previous sections: after collecting and optionally preprocessing the full-order data, we obtain an initial parameter guess via Operator Inference \cite{opinf2025}, then iteratively solve the forward and adjoint equations to compute gradients and perform backtracking gradient descent until convergence.
 
 %% Final Adjoint Method Algorithm
 \begin{center}

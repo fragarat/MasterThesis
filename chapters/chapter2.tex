@@ -183,7 +183,7 @@ In practice, it is also common to include a regularization term to the training 
 Operator Inference offers several distinct advantages over traditional model reduction approaches:
 \begin{itemize}
     \item \textbf{Non-intrusive}: Requires only solution snapshots rather than explicit access to full-order model operators.
-    \item \textbf{Physics-aware}: Galerkin projection preserves the structure of the full-order governing equations through polynomial parameterization for the reduced system.
+    \item \textbf{Physics-aware}: Galerkin projection preserves the polynomial structure of the full-order governing equations in the reduced system. Indeed, a term-by-term comparison of \eqref{eq:fompoly} and \eqref{eq:redopinf} confirms this one-to-one correspondence.
     \item \textbf{Computationally efficient}: Avoids expensive high-dimensional operations through dimensionality reduction.  
 \end{itemize}
 
