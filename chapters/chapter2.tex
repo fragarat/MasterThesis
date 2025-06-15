@@ -77,7 +77,7 @@ The selection of the truncation dimension $r$ is typically based on the relative
 \end{equation}
 where $\epsilon_{\text{POD}} > 0$ is a prescribed tolerance and $\sigma_i$ denotes the $i$th singular value of $\mathbf{Q}$. The optimality of the POD basis is characterized by the projection error:\\
 \begin{equation}
-    \sum_{i=1}^k\left[\left\|\mathbf{q}(t_i) - \mathbf{V}_r^{}\mathbf{V}_r^\top\mathbf{q}(t_i)\right\|_2^2\right] = \sum_{i=r+1}^k \sigma_i^2,
+    \sum_{i=1}^k\left\|\mathbf{q}(t_i) - \mathbf{V}_r^{}\mathbf{V}_r^\top\mathbf{q}(t_i)\right\|_2^2 = \sum_{i=r+1}^k \sigma_i^2,
     \label{eq:pod_error}
 \end{equation}
 which is minimized among all rank-$r$ orthonormal bases.
@@ -154,7 +154,7 @@ At its essence, OpInf assumes a polynomial form for the reduced dynamics in the 
     where $r\ll n$ is chosen based on singular-value decay or an energy threshold. Then, for each snapshot,\\
     \[
         \hat{\mathbf{q}}(t_i) \;=\; \mathbf{V}^{\top}\,\mathbf{q}(t_i)\;\in\mathbb{R}^r,\quad
-        \dot{\hat{\mathbf{q}}}(t_i)\;\approx\;\mathbf{V}^{\top}\,\dot{\mathbf{q}}(t_i)\;\in\mathbb{R}^r.
+        \dot{\hat{\mathbf{q}}}(t_i)\;=\;\mathbf{V}^{\top}\,\dot{\mathbf{q}}(t_i)\;\in\mathbb{R}^r.
     \]
 
     \item \textbf{Assume a reduced-order form and formulate a regression (least-squares) problem.} Prescribe a structure for the $r$-dimensional ODE. A common choice is constant + linear + quadratic + control terms, so we define the discrete training loss\\
@@ -172,7 +172,7 @@ Finally, OpInf identifies the reduced operators by solving the following least-s
 
 The use of polynomial parametrizations in Operator Inference is motivated by the fact that many projection-based reduced-order models (ROMs) of PDEs naturally take a polynomial form. For instance, the semi-discretization of the viscous Burgers' equation typically leads to a full-order ODE system with quadratic nonlinearities. A subsequent Galerkin projection onto a proper orthogonal decomposition (POD) basis then yields a reduced quadratic system.
 
-In non-intrusive model reduction, however, we do not compute reduced operators via Galerkin projection, as this would require access to the internals of the full-order solver. Instead, the reduced operators are inferred directly from data. This approach assumes that the training data reflect a polynomial structure compatible with the chosen model form.
+In non-intrusive model reductions, such as OpInf, we do not compute reduced operators via Galerkin projection, as this would require access to the internals of the full-order solver. Instead, the reduced operators are inferred directly from data. This approach assumes that the training data reflect a polynomial structure compatible with the chosen model form.
 
 When the original system involves nonpolynomial nonlinearities, this assumption may fail, leading to poor model performance. In such cases, a lifting transformation can be applied to rewrite the system in a higher-dimensional space where the dynamics exhibit a polynomial structure. These lifting maps, which often introduce auxiliary variables, enable Operator Inference to approximate the system more accurately by aligning the data with the polynomial model structure.
 
