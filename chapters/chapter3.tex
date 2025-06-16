@@ -263,7 +263,7 @@ We defer the computation of $\nabla_{\hat{\mathbf{q}}}~g$, along with the remain
 %%%%%%
 
 \subsection*{Alternative Proof (Sensitivity Analysis of the Primal Problem)}
-An alternative approach to proving Theorem \ref{thm:adjoint_method}, proposed by my thesis supervisor, Professor Mengwu Guo, yields the following proof. We include it here as it offers additional insight into the problem.
+An alternative approach to proving Theorem \ref{thm:adjoint_method}, proposed by the thesis supervisor,  yields the following proof. We include it here as it offers additional insight into the problem.
 
 We start from the \emph{primal} sensitivity equations for the state solution $\tilde{\mathbf{q}}(t,\hat{\bm{\theta}})$ and parameters $\hat{\theta}_i$ for $i=1,\dots,d$:\\
 $$\dot{\tilde{\mathbf{q}}}(t)
@@ -547,8 +547,8 @@ A differentiable function $\mathcal{J}: \mathbb{R}^p \to \mathbb{R}$ is said to 
 \begin{equation} \label{eq:L_smoothness}
     \| \nabla \mathcal{J}(\bm{\omega}) - \nabla \mathcal{J}(\bm{\tilde{\omega}}) \|_2 \leq L \| \bm{\omega} - \bm{\tilde{\omega}} \|_2.
 \end{equation}
-This condition ensures that the gradient of $\mathcal{J}$ is Lipschitz continuous with constant $L$.
 \end{definition}
+Equation~\eqref{eq:L_smoothness} states that the gradient of $\mathcal{J}$ is Lipschitz continuous with constant~$L$.
 \begin{definition}[$\mu$-strongly convex function]
 A function $\mathcal{J}: \mathbb{R}^p \to \mathbb{R}$ is said to be $\mu$-strongly convex if there exists a constant $\mu > 0$ such that for all $\bm\omega, \bm{\tilde{\omega}} \in \mathbb{R}^p$,\\
 \begin{equation} \label{eq:mu_strong_convexity}
