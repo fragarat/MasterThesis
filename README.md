@@ -16,7 +16,6 @@ MasterThesis/
 ├── luthesis.cls # LU style file
 ├── references.bib # Bibliography (BibTeX)
 └── README.md # This file
-```EADME.md # This file
 ```
 
 
