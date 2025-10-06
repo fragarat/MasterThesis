@@ -10,7 +10,7 @@ MasterThesis/
 ├── figures/ # Images and figures used in the thesis
 ├── fonts/ # Fonts
 ├── logos/ # Custom LaTeX style files (e.g. thesis.cls)
-├── master_thesis.tex # Main LaTeX file that compiles the thesis
+├── msc_thesis.tex # Main LaTeX file that compiles the thesis
 ├── preamble.tex # LaTex packages used in the thesis
 ├── cross_references.tex # Cross references used in the thesis
 ├── luthesis.cls # LU style file
