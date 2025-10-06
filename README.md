@@ -6,6 +6,7 @@ This repository contains all the source files, data, and documentation for my Ma
 ```text
 MasterThesis/
 ├── chapters/ # Individual thesis chapters (e.g. introduction, methods)
+├── code/ # Code files
 ├── covers/ # Covers for LU
 ├── figures/ # Images and figures used in the thesis
 ├── fonts/ # Fonts
