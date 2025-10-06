@@ -6,14 +6,17 @@ This repository contains all the source files, data, and documentation for my Ma
 ```text
 MasterThesis/
 ├── chapters/ # Individual thesis chapters (e.g. introduction, methods)
+├── covers/ # Covers for LU
 ├── figures/ # Images and figures used in the thesis
-├── tables/ # Tables and data tables
-├── style/ # Custom LaTeX style files (e.g. thesis.cls)
-├── appendices/ # Appendices and supplementary materials
-├── main.tex # Main LaTeX file that compiles the thesis
+├── fonts/ # Fonts
+├── logos/ # Custom LaTeX style files (e.g. thesis.cls)
+├── master_thesis.tex # Main LaTeX file that compiles the thesis
+├── preamble.tex # LaTex packages used in the thesis
+├── cross_references.tex # Cross references used in the thesis
+├── luthesis.cls # LU style file
 ├── references.bib # Bibliography (BibTeX)
-├── data/ # Raw and processed data used for analysis
 └── README.md # This file
+```EADME.md # This file
 ```
 
 
